@@ -1,0 +1,46 @@
+
+{
+  "rule": {
+    "-id": "BED_ENGLISH",
+    "-name": "Possible typo 'bed/bat(bad) English/...'",
+    "pattern": {
+      "marker": {
+        "token": {
+          "-regexp": "yes",
+          "#text": "bed|bat"
+        }
+      },
+      "token": {
+        "-regexp": "yes",
+        "#text": "English|attitude"
+      }
+    },
+    "message": {
+      "#text": [
+        "Did you mean ",
+        "?"
+      ],
+      "suggestion": "bad"
+    },
+    "url": "http://some-server.org/the-bed-bad-error",
+    "example": [
+      {
+        "-type": "correct",
+        "#text": [
+          "Sorry for my ",
+          " English."
+        ],
+        "marker": "bad"
+      },
+      {
+        "-correction": "bad",
+        "-type": "incorrect",
+        "#text": [
+          "Sorry for my ",
+          " English."
+        ],
+        "marker": "bed"
+      }
+    ]
+  }
+}

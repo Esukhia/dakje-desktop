@@ -1,0 +1,75 @@
+### Version of SylComponents that is much simpler in its implementation, (thanks to Élie Roux)
+# but still suffers from wrong outputs, like dag where dg would be awaited.
+
+def search(List, len_list, entry):
+    index = bisect_left(List, entry, 0, len_list)
+    return(True if index != len_list and List[index] == entry else False)
+
+class SylComponents:
+    '''
+    takes a syllable as input
+    outputs:
+        (prefix+main-stack, vowel+suffixes)
+        (exceptions, x) 
+        a list of solutions if there is more than one
+        None if the syllable is not wellformed
+    '''
+
+    def __init__(self):
+        # roots is an import from root + rareC and wazurC and suffixes is the 'AB' entry from  suffixes.json
+        # all dicts from https://github.com/eroux/tibetan-spellchecker/tree/master/syllables
+        Aroots  = ['ཀ', 'ཀྱ', 'ཀྲ', 'ཀླ', 'ཁ', 'ཁྱ', 'ཁྲ', 'ག', 'གཏྲ', 'གྱ', 'གྲ', 'གླ', 'ང', 'ཅ', 'ཆ', 'ཇ', 'ཉ', 'ཏ', 'ཏྲ', 'ཐ', 'ཐྲ', 'ད', 'དཀྱ', 'དཀྲ', 'དཀླ', 'དགྱ', 'དགྲ', 'དཔྱ', 'དཔྲ', 'དབྱ', 'དབྲ', 'དམྱ', 'དམྲ', 'དྲ', 'ན', 'པ', 'པྱ', 'པྲ', 'ཕ', 'ཕྱ', 'ཕྲ', 'བ', 'བཀྱ', 'བཀྲ', 'བཀླ', 'བགྱ', 'བགྲ', 'བཏྲ', 'བཟླ', 'བརྐ', 'བརྐྱ', 'བརྒ', 'བརྒྱ', 'བརྔ', 'བརྗ', 'བརྙ', 'བརྟ', 'བརྡ', 'བརྣ', 'བརྩ', 'བརྫ', 'བརླ', 'བལྟ', 'བལྡ', 'བསྐ', 'བསྐྱ', 'བསྐྲ', 'བསྒ', 'བསྒྱ', 'བསྒྲ', 'བསྔ', 'བསྙ', 'བསྟ', 'བསྡ', 'བསྣ', 'བསྩ', 'བསྲ', 'བསླ', 'བྱ', 'བྲ', 'བླ', 'མ', 'མཁྱ', 'མཁྲ', 'མགྱ', 'མགྲ', 'མྱ', 'མྲ', 'ཙ', 'ཚ', 'ཛ', 'ཝ', 'ཞ', 'ཟ', 'ཟླ', 'འ', 'འཁྱ', 'འཁྲ', 'འགྱ', 'འགྲ', 'འདྲ', 'འཕྱ', 'འཕྲ', 'འབྱ', 'འབྲ', 'ཡ', 'ར', 'རྐ', 'རྐྱ', 'རྒ', 'རྒྱ', 'རྔ', 'རྗ', 'རྙ', 'རྟ', 'རྡ', 'རྣ', 'རྦ', 'རྨ', 'རྨྱ', 'རྩ', 'རྫ', 'རླ', 'ལ', 'ལྐ', 'ལྒ', 'ལྔ', 'ལྕ', 'ལྗ', 'ལྟ', 'ལྡ', 'ལྤ', 'ལྦ', 'ལྷ', 'ཤ', 'ས', 'སྐ', 'སྐྱ', 'སྐྲ', 'སྒ', 'སྒྱ', 'སྒྲ', 'སྔ', 'སྙ', 'སྟ', 'སྡ', 'སྣ', 'སྣྲ', 'སྤ', 'སྤྱ', 'སྤྲ', 'སྦ', 'སྦྱ', 'སྦྲ', 'སྨ', 'སྨྱ', 'སྨྲ', 'སྩ', 'སྲ', 'སླ', 'ཧ', 'ཧྲ', 'ཨ']
+        NBroots = ['གཅ', 'གཉ', 'གཏ', 'གད', 'གན', 'གཙ', 'གཞ', 'གཟ', 'གཡ', 'གཤ', 'གས', 'དཀ', 'དག', 'དང', 'དཔ', 'དབ', 'དམ', 'བཀ', 'བག', 'བཅ', 'བཏ', 'བད', 'བཙ', 'བཞ', 'བཟ', 'བཤ', 'བས', 'མཁ', 'མག', 'མང', 'མཆ', 'མཇ', 'མཉ', 'མཐ', 'མད', 'མན', 'མཚ', 'མཛ', 'འཁ', 'འག', 'འཆ', 'འཇ', 'འཐ', 'འད', 'འཕ', 'འབ', 'འཚ', 'འཛ']
+        Croots  = ['ཀའུ', 'ཀིའུ', 'ཀེའུ', 'ཀོའུ', 'ཀྭ', 'ཀྭའི', 'ཀྲུའུ', 'ཁེའུ', 'ཁྭ', 'ཁྱིའུ', 'ཁྱེའུ', 'ཁྲིའུ', 'ཁྲུའུ', 'ཁྲེའུ', 'གཅིའུ', 'གཅེའུ', 'གཏེའུ', 'གཙེའུ', 'གཞུའུ', 'གའུ', 'གཡིའུ', 'གྭ', 'གྲིའུ', 'གྲེའུ', 'གྲྭ', 'གླེའུ', 'ཉེའུ', 'ཉྭ', 'ཏེའུ', 'ཐིའུ', 'ཐུའུ', 'ཐེའུ', 'ཐོའུ', 'དཔེའུ', 'དུའུ', 'དེའུ', 'དྭ', 'དྭོ', 'དྲེའུ', 'དྲྭ', 'ནའུ', 'ནེའུ', 'ནོའུ', 'པདྨ', 'ཕེའུ', 'ཕྱྭ', 'ཕྲའུ', 'ཕྲེའུ', 'བསེའུ', 'བསྭ', 'བསྭོ', 'བེའུ', 'བྱའུ', 'བྱིའུ', 'བྱེའུ', 'བྲའུ', 'བྲའོ', 'བྲེའུ', 'བྲོའུ', 'མཐེའུ', 'མདེའུ', 'མཚེའུ', 'མིའུ', 'མུའུ', 'མོའུ', 'མྱིའུ', 'ཙིའུ', 'ཙེའུ', 'ཚའུ', 'ཚུའུ', 'ཚེའུ', 'ཚྭ', 'ཞྭ', 'ཟེའུ', 'ཟྭ', 'འགིའུ', 'འགོའུ', 'འཕེའུ', 'འབེའུ', 'ཡེའུ', 'རེའུ', 'རྒེའུ', 'རྔེའུ', 'རྗེའུ', 'རྟའུ', 'རྟེའུ', 'རྡེའུ', 'རྨེའུ', 'རྩེའུ', 'རྩྭ', 'རྫིའུ', 'རྫེའུ', 'རྭ', 'ལའུ', 'ལིའུ', 'ལེའུ', 'ལོའུ', 'ལྕེའུ', 'ལྭ', 'ཤའུ', 'ཤེའུ', 'ཤྭ', 'སིའུ', 'སེའུ', 'སྒའུ', 'སྒེའུ', 'སྒྱེའུ', 'སྒྲེའུ', 'སྔེའུ', 'སྙེའུ', 'སྟེའུ', 'སྟྭ', 'སྡེའུ', 'སྣེའུ', 'སྤའུ', 'སྤེའུ', 'སྤྱིའུ', 'སྤྲེའུ', 'སྦྲེའུ', 'སྨེའུ', 'སྭ', 'སྲིའུ', 'སླེའུ', 'སླེའོ', 'ཧུའུ', 'ཧེའུ', 'ཧྭ', 'ཧྲུའུ']
+        self.Aroots = sorted(Aroots)
+        self.NBroots = sorted(NBroots)
+        self.Croots = sorted(Croots)
+        
+        suffixes =      ['ག', 'གས', 'ང', 'ངས', 'ད', 'ན', 'བ', 'བས', 'མ', 'མས', 'ལ', 'འི', 'འོ', 'འང', 'འམ', 'ར', 'ས',
+                     'ི', 'ིག', 'ིགས', 'ིང', 'ིངས', 'ིད', 'ིན', 'ིབ', 'ིབས', 'ིམ', 'ིམས', 'ིལ', 'ིའི', 'ིའོ', 'ིའང', 'ིའམ', 'ིར', 'ིས',
+                     'ུ', 'ུག', 'ུགས', 'ུང', 'ུངས', 'ུད', 'ུན', 'ུབ', 'ུབས', 'ུམ', 'ུམས', 'ུལ', 'ུའི', 'ུའོ', 'ུའང', 'ུའམ', 'ུར', 'ུས',
+                     'ེ', 'ེག', 'ེགས', 'ེང', 'ེངས', 'ེད', 'ེན', 'ེབ', 'ེབས', 'ེམ', 'ེམས', 'ེལ', 'ེའི', 'ེའོ', 'ེའང', 'ེའམ', 'ེར', 'ེས',
+                     'ོ', 'ོག', 'ོགས', 'ོང', 'ོངས', 'ོད', 'ོན', 'ོབ', 'ོབས', 'ོམ', 'ོམས', 'ོལ', 'ོའི', 'ོའོ', 'ོའང', 'ོའམ', 'ོར', 'ོས']
+        self.Asuffixes = sorted(['འ'] + suffixes)
+        self.NBsuffixes = sorted([''] + suffixes)
+        self.Csuffixes =  sorted(['','འི', 'འོ', 'འང', 'འམ', 'ར', 'ས'])
+        
+        special = ['བགླ', 'མདྲོན', 'བརྡའ', 'བརྟའ']
+        wazurs = ['ཧྭག', 'ཀྭས', 'ཁྭངས', 'ཧྭང', 'ཀྭན', 'དྭགས', 'ཧྭགས', 'དྭངས', 'ཏྭོན']
+        self.exceptions = sorted(special + wazurs)
+        self.ambiguous = {'མངས' : ('མ', 'ངས'), 'མགས' : ('མ', 'གས'), 'དབས' : ('ད', 'བས'), 'དངས' : ('ད', 'ངས'), 'དགས' : ('དག', 'ས'), 'དམས' : ('དམ', 'ས'), 'བགས' : ('བ', 'གས'), 'འབས' : ('འབ', 'ས'), 'འགས' : ('འག', 'ས')}
+        
+        self.len_Aroots = len(self.Aroots)
+        self.len_NBroots = len(self.NBroots)
+        self.len_Croots = len(self.Croots)
+        self.len_Asuffixes = len(self.Asuffixes)
+        self.len_NBsuffixes = len(self.NBsuffixes)
+        self.len_Csuffixes = len(self.Csuffixes)
+        self.len_exceptions = len(self.exceptions)    
+        
+    def get(self, syl):
+        solutions = []
+        if search(self.exceptions, self.len_exceptions, syl):
+            solutions.append((syl, 'x'))
+        elif syl in self.ambiguous:
+            solutions.append(self.ambiguous[syl])
+        else:
+            for i in range(1, len(syl)+1):
+                if len(syl) > i+1 and syl[i+1] not in ('ག', 'ང', 'ད', 'ན', 'བ', 'མ', 'འ', 'ར', 'ལ', 'ས', 'ི', 'ུ', 'ེ', 'ོ'): continue
+
+                if search(self.Aroots, self.len_Aroots, syl) or search(self.NBroots, self.len_NBroots, syl) or search(self.Croots, self.len_Croots, syl):
+                    if (syl, '') not in solutions:
+                        solutions.append((syl, ''))
+                else:
+                    root = syl[0:i]
+                    suf = syl[i:]
+                    if (search(self.Asuffixes, self.len_Asuffixes, suf) and search(self.Aroots, self.len_Aroots, root)) or (search(self.NBroots, self.len_NBroots, root) and search(self.NBsuffixes, self.len_NBsuffixes, suf)) or (search(self.Csuffixes, self.len_Csuffixes, suf) and search(self.Croots, self.len_Croots, root)):
+                        if (root, suf) not in solutions:
+                            solutions.append((root, suf))
+
+        if len(solutions) > 1:
+            return solutions
+        if len(solutions) == 1:
+            return solutions[0]
+        if solutions == []:
+            return None
