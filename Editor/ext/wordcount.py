@@ -1,6 +1,5 @@
-# PYQT5 PyQt4’s QtGui module has been split into PyQt5’s QtGui,
-# QtPrintSupport and QtWidgets modules
-
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 from PyQt5 import QtWidgets
 

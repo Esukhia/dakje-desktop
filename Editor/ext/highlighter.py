@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import PyQt5
 from PyQt5.QtCore import QFile, QRegExp, Qt, QTextStream
 from PyQt5.QtGui import (QFont, QIcon, QKeySequence, QSyntaxHighlighter,

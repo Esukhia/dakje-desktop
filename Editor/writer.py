@@ -1,6 +1,6 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
-
 import PyQt5
 from PyQt5.QtCore import QFile, QRegExp, Qt, QTextStream
 from PyQt5.QtGui import (QFont, QIcon, QKeySequence, QSyntaxHighlighter, QPixmap,
@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
 # Editor
     def setupEditor(self):
         font = QFont()
-        font.setFamily('Noto Sans Tibetan')
+        # font.setFamily('Noto Sans Tibetan')
         font.setFixedPitch(True)
         font.setPointSize(10)
 
