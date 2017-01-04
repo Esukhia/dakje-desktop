@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.5
 # -*- coding: utf-8 -*-
+
 import sys
 import PyQt5
 from PyQt5.QtCore import QFile, QRegExp, Qt, QTextStream

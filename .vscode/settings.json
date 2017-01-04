@@ -1,6 +1,4 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    
-    "code-runner.clearPreviousOutput": true,
-    "code-runner.saveFileBeforeRun": true
+    "python.pythonPath": "python"
 }
