@@ -1,43 +1,63 @@
-#!/usr/local/bin/env python3.5
-# -*- coding: utf-8 -*-
 
 import PyQt5
 from PyQt5.QtCore import QFile, QRegExp, Qt, QTextStream
 from PyQt5.QtGui import (QFont, QIcon, QKeySequence, QSyntaxHighlighter,
                          QTextCharFormat, QTextCursor, QTextTableFormat)
-from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QMainWindow, QMenu, QLabel, QLineEdit, QGridLayout,
-                             QWidget, QPushButton, QDockWidget, QDialog, QListWidget, QMessageBox, QTextEdit)
+from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QDockWidget,
+                             QFileDialog, QGridLayout, QLabel, QLineEdit,
+                             QListWidget, QMainWindow, QMenu, QMessageBox,
+                             QPushButton, QTextEdit, QWidget)
 
 
 class Highlighter(QSyntaxHighlighter):
 
-    def __init__(self, parent=None, yo=""):
+    def __init__(self, parent=None, ya=['he', 'he']):
         super(Highlighter, self).__init__(parent)
 
-        self.test = yo
-        print(self.test)
+# Import Test
+        yo = ya
+        print(yo)
 
-        keywordFormat = QTextCharFormat()
-        keywordFormat.setForeground(Qt.darkBlue)
-        keywordFormat.setFontWeight(QFont.Bold)
+# Basic Spellcheking Rules
+        grammarFormat = QTextCharFormat()
+        grammarFormat.setForeground(Qt.darkBlue)
+        grammarFormat.setFontWeight(QFont.Bold)
+        grammarPatterns = [""]
 
-        keywordPatterns = ["\\བཀྲ་ཤིས\\b", "\\bclass\\b", "\\bconst\\b",
-                           "\\bdouble\\b", "\\benum\\b", "\\bexplicit\\b", "\\bfriend\\b",
-                           "\\binline\\b", "\\bint\\b", "\\blong\\b", "\\bnamespace\\b",
-                           "\\boperator\\b", "\\bprivate\\b", "\\bprotected\\b",
-                           "\\bpublic\\b", "\\bshort\\b", "\\bsignals\\b", "\\bsigned\\b",
-                           "\\bslots\\b", "\\bstatic\\b", "\\bstruct\\b",
-                           "\\btemplate\\b", "\\btypedef\\b", "\\btypename\\b",
-                           "\\bunion\\b", "\\bunsigned\\b", "\\bvirtual\\b", "\\bvoid\\b",
-                           "\\bvolatile\\b"]
+        self.highlightingRules = [(QRegExp(pattern), grammarFormat)
+                                  for pattern in grammarPatterns]
 
-        self.highlightingRules = [(QRegExp(pattern), keywordFormat)
-                                  for pattern in keywordPatterns]
+# # Level1
+#         level1Format = QTextCharFormat()
+#         level1Format.setForeground(Qt.darkBlue)
+#         level1Format.setFontWeight(QFont.Bold)
+#         level1Patterns = ["\\བཀྲ་ཤིས\\b", "\\bha\\b"]
 
+#         self.highlightingRules = [(QRegExp(pattern), level1Format)
+#                                   for pattern in level1Patterns]
+
+# # Level2
+#         level2Format = QTextCharFormat()
+#         level2Format.setForeground(Qt.darkRed)
+#         level2Format.setFontWeight(QFont.Bold)
+#         keywordPatterns = ["\\bho\\b", "\\bclass\\b"]
+
+#         self.highlightingRules = [(QRegExp(pattern), level2Format)
+#                                   for pattern in keywordPatterns]
+
+# Level3
+        level3Format = QTextCharFormat()
+        level3Format.setForeground(Qt.darkYellow)
+        level3Format.setFontWeight(QFont.Bold)
+        keywordPatterns = ["\\བཀྲ་\\b", "\\bint\\b","\\bhi\\b"]
+
+        # self.highlightingRules.append((QRegExp(pattern), level3Format))
+
+# Examples
         classFormat = QTextCharFormat()
         classFormat.setFontWeight(QFont.Bold)
         classFormat.setForeground(Qt.darkMagenta)
-        self.highlightingRules.append((QRegExp("\\bབདེ་ལེགས\\b"),
+        self.highlightingRules.append((QRegExp("\\bya\\b"),
                                        classFormat))
 
         singleLineCommentFormat = QTextCharFormat()
@@ -55,11 +75,9 @@ class Highlighter(QSyntaxHighlighter):
         functionFormat = QTextCharFormat()
         functionFormat.setFontItalic(True)
         functionFormat.setForeground(Qt.blue)
-        self.highlightingRules.append((QRegExp("\\b[A-Za-z0-9_]+(?=\\()"),
+        self.highlightingRules.append((QRegExp("yo"),
                                        functionFormat))
 
-        self.commentStartExpression = QRegExp("/\\*")
-        self.commentEndExpression = QRegExp("\\*/")
 
     def highlightBlock(self, text):
         for pattern, format in self.highlightingRules:
@@ -69,24 +87,3 @@ class Highlighter(QSyntaxHighlighter):
                 length = expression.matchedLength()
                 self.setFormat(index, length, format)
                 index = expression.indexIn(text, index + length)
-
-        self.setCurrentBlockState(0)
-
-        startIndex = 0
-        if self.previousBlockState() != 1:
-            startIndex = self.commentStartExpression.indexIn(text)
-
-        while startIndex >= 0:
-            endIndex = self.commentEndExpression.indexIn(text, startIndex)
-
-            if endIndex == -1:
-                self.setCurrentBlockState(1)
-                commentLength = len(text) - startIndex
-            else:
-                commentLength = endIndex - startIndex + \
-                    self.commentEndExpression.matchedLength()
-
-            self.setFormat(startIndex, commentLength,
-                           self.multiLineCommentFormat)
-            startIndex = self.commentStartExpression.indexIn(text,
-                                                             startIndex + commentLength)
