@@ -18,14 +18,14 @@ class Highlighter(QSyntaxHighlighter):
 
 # Import Test
 # TODO: import the lists and assign them to their respective levels. level1Regexes etc...
-        yo = listsDict
-        print(yo)
+        # yo = listsDict
+        # print(yo)
 
 # Basic Spellcheking Rules
         grammarFormat = QTextCharFormat()
         grammarFormat.setForeground(Qt.red)
         grammarFormat.setFontWeight(QFont.Bold)
-        grammarPatterns = ["yo", "yay"]
+        grammarPatterns = ["([^གང]་གིས[་༌།༎༏༐༑༔]+|[^ནམརལ]་གྱིས[་༌།༎༏༐༑༔\s]+(?!ཤིག|ལ))", "yay"]
 
         self.highlightingRules = [(QRegExp(pattern), grammarFormat)
                                   for pattern in grammarPatterns]
@@ -33,9 +33,10 @@ class Highlighter(QSyntaxHighlighter):
 
 # Level1: creates a font format, pairs it to regexes and adds these pairs to the list.
         level1Format = QTextCharFormat()
-        level1Format.setForeground(Qt.darkYellow)
+        level1Format.setForeground(Qt.blue)
         level1Format.setFontWeight(QFont.Bold)
-        level1Regexes = ["\\བཀྲ་ཤིས\\b", "\\bha\\b"]
+# Find the list called "Level1" in the dict and give it to level1Regexes
+        level1Regexes = listsDict['Level1']
 
         self.level1Patterns = [(QRegExp(pattern), level1Format)
                                   for pattern in level1Regexes]
@@ -45,7 +46,7 @@ class Highlighter(QSyntaxHighlighter):
         level2Format = QTextCharFormat()
         level2Format.setForeground(Qt.darkGreen)
         level2Format.setFontWeight(QFont.Bold)
-        level2Regexes = ["\\བཀྲ་ཤིས\\b", "\\bha\\b"]
+        level2Regexes = listsDict['Level2']
 
         self.level2Patterns = [(QRegExp(pattern), level2Format)
                                   for pattern in level2Regexes]
@@ -53,9 +54,9 @@ class Highlighter(QSyntaxHighlighter):
 
 # Level3
         level3Format = QTextCharFormat()
-        level3Format.setForeground(Qt.darkBlue)
+        level3Format.setForeground(Qt.darkMagenta)
         level3Format.setFontWeight(QFont.Bold)
-        level3Regexes = ["\\བཀྲ་ཤིས\\b", "\\bha\\b"]
+        level3Regexes = listsDict['Level3']
 
         self.level3Patterns = [(QRegExp(pattern), level3Format)
                                   for pattern in level3Regexes]

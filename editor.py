@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
 
 import PyQt5
 from PyQt5.QtCore import QFile, QRegExp, Qt, QTextStream
@@ -16,7 +17,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QCheckBox, QDialog,
                              QStyleFactory, QTableView, QTextEdit, QWidget)
 
 import highlighter
-
+import PyTib
+from PyTib import Segment
 
 class MainWindow(QMainWindow):
 
@@ -121,7 +123,7 @@ class MainWindow(QMainWindow):
         if not filename:
             return
 
-        file = QFile(filename)
+        file = QFile(filename+'.txt')
         if not file.open(QFile.WriteOnly | QFile.Text):
             QMessageBox.warning(self, "Dock Widgets",
                                 "Cannot write file %s:\n%s." % (filename, file.errorString()))
@@ -144,7 +146,13 @@ class MainWindow(QMainWindow):
         document.redo()
 
     def segment(self):
+        print(self.editor.document())
         self.statusBar().showMessage("Segment")
+        seg = Segment()
+        file1 = self.editor.toPlainText()
+        cut_text = seg.segment(file1)
+        self.editor.setPlainText(cut_text)
+        self.editor.document().setModified(True)
 
     def createActions(self):
         self.newFileAction = QAction(QIcon('files/filenew.png'), "&New...",
@@ -175,7 +183,24 @@ class MainWindow(QMainWindow):
 # entry so they can only be discovered after segmentation.
 
     def loadLists(self):
-        self.levelLists = {'Level1': ['ya', 'yo']}
+        lists_path = 'files/Lists'
+        lists_types = ['General']  # ['General', 'Speech', 'Writing']
+        lists_levels = ['1', '2', '3']
+
+        self.levelLists = {}
+        for type in lists_types:
+            for level in lists_levels:
+                in_path = '{}/{}/{}'.format(lists_path, type, level)
+                for f in os.listdir(in_path):
+                    raw_list = open('{}/{}'.format(in_path, f)).read().strip().split('\n')
+                    self.levelLists['Level'+level] = []
+                    for word in raw_list:
+                        # add a tsek where missing
+                        if not word.endswith('་'):
+                            word += '་'
+                        # format as needed
+                        formated_word = '\\s{}\\s'.format(word)
+                        self.levelLists['Level' + level].append(formated_word)
         return self.levelLists
 
 if __name__ == '__main__':
