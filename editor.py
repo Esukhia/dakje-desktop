@@ -171,7 +171,8 @@ class MainWindow(QMainWindow):
 # Get Lists
 # TODO: get the level files in the Levels folder, read their names,
 # convert their content into a list of regexes and create a dict for
-# highlighter.py
+# highlighter.py. A spaces should be added before and after each list
+# entry so they can only be discovered after segmentation.
 
     def loadLists(self):
         self.levelLists = {'Level1': ['ya', 'yo']}
