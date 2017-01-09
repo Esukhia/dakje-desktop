@@ -10,68 +10,65 @@ from PyQt5.QtWidgets import (QAction, QApplication, QDialog, QDockWidget,
 
 
 class Highlighter(QSyntaxHighlighter):
+# This class applies the content of the highlightingRules list to a document.
+# List structure: [regex, format, regex, format, ...]
 
-    def __init__(self, parent=None, ya=['he', 'he']):
+    def __init__(self, parent=None, listsDict={'level0': ['he', 'he']}):
         super(Highlighter, self).__init__(parent)
 
 # Import Test
-        yo = ya
+# TODO: import the lists and assign them to their respective levels. level1Regexes etc...
+        yo = listsDict
         print(yo)
 
 # Basic Spellcheking Rules
         grammarFormat = QTextCharFormat()
-        grammarFormat.setForeground(Qt.darkBlue)
+        grammarFormat.setForeground(Qt.red)
         grammarFormat.setFontWeight(QFont.Bold)
-        grammarPatterns = [""]
+        grammarPatterns = ["yo", "yay"]
 
         self.highlightingRules = [(QRegExp(pattern), grammarFormat)
                                   for pattern in grammarPatterns]
 
-# # Level1
-#         level1Format = QTextCharFormat()
-#         level1Format.setForeground(Qt.darkBlue)
-#         level1Format.setFontWeight(QFont.Bold)
-#         level1Patterns = ["\\བཀྲ་ཤིས\\b", "\\bha\\b"]
 
-#         self.highlightingRules = [(QRegExp(pattern), level1Format)
-#                                   for pattern in level1Patterns]
+# Level1: creates a font format, pairs it to regexes and adds these pairs to the list.
+        level1Format = QTextCharFormat()
+        level1Format.setForeground(Qt.darkYellow)
+        level1Format.setFontWeight(QFont.Bold)
+        level1Regexes = ["\\བཀྲ་ཤིས\\b", "\\bha\\b"]
 
-# # Level2
-#         level2Format = QTextCharFormat()
-#         level2Format.setForeground(Qt.darkRed)
-#         level2Format.setFontWeight(QFont.Bold)
-#         keywordPatterns = ["\\bho\\b", "\\bclass\\b"]
+        self.level1Patterns = [(QRegExp(pattern), level1Format)
+                                  for pattern in level1Regexes]
+        self.highlightingRules.extend(self.level1Patterns)
 
-#         self.highlightingRules = [(QRegExp(pattern), level2Format)
-#                                   for pattern in keywordPatterns]
+# Level2
+        level2Format = QTextCharFormat()
+        level2Format.setForeground(Qt.darkGreen)
+        level2Format.setFontWeight(QFont.Bold)
+        level2Regexes = ["\\བཀྲ་ཤིས\\b", "\\bha\\b"]
+
+        self.level2Patterns = [(QRegExp(pattern), level2Format)
+                                  for pattern in level2Regexes]
+        self.highlightingRules.extend(self.level2Patterns)
 
 # Level3
         level3Format = QTextCharFormat()
-        level3Format.setForeground(Qt.darkYellow)
+        level3Format.setForeground(Qt.darkBlue)
         level3Format.setFontWeight(QFont.Bold)
-        keywordPatterns = ["\\བཀྲ་\\b", "\\bint\\b","\\bhi\\b"]
+        level3Regexes = ["\\བཀྲ་ཤིས\\b", "\\bha\\b"]
 
-        # self.highlightingRules.append((QRegExp(pattern), level3Format))
+        self.level3Patterns = [(QRegExp(pattern), level3Format)
+                                  for pattern in level3Regexes]
+        self.highlightingRules.extend(self.level3Patterns)
 
-# Examples
-        classFormat = QTextCharFormat()
-        classFormat.setFontWeight(QFont.Bold)
-        classFormat.setForeground(Qt.darkMagenta)
-        self.highlightingRules.append((QRegExp("\\bya\\b"),
-                                       classFormat))
 
-        singleLineCommentFormat = QTextCharFormat()
-        singleLineCommentFormat.setForeground(Qt.red)
-        self.highlightingRules.append(
-            (QRegExp("//[^\n]*"), singleLineCommentFormat))
-
-        self.multiLineCommentFormat = QTextCharFormat()
-        self.multiLineCommentFormat.setForeground(Qt.red)
+# Quotation 
 
         quotationFormat = QTextCharFormat()
-        quotationFormat.setForeground(Qt.darkGreen)
+        quotationFormat.setForeground(Qt.darkYellow)
         self.highlightingRules.append((QRegExp("\".*\""), quotationFormat))
 
+# Random
         functionFormat = QTextCharFormat()
         functionFormat.setFontItalic(True)
         functionFormat.setForeground(Qt.blue)

@@ -1,21 +1,19 @@
 {
-    "version": "0.3.5",
+    "version": "0.3.0",
     "configurations": [
         {
             "name": "Python",
             "type": "python",
-            "pythonPath":"${config.python.pythonPath}", 
             "request": "launch",
             "stopOnEntry": true,
-            "console": "none",
+            "pythonPath": "${config.python.pythonPath}",
             "program": "${file}",
             "cwd": "${workspaceRoot}",
             "debugOptions": [
                 "WaitOnAbnormalExit",
                 "WaitOnNormalExit",
                 "RedirectOutput"
-            ],
-            "env": {"name":"value"}
+            ]
         },
         {
             "name": "PySpark",

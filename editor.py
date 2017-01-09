@@ -2,13 +2,21 @@
 # -*- coding: utf-8 -*-
 
 import sys
+
 import PyQt5
 from PyQt5.QtCore import QFile, QRegExp, Qt, QTextStream
-from PyQt5.QtGui import (QFont, QIcon, QKeySequence, QSyntaxHighlighter, QPixmap,
-                         QTextCharFormat, QTextCursor, QTextTableFormat)
-from PyQt5.QtWidgets import (QStyleFactory, QAction, QApplication, QFileDialog, QMainWindow, QMenu, QLabel, QLineEdit, QGridLayout, QMenuBar,
-                             QCheckBox, QTableView, QRadioButton, QListWidgetItem, QListView, QWidget, QPushButton, QDockWidget, QDialog, QListWidget, QMessageBox, QTextEdit)
+from PyQt5.QtGui import (QFont, QIcon, QKeySequence, QPixmap,
+                         QSyntaxHighlighter, QTextCharFormat, QTextCursor,
+                         QTextTableFormat)
+from PyQt5.QtWidgets import (QAction, QApplication, QCheckBox, QDialog,
+                             QDockWidget, QFileDialog, QGridLayout, QLabel,
+                             QLineEdit, QListView, QListWidget,
+                             QListWidgetItem, QMainWindow, QMenu, QMenuBar,
+                             QMessageBox, QPushButton, QRadioButton,
+                             QStyleFactory, QTableView, QTextEdit, QWidget)
+
 import highlighter
+
 
 class MainWindow(QMainWindow):
 
@@ -21,12 +29,13 @@ class MainWindow(QMainWindow):
         font = QFont()
         font.setFamily('Noto Sans Tibetan')
         font.setFixedPitch(True)
-        font.setPointSize(10)
+        font.setPointSize(15)
 
         self.editor = QTextEdit()
         self.editor.setFont(font)
 
-        self.highlighter = highlighter.Highlighter(self.editor.document(), ["hi!", "yes!"])
+        self.highlighter = highlighter.Highlighter(
+            self.editor.document(), self.levelLists)
 
     def createStatusBar(self):
         self.statusBar().showMessage("Ready")
@@ -72,6 +81,7 @@ class MainWindow(QMainWindow):
         self.createActions()
         self.createMenus()
         self.createToolbar()
+        self.loadLists()
         self.setupEditor()
         self.createStatusBar()
         self.setCentralWidget(self.editor)
@@ -135,30 +145,37 @@ class MainWindow(QMainWindow):
 
     def segment(self):
         self.statusBar().showMessage("Segment")
-        self.yo = "Ha!"
-        # self.workspaceMenu.setText("h&a")
 
     def createActions(self):
-        self.newFileAction = QAction(QIcon('filenew.png'), "&New...",
-                                  self, shortcut=QKeySequence.New,
-                                  statusTip="Create a new file", triggered=self.newFile)
-        self.openFileAction = QAction(QIcon('fileopen.png'), "&Open...",
-                                   self, shortcut=QKeySequence.Open,
-                                   statusTip="Open a text file", triggered=self.openFile)
-        self.saveFileAction = QAction(QIcon('filesave.png'), "&Save...", self,
-                                   shortcut=QKeySequence.Save,
-                                   statusTip="Save the current document", triggered=self.saveFile)
-        self.undoAction = QAction(QIcon('editundo.png'), "&Undo", self,
-                               shortcut=QKeySequence.Undo,
-                               statusTip="Undo the last editing action", triggered=self.undo)
-        self.redoAction = QAction(QIcon('editredo.png'), "&Redo", self,
-                               shortcut=QKeySequence.Redo,
-                               statusTip="Redo the last editing action", triggered=self.redo)
-        self.segmentAction = QAction(QIcon('segment.png'), "&Segment", self,
-                                  shortcut="Ctrl+Shift+C",
-                                  statusTip="Segment the current document", triggered=self.segment)
+        self.newFileAction = QAction(QIcon('files/filenew.png'), "&New...",
+                                     self, shortcut=QKeySequence.New,
+                                     statusTip="Create a new file", triggered=self.newFile)
+        self.openFileAction = QAction(QIcon('files/fileopen.png'), "&Open...",
+                                      self, shortcut=QKeySequence.Open,
+                                      statusTip="Open a text file", triggered=self.openFile)
+        self.saveFileAction = QAction(QIcon('files/filesave.png'), "&Save...", self,
+                                      shortcut=QKeySequence.Save,
+                                      statusTip="Save the current document", triggered=self.saveFile)
+        self.undoAction = QAction(QIcon('files/editundo.png'), "&Undo", self,
+                                  shortcut=QKeySequence.Undo,
+                                  statusTip="Undo the last editing action", triggered=self.undo)
+        self.redoAction = QAction(QIcon('files/editredo.png'), "&Redo", self,
+                                  shortcut=QKeySequence.Redo,
+                                  statusTip="Redo the last editing action", triggered=self.redo)
+        self.segmentAction = QAction(QIcon('files/segment.png'), "&Segment", self,
+                                     shortcut="Ctrl+Shift+C",
+                                     statusTip="Segment the current document", triggered=self.segment)
         self.actionQuit = QAction("&Quit", self, shortcut="Ctrl+Q",
-                triggered=self.close)
+                                  triggered=self.close)
+
+# Get Lists
+# TODO: get the level files in the Levels folder, read their names,
+# convert their content into a list of regexes and create a dict for
+# highlighter.py
+
+    def loadLists(self):
+        self.levelLists = {'Level1': ['ya', 'yo']}
+        return self.levelLists
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
