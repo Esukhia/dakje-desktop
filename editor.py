@@ -85,7 +85,7 @@ class MainWindow(QMainWindow):
         self.setupEditor()
         self.createStatusBar()
         self.setCentralWidget(self.editor)
-        self.setWindowTitle("BDRC Editor")
+        self.setWindowTitle("Tibetan Editor")
         self.setWindowIcon(QIcon("tab1.png"))
         self.setWindowState(Qt.WindowMaximized)
         self.resize(1200, 480)
