@@ -17,7 +17,7 @@ class Highlighter(QSyntaxHighlighter):
         super(Highlighter, self).__init__(parent)
 
 # Import Test
-# TODO: import the lists and assign them to their respective levels. level1Regexes etc...
+# TODO: lower grammarFormat to the end of the method, so it overwrites other highlights
         # yo = listsDict
         # print(yo)
 
@@ -25,7 +25,8 @@ class Highlighter(QSyntaxHighlighter):
         grammarFormat = QTextCharFormat()
         grammarFormat.setForeground(Qt.red)
         grammarFormat.setFontWeight(QFont.Bold)
-        grammarPatterns = ["([^གང]་གིས[་༌།༎༏༐༑༔]+|[^ནམརལ]་གྱིས[་༌།༎༏༐༑༔\s]+(?!ཤིག|ལ))", "yay"]
+        # grammarPatterns = ["([^གང]་གིས[་༌།༎༏༐༑༔]+|[^ནམརལ]་གྱིས[་༌།༎༏༐༑༔\s]+(?!ཤིག|ལ))", "yay"]
+        grammarPatterns = open('files/rules.txt').read().strip().split('\n')
 
         self.highlightingRules = [(QRegExp(pattern), grammarFormat)
                                   for pattern in grammarPatterns]
