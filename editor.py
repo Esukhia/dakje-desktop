@@ -147,8 +147,7 @@ class MainWindow(QMainWindow):
         document.redo()
 
     def segment(self):
-        print(self.editor.document())
-        self.statusBar().showMessage("Segment")
+        self.statusBar().showMessage("Segmenting text...", 1000)
         seg = Segment()
         file1 = self.editor.toPlainText()
         cut_text = seg.segment(file1)
