@@ -17,6 +17,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QCheckBox, QDialog,
                              QStyleFactory, QTableView, QTextEdit, QWidget)
 
 import highlighter
+import misc
 import PyTib
 from PyTib import Segment
 
@@ -192,14 +193,14 @@ class MainWindow(QMainWindow):
             for level in lists_levels:
                 in_path = '{}/{}/{}'.format(lists_path, type, level)
                 for f in os.listdir(in_path):
-                    raw_list = open('{}/{}'.format(in_path, f)).read().strip().split('\n')
+                    raw_list = misc.open_file('{}/{}'.format(in_path, f)).strip().split('\n')
                     self.levelLists['Level'+level] = []
                     for word in raw_list:
                         # add a tsek where missing
                         if not word.endswith('་'):
                             word += '་'
                         # format as needed
-                        formated_word = '\\s{}\\s'.format(word)
+                        formated_word = '\\s{}?\\s'.format(word)
                         self.levelLists['Level' + level].append(formated_word)
         return self.levelLists
 
