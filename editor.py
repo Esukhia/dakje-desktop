@@ -16,7 +16,6 @@ from PyQt5.QtWidgets import (QAction, QApplication, QCheckBox, QDialog,
                              QMessageBox, QPushButton, QRadioButton,
                              QStyleFactory, QTableView, QTextEdit, QWidget)
 
-import files
 import highlighter
 import PyTib
 from PyTib import Segment
