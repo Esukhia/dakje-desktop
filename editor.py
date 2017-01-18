@@ -150,7 +150,7 @@ class MainWindow(QMainWindow):
         self.statusBar().showMessage("Segmenting text...", 1000)
         seg = Segment()
         file1 = self.editor.toPlainText()
-        cut_text = seg.segment(file1)
+        cut_text = seg.segment(file1, reinsert_aa=True, distinguish_ra_sa=True)
         self.editor.setPlainText(cut_text)
         self.editor.document().setModified(True)
 
