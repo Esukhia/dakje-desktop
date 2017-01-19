@@ -18,8 +18,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QCheckBox, QDialog,
 
 import highlighter
 import misc
-import PyTib
-from PyTib import Segment
+import pytib
+from pytib import Segment
 
 class MainWindow(QMainWindow):
 
@@ -81,6 +81,7 @@ class MainWindow(QMainWindow):
         self.menu.setCornerWidget(self.menuBarRight, Qt.TopRightCorner)
 
     def initUI(self):
+
         self.createActions()
         self.createMenus()
         self.createToolbar()
@@ -164,6 +165,22 @@ class MainWindow(QMainWindow):
         self.saveFileAction = QAction(QIcon('files/filesave.png'), "&Save...", self,
                                       shortcut=QKeySequence.Save,
                                       statusTip="Save the current document", triggered=self.saveFile)
+
+        # self.cutAction = QtWidgets.QAction(QtGui.QIcon("files/cut.png"),"Cut to clipboard",self)
+        # self.cutAction.setStatusTip("Delete and copy text to clipboard")
+        # self.cutAction.setShortcut("Ctrl+X")
+        # self.cutAction.triggered.connect(self.text.cut)
+
+        # self.copyAction = QtWidgets.QAction(QtGui.QIcon("files/copy.png"),"Copy to clipboard",self)
+        # self.copyAction.setStatusTip("Copy text to clipboard")
+        # self.copyAction.setShortcut("Ctrl+C")
+        # self.copyAction.triggered.connect(self.text.copy)
+
+        # self.pasteAction = QtWidgets.QAction(QtGui.QIcon("files/paste.png"),"Paste from clipboard",self)
+        # self.pasteAction.setStatusTip("Paste text from clipboard")
+        # self.pasteAction.setShortcut("Ctrl+V")
+        # self.pasteAction.triggered.connect(self.text.paste)
+
         self.undoAction = QAction(QIcon('files/editundo.png'), "&Undo", self,
                                   shortcut=QKeySequence.Undo,
                                   statusTip="Undo the last editing action", triggered=self.undo)
@@ -199,7 +216,7 @@ class MainWindow(QMainWindow):
                         if not word.endswith('་'):
                             word += '་'
                         # format as needed
-                        formated_word = '\\s{}?\\s'.format(word)
+                        formated_word = '^{0}?\\s|\\s{0}?\\s|\\s{0}?$'.format(word)
                         self.levelLists['Level' + level].append(formated_word)
         return self.levelLists
 
