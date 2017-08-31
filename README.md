@@ -11,7 +11,7 @@ The beta version allows users to:
 
 To test the tool, paste the text from test_source.txt in the editor and click the segmentation icon. The result should look like this:
 
-
+![test](test_result.png)
 
 Features comming soon:
 
