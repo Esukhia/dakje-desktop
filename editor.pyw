@@ -30,7 +30,7 @@ class MainWindow(QMainWindow):
 # Editor
     def setupEditor(self):
         font = QFont()
-        font.setFamily('Noto Sans Tibetan')
+        # font.setFamily('Noto Sans Tibetan')
         font.setFixedPitch(True)
         font.setPointSize(15)
 
