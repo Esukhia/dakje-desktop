@@ -15,9 +15,9 @@ To test the tool, paste the text from test_source.txt in the editor and click th
 
 Features comming soon:
 
-1. level list selection + color picker
-2. POS tagging
-3. spell-checking
-4. rules and vocab list editing for segmentation/POS tagging/spell-checking
-5. suggestion of spelling correction
-6. suggestion of vocabulary alternative
+- level list selection + color picker
+- POS tagging
+- spell-checking
+- rules and vocab list editing for segmentation/POS tagging/spell-checking
+- suggestion of spelling correction
+- suggestion of vocabulary alternative
