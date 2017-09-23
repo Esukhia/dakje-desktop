@@ -21,3 +21,20 @@ Features comming soon:
 - rules and vocab list editing for segmentation/POS tagging/spell-checking
 - suggestion of spelling correction
 - suggestion of vocabulary alternative
+
+## Release note
+
+- Version: 0.2
+
+- Changelog
+	
+	New
+		* POS Tagging
+		* Level List Color Selection
+		* Words Counting
+	
+	Enhancements
+		* Highlighter Optimized
+		* Optional Display by Spaces or Tags
+
+
