@@ -324,9 +324,7 @@ class MainWindow(QMainWindow):
         if ok:
             cursor.removeSelectedText()
             cursor.insertText(item)
-
-            cursor.insertText(' ')
-            cursor.deletePreviousChar()
+            self.editor.setPlainText(self.editor.toPlainText())
 
 
     # display mode
