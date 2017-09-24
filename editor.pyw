@@ -133,6 +133,7 @@ class MainWindow(QMainWindow):
 
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.segmentAction)
+        self.toolbar.addAction(self.refreshAction)
 
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.spacesOpenAction)
@@ -140,6 +141,7 @@ class MainWindow(QMainWindow):
 
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.changeTagAction)
+        
 
     def createMenus(self):
         self.menu = self.menuBar()
@@ -282,6 +284,10 @@ class MainWindow(QMainWindow):
             QIcon('files/tag.png'), "&Open Tags Mode", self,
             checkable=True, enabled=False,
             triggered=lambda: self.switchDisplayMode('Tags'))
+        
+        self.refreshAction = QAction(
+            QIcon('files/refresh.png'), "&Refresh", self,
+            triggered=self.refresh)
 
     # segment
     def segment(self):
@@ -324,7 +330,7 @@ class MainWindow(QMainWindow):
         if ok:
             cursor.removeSelectedText()
             cursor.insertText(item)
-            self.editor.setPlainText(self.editor.toPlainText())
+            self.refresh()
 
 
     # display mode
@@ -588,6 +594,9 @@ class MainWindow(QMainWindow):
             return True
         else:
             return False
+    
+    def refresh(self):
+        self.editor.setPlainText(self.editor.toPlainText())
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
