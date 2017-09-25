@@ -559,8 +559,10 @@ class MainWindow(QMainWindow):
         self.changeColorWidget = colorChangeWidget
 
     def changeFormatColor(self, formatName):
-        color = QColorDialog.getColor()
-        self.highlighter.setFormatColor(formatName, color)
+        current_color = self.highlighter.getFormatColor(formatName).color()
+        color = QColorDialog.getColor(initial=current_color)
+        if color.isValid():
+            self.highlighter.setFormatColor(formatName, color)
 
         formatToButtonDict = {
             'level1': self.colorPickerBtn1,
