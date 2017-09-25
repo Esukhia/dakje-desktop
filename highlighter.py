@@ -94,13 +94,14 @@ class Highlighter(QSyntaxHighlighter):
             end = start + len(word.content)
 
             highlightedText.append(word.content)
-            word.position = start
             self.formatPositions.append([start, end, self.formats[
                 'level' + str(word.level)], word.level])
 
             if tagsOpened:
                 start = end
                 end = start + len(word.partOfSpeech) + 1
+
+                word.position = (start + 1, end)
 
                 highlightedText.append('/')
                 highlightedText.append(word.partOfSpeech)

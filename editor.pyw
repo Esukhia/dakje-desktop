@@ -4,11 +4,11 @@ import sys
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QFile, Qt
-from PyQt5.QtGui import QFont, QIcon, QKeySequence, QTextDocumentWriter
+from PyQt5.QtGui import QFont, QIcon, QKeySequence, QTextDocumentWriter, QCursor, QTextCursor
 from PyQt5.QtWidgets import (
-    QAction, QApplication, QFormLayout, QFileDialog, QGridLayout, QLabel,
-    QColorDialog, QMainWindow, QMenuBar, QMessageBox, QPushButton,
-    QInputDialog, QStyleFactory, QTextEdit, QWidget)
+    QAction, QApplication, QFormLayout, QFileDialog, QGridLayout, QLabel, QListView,
+    QColorDialog, QMainWindow, QMenuBar, QMessageBox, QPushButton, QComboBox, QMenu,
+    QInputDialog, QStyleFactory, QTextEdit, QWidget, QAbstractItemView, QStyledItemDelegate)
 
 from highlighter import Highlighter
 from Word import Word, WordManager
@@ -39,8 +39,10 @@ class MainWindow(QMainWindow):
         super().__init__(parent)
         self.spacesModeOn = False
         self.tagsModeOn = False
-        self.textChangedWhenOpen = False
+        self.textChanged = False
         self.filename = None
+        self.firstTextChanged = True
+        self.firstSegment = True
 
         self.tempWords = []
         self.words = []
@@ -89,23 +91,50 @@ class MainWindow(QMainWindow):
 
         self.editor = QTextEdit()
         self.editor.setFont(font)
-        self.editor.cursorPositionChanged.connect(self.cursorPosition)
+        self.editor.cursorPositionChanged.connect(self.cursorIsChanged)
         self.editor.textChanged.connect(self.textIsChanged)
-        self.editor.textChanged.connect(self.checkIcon)
 
         self.highlighter = Highlighter(
             self.editor.document(), editor=self.editor)
 
+    def cursorIsChanged(self):
+        self.cursorPosition()
+
+        if self.tagsModeOn:
+            position = self.editor.textCursor().position()
+            for word in self.tempWords:
+                if position in range(*word.position):
+                    self.selectedWord = word
+                    self.changeTag()
+                    break
+
     def textIsChanged(self):
+        if self.firstTextChanged:
+            self.setWindowTitle('Tibetan Editor')
+            self.firstTextChanged = False
+        else:
+            self.setWindowTitle('Tibetan Editor*')
+
+        self.textChanged = True
+
+        self.editor.textChanged.disconnect()
+
         if self.spacesModeOn or self.tagsModeOn:
-            self.textChangedWhenOpen = True
+            cursor = self.editor.textCursor()
+            position = cursor.position()
 
             self.scan(tempWords=True)
             self.highlighter.highlight(
                 self.tempWords, self.spacesModeOn, self.tagsModeOn, check=True)
+            self.refresh()
 
-        if self.textChangedWhenOpen:
-            self.setWindowTitle('Tibetan Editor*')
+            cursor.setPosition(position)
+            self.editor.setTextCursor(cursor)
+
+        self.editor.textChanged.connect(self.textIsChanged)
+
+        self.checkIcon()
+
 
     def checkIcon(self):
         if self.words:
@@ -215,7 +244,7 @@ class MainWindow(QMainWindow):
 
         self.scan()
         self.setTextByDisplayMode()
-        self.textChangedWhenOpen = False
+        self.textChanged = False
         self.setWindowTitle('Tibetan Editor')
 
         if not success:
@@ -307,31 +336,39 @@ class MainWindow(QMainWindow):
         # it will be slow. But we can't solve this problem at this time.
         self.updateWordsCount()
         self.setTextByDisplayMode()
+        self.setWindowTitle('Tibetan Editor')
 
     # tag
     def changeTag(self):
+        # if cursor.selectedText() not in self.partOfSpeeches:
+        #     QMessageBox.question(
+        #         self, 'Error', 'Please choose a part of speech.',
+        #         QMessageBox.Yes)
+        #     return
+
+        self.box = QComboBox(self)
+        self.box.addItems(self.partOfSpeeches)
+
+        pos = QCursor().pos()
+        self.box.setGeometry(pos.x(), pos.y(), 100, 200)
+        self.box.showPopup()
+
+        self.box.currentIndexChanged.connect(self.changing)
+
+    def changing(self):
+        tagName = self.box.currentText()
+
+        self.editor.cursorPositionChanged.disconnect()
+
         cursor = self.editor.textCursor()
+        cursor.setPosition(self.selectedWord.position[0])
+        cursor.setPosition(self.selectedWord.position[1],
+                           QTextCursor.KeepAnchor)
 
-        if cursor.selectedText() not in self.partOfSpeeches:
-            QMessageBox.question(
-                self, 'Error', 'Please choose a part of speech.',
-                QMessageBox.Yes)
-            return
+        cursor.insertText(tagName)
+        self.editor.setTextCursor(cursor)
 
-        dialog = QInputDialog(self)
-        dialog.setStyleSheet('min-width: 200px')
-        dialog.setWindowTitle("Change a part of speech.")
-        dialog.setLabelText("Select one")
-        dialog.setComboBoxItems(self.partOfSpeeches)
-
-        ok = dialog.exec_()
-        item = dialog.textValue()
-
-        if ok:
-            cursor.removeSelectedText()
-            cursor.insertText(item)
-            self.refresh()
-
+        self.editor.cursorPositionChanged.connect(self.cursorIsChanged)
 
     # display mode
     def setTextByDisplayMode(self, tempWords=False):
@@ -362,8 +399,12 @@ class MainWindow(QMainWindow):
                 ))
 
     def switchDisplayMode(self, mode):
-        if self.textChangedWhenOpen:
-            self.checkSaving()
+
+        if self.textChanged:
+            if self.firstSegment:
+                self.firstSegment = False
+            else:
+                self.checkSaving()
 
         if mode == 'Spaces':
             self.spacesModeOn = not self.spacesModeOn
@@ -376,8 +417,9 @@ class MainWindow(QMainWindow):
         self.highlighter.highlight(
             self.words, self.spacesModeOn, self.tagsModeOn, check=True)
         self.setTextByDisplayMode()
-        self.textChangedWhenOpen = False
+        self.textChanged = False
         self.updateWordsCount()
+        self.setWindowTitle('Tibetan Editor')
 
     def scan(self, tempWords=False):
         text = self.editor.toPlainText()
@@ -582,7 +624,11 @@ class MainWindow(QMainWindow):
         self.level3Num.setText(str(count[3]))
         self.levelNotFoundNum.setText(str(count[0]))
 
-    def checkSaving(self):
+    def checkSaving(self, yes=False):
+        if yes:
+            self.saveFile()
+            return True
+        
         choice = QMessageBox.question(
             self, 'Saving?',
             'If you want to keep the modification,\n'
