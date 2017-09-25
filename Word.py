@@ -23,7 +23,7 @@ class WordManager:
         return getPartOfSpeeches(self.DICTPath)
 
     def segment(self, sentence: str) -> List[Word]:
-        return [Word(s) for s in Segment().segment(sentence).split()]
+        return [Word(s.replace('#', '')) for s in Segment().segment(sentence).split()]
 
     def tag(self, words: List[Word]) -> List[Word]:
         taggedWords = []

@@ -28,13 +28,17 @@ Features comming soon:
 
 - Changelog
 	
-	New
-		* POS Tagging
-		* Level List Color Selection
-		* Words Counting
-	
-	Enhancements
-		* Highlighter Optimized
-		* Optional Display by Spaces or Tags
+	* POS Tagging
+	* Level List Color Selection
+	* Words Counting
+	* Highlighter Optimized
+	* Optional Display by Spaces or Tags
 
+- Version: 0.3
+
+- Changelog
+    
+    * Tagging by clicking on the part of speech
+    * Fix the highlight problems in tagging and re-segment
+    * Add warning when switching modes from plain text to other
 

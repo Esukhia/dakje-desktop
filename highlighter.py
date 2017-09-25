@@ -77,7 +77,7 @@ class Highlighter(QSyntaxHighlighter):
         for word in words:
             word.level = self.wordsLevelDict.get(word.content, None)
 
-    def highlight(self, words, spacesOpened=True, tagsOpened=False, check=False):
+    def highlight(self, words, spacesOpened=False, tagsOpened=False, check=False):
         if check:
             self.checkLevel(words)
 

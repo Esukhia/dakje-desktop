@@ -56,12 +56,6 @@ class MainWindow(QMainWindow):
         self.setWindowState(Qt.WindowMaximized)
         self.resize(1200, 480)
 
-        # set button context menu policy
-        self.editor.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.popMenu = self.editor.createStandardContextMenu()
-        self.editor.customContextMenuRequested.connect(self.on_context_menu)
-        self.popMenu.addAction(self.changeTagAction)
-
     def initUI(self):
         self.setupEditor()
         self.setupRightBar()
@@ -78,10 +72,6 @@ class MainWindow(QMainWindow):
         grid.addWidget(self.wordCountWidget, 2, 5, 1, 1)
         widget.setLayout(grid)
         self.setCentralWidget(widget)
-
-    def on_context_menu(self, point):
-        # show context menu
-        self.popMenu.exec_(self.editor.mapToGlobal(point))
 
     def setupEditor(self):
         font = QFont()
@@ -162,14 +152,11 @@ class MainWindow(QMainWindow):
 
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.segmentAction)
-        self.toolbar.addAction(self.refreshAction)
 
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.spacesOpenAction)
         self.toolbar.addAction(self.tagsOpenAction)
 
-        self.toolbar.addSeparator()
-        self.toolbar.addAction(self.changeTagAction)
         
 
     def createMenus(self):
@@ -300,10 +287,6 @@ class MainWindow(QMainWindow):
             QIcon('files/segment.png'), "&Segment", self,
             triggered=self.segment)
 
-        self.changeTagAction = QAction(
-            QIcon('files/changeTag.png'), "&Change Tag", self,
-            triggered=self.changeTag)
-
         self.spacesOpenAction = QAction(
             QIcon('files/space.png'), "&Open Spaces Mode", self,
             checkable=True, enabled=False,
@@ -313,10 +296,7 @@ class MainWindow(QMainWindow):
             QIcon('files/tag.png'), "&Open Tags Mode", self,
             checkable=True, enabled=False,
             triggered=lambda: self.switchDisplayMode('Tags'))
-        
-        self.refreshAction = QAction(
-            QIcon('files/refresh.png'), "&Refresh", self,
-            triggered=self.refresh)
+
 
     # segment
     def segment(self):
@@ -399,7 +379,6 @@ class MainWindow(QMainWindow):
                 ))
 
     def switchDisplayMode(self, mode):
-
         if self.textChanged:
             if self.firstSegment:
                 self.firstSegment = False
