@@ -42,3 +42,13 @@ Features comming soon:
     * Fix the highlight problems in tagging and re-segment
     * Add warning when switching modes from plain text to other
 
+	
+- Version: 0.4 (2017.10.02)
+
+- Changelog
+
+    * Add Find & Replace function
+    * Add real-time detecting when editing
+	* Change the tag dropdown to fixed mode
+	* Fix the highlight bug which leads to bad perfomance
+

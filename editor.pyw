@@ -1,17 +1,19 @@
 #!/usr/local/bin/env python3.5
 # -*- coding: utf-8 -*-
 import sys
+import copy
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import QFile, Qt
+from PyQt5.QtCore import QFile, Qt, QStringListModel
 from PyQt5.QtGui import QFont, QIcon, QKeySequence, QTextDocumentWriter, QCursor, QTextCursor
 from PyQt5.QtWidgets import (
-    QAction, QApplication, QFormLayout, QFileDialog, QGridLayout, QLabel, QListView,
+    QAction, QApplication, QFormLayout, QFileDialog, QGridLayout, QLabel, QListView, QCompleter,
     QColorDialog, QMainWindow, QMenuBar, QMessageBox, QPushButton, QComboBox, QMenu,
     QInputDialog, QStyleFactory, QTextEdit, QWidget, QAbstractItemView, QStyledItemDelegate)
 
 from highlighter import Highlighter
-from Word import Word, WordManager
+from Word import WordManager, Word
+from find import FindDialog
 
 class ExceptionHandler(QtCore.QObject):
     errorSignal = QtCore.pyqtSignal()
@@ -28,23 +30,40 @@ exceptionHandler = ExceptionHandler()
 sys._excepthook = sys.excepthook
 sys.excepthook = exceptionHandler.handler
 
-
 def handleException():
     print("ERROR ERROR ERROR")
 
+class ComboBox(QComboBox):
+    def hidePopup(self):
+        pass
+
+    def hideManually(self):
+        QComboBox.hidePopup(self)
 
 class MainWindow(QMainWindow):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self.filename = None
         self.spacesModeOn = False
         self.tagsModeOn = False
+
         self.textChanged = False
-        self.filename = None
-        self.firstTextChanged = True
         self.firstSegment = True
 
-        self.tempWords = []
+        self.currentPosition = 0
+        self.previousPosition = 0
+
+        self.currentSelection = {
+            'selected': False,
+            'start': None,
+            'end': None}
+        self.previousSelection = {
+            'selected': False,
+            'start': None,
+            'end': None}
+
         self.words = []
         self.wordManager = WordManager()
         self.partOfSpeeches = self.wordManager.getPartOfSpeeches()
@@ -55,6 +74,7 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon("tab1.png"))
         self.setWindowState(Qt.WindowMaximized)
         self.resize(1200, 480)
+
 
     def initUI(self):
         self.setupEditor()
@@ -73,6 +93,8 @@ class MainWindow(QMainWindow):
         widget.setLayout(grid)
         self.setCentralWidget(widget)
 
+    ###
+
     def setupEditor(self):
         font = QFont()
         # font.setFamily('Noto Sans Tibetan')
@@ -84,47 +106,168 @@ class MainWindow(QMainWindow):
         self.editor.cursorPositionChanged.connect(self.cursorIsChanged)
         self.editor.textChanged.connect(self.textIsChanged)
 
-        self.highlighter = Highlighter(
-            self.editor.document(), editor=self.editor)
+        self.highlighter = Highlighter(self.editor.document())
 
     def cursorIsChanged(self):
-        self.cursorPosition()
+        cursor = self.editor.textCursor()
+        self.updateStatusBar(cursor)
+
+        self.previousPosition = self.currentPosition
+        self.currentPosition = cursor.position()
+
+        self.previousSelection = self.currentSelection
+
+        if cursor.hasSelection():
+            self.currentSelection = {
+                'selected': True,
+                'start': cursor.selectionStart(),
+                'end': cursor.selectionEnd()
+            }
+        else:
+            self.currentSelection = {
+                'selected': False,
+                'start': None,
+                'end': None
+            }
 
         if self.tagsModeOn:
             position = self.editor.textCursor().position()
-            for word in self.tempWords:
-                if position in range(*word.position):
+            for word in self.words:
+                if position in range(
+                        word.partOfSpeechStart, word.partOfSpeechEnd + 1):
                     self.selectedWord = word
                     self.changeTag()
                     break
 
+    def updateStatusBar(self, cursor):
+        # Mortals like 1-indexed things
+        line = cursor.blockNumber() + 1
+        col = cursor.columnNumber()
+        self.statusBar().showMessage("Line: {} | Column: {}".format(line, col))
+
     def textIsChanged(self):
-        if self.firstTextChanged:
-            self.setWindowTitle('Tibetan Editor')
-            self.firstTextChanged = False
-        else:
-            self.setWindowTitle('Tibetan Editor*')
+        if self.words:
+            if self.previousSelection['selected']:
+                shift = self.currentPosition - self.previousPosition
+
+                deletedIndex = []
+
+                for index, word in enumerate(self.words):
+                    if self.previousSelection['start'] < word.start < self.previousSelection['end'] or \
+                            self.previousSelection['end'] > word.end >= self.previousSelection['start']:
+                        deletedIndex.append(index)
+
+                    if word.start >= self.previousPosition:
+                        word.start += shift
+
+                for index in reversed(deletedIndex):
+                    self.words.pop(index)
+
+            else:
+                shift = self.currentPosition - self.previousPosition
+
+                for word in self.words:
+                    if word.start >= self.previousPosition:
+                        word.start += shift
+
+                if self.spacesModeOn:
+                    reSegmentList = []
+                    newWordList =[]
+                    for index, word in enumerate(self.words):
+                        if word.start < self.previousPosition <= word.end:
+                            text = self.editor.toPlainText()
+                            sentence = text[
+                                word.start: self.words[index + 1].start]
+                            words = sentence.split()
+                            reSegmentList.append((index, words))
+
+                        if self.currentPosition == word.start == self.words[index - 1].end + 1:
+                            text = self.editor.toPlainText()
+                            newWord = text[
+                                self.words[index - 1].start: word.end + 1]
+                            newWordList.append((index, newWord))
+
+
+                    for index, words in reversed(reSegmentList):
+                        words = [Word(word) for word in words]
+                        self.wordManager.tag(words)
+                        self.wordManager.checkLevel(words)
+                        self.words[index: index] = words
+
+                    for index, newWord in reversed(newWordList):
+                        newWord = [Word(newWord)]
+                        self.wordManager.tag(newWord)
+                        self.wordManager.checkLevel(newWord)
+                        self.words[index - 1: index] = newWord
+
+            self.highlighter.setWords(self.words)
+            self.highlight()
 
         self.textChanged = True
+        self.updateWordsCount()
+        # self.setWindowTitle('Tibetan Editor*')
+
+    def highlight(self):
+        self.highlighter.setWords(self.words)
+        self.highlighter.setHighLightBlock(True)
 
         self.editor.textChanged.disconnect()
-
-        if self.spacesModeOn or self.tagsModeOn:
-            cursor = self.editor.textCursor()
-            position = cursor.position()
-
-            self.scan(tempWords=True)
-            self.highlighter.highlight(
-                self.tempWords, self.spacesModeOn, self.tagsModeOn, check=True)
-            self.refresh()
-
-            cursor.setPosition(position)
-            self.editor.setTextCursor(cursor)
-
+        self.highlighter.rehighlight()
         self.editor.textChanged.connect(self.textIsChanged)
 
-        self.checkIcon()
+        self.highlighter.setHighLightBlock(False)
 
+    # segment
+    def segment(self):
+        if self.words:
+            text = self.editor.toPlainText()
+            wordIndex = 0
+            charIndex = 0
+            sentence = ''
+            insertedWords = []
+            while True:
+                if wordIndex == len(self.words) - 1:
+                    break
+
+                if self.words[wordIndex].end >= charIndex >= self.words[wordIndex].start:
+                    charIndex += 1
+
+                elif charIndex >= self.words[wordIndex + 1].start:
+                    if sentence:
+                        words = self.wordManager.segment(sentence)
+                        sentence = ''
+                        insertedWords.append((wordIndex + 1, words))
+
+                    wordIndex += 1
+
+                else:
+                    sentence += text[charIndex]
+                    charIndex += 1
+
+            shift = 0
+            for words in insertedWords:
+                self.wordManager.tag(words[1])
+                self.wordManager.checkLevel(words[1])
+
+                for word in words[1]:
+                    self.words.insert(words[0] + shift, word)
+                    shift += 1
+
+        else:
+            text = self.editor.toPlainText()
+            self.words = self.wordManager.segment(text)
+            self.wordManager.tag(self.words)
+            self.wordManager.checkLevel(self.words)
+
+        self.setTextByDisplayMode()
+        self.highlight()
+
+        self.tagsOpenAction.setEnabled(True)
+        self.spacesOpenAction.setEnabled(True)
+
+        self.updateWordsCount()
+
+    ###
 
     def checkIcon(self):
         if self.words:
@@ -156,8 +299,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.spacesOpenAction)
         self.toolbar.addAction(self.tagsOpenAction)
-
-        
+        self.toolbar.addAction(self.findAction)
 
     def createMenus(self):
         self.menu = self.menuBar()
@@ -297,94 +439,59 @@ class MainWindow(QMainWindow):
             checkable=True, enabled=False,
             triggered=lambda: self.switchDisplayMode('Tags'))
 
+        self.findAction = QAction(
+            QIcon('files/searching.png'), "&Find & Replace", self,
+            triggered=FindDialog(self).show)
 
-    # segment
-    def segment(self):
-        if self.spacesModeOn or self.tagsModeOn:
-            raise Exception('Segmentation Error')
+    def setTextByDisplayMode(self):
+        text = []
+        end = 0
+        for word in self.words:
+            start = end
+            end = start + len(word.content)
 
-        text = self.editor.toPlainText()
-        self.words = self.wordManager.segment(text)
-        self.wordManager.tag(self.words)
-        self.highlighter.highlight(self.words, check=True)
-        # it is weird after editor.setPlainText called, the
-        # highlighter.highlightBlock will be called twice but only the second
-        # one works. It is because every time the highlightBlock called, the
-        # format effect disappeared.
-        # After profiling, we found the setFormat consumed 22% of time while
-        # pasting huge block of text (about several tens of thousands words),
-        # it will be slow. But we can't solve this problem at this time.
-        self.updateWordsCount()
-        self.setTextByDisplayMode()
-        self.setWindowTitle('Tibetan Editor')
+            text.append(word.content)
+            word.start = start
+
+            if self.tagsModeOn:
+                text.append('/')
+                text.append(word.partOfSpeech)
+                word.tagIsOn = True
+                end += word.partOfSpeechLen
+            else:
+                word.tagIsOn = False
+
+            if self.spacesModeOn:
+                text.append(' ')
+                end += 1
+
+        self.editor.textChanged.disconnect()
+        self.editor.setPlainText(''.join(text))
+        self.editor.textChanged.connect(self.textIsChanged)
 
     # tag
     def changeTag(self):
-        # if cursor.selectedText() not in self.partOfSpeeches:
-        #     QMessageBox.question(
-        #         self, 'Error', 'Please choose a part of speech.',
-        #         QMessageBox.Yes)
-        #     return
-
-        self.box = QComboBox(self)
+        self.box = ComboBox(self)
         self.box.addItems(self.partOfSpeeches)
 
         pos = QCursor().pos()
         self.box.setGeometry(pos.x(), pos.y(), 100, 200)
+        self.box.activated.connect(self.changing)
         self.box.showPopup()
-
-        self.box.currentIndexChanged.connect(self.changing)
 
     def changing(self):
         tagName = self.box.currentText()
+        self.box.hideManually()
 
         self.editor.cursorPositionChanged.disconnect()
 
-        cursor = self.editor.textCursor()
-        cursor.setPosition(self.selectedWord.position[0])
-        cursor.setPosition(self.selectedWord.position[1],
-                           QTextCursor.KeepAnchor)
-
-        cursor.insertText(tagName)
-        self.editor.setTextCursor(cursor)
+        self.selectedWord.partOfSpeech = tagName
+        self.setTextByDisplayMode()
+        self.highlight()
 
         self.editor.cursorPositionChanged.connect(self.cursorIsChanged)
 
-    # display mode
-    def setTextByDisplayMode(self, tempWords=False):
-        if tempWords:
-            words = self.tempWords
-        else:
-            words = self.words
-
-        if self.spacesModeOn:
-            if self.tagsModeOn:
-                self.editor.setPlainText(' '.join(
-                    ['{}/{}'.format(w.content, w.partOfSpeech)
-                     for w in words]
-                ))
-            else:
-                self.editor.setPlainText(' '.join(
-                    [w.content for w in words]
-                ))
-        else:
-            if self.tagsModeOn:
-                self.editor.setPlainText(''.join(
-                    ['{}/{}'.format(w.content, w.partOfSpeech)
-                     for w in words]
-                ))
-            else:
-                self.editor.setPlainText(''.join(
-                    [w.content for w in words]
-                ))
-
     def switchDisplayMode(self, mode):
-        if self.textChanged:
-            if self.firstSegment:
-                self.firstSegment = False
-            else:
-                self.checkSaving()
-
         if mode == 'Spaces':
             self.spacesModeOn = not self.spacesModeOn
         elif mode == 'Tags':
@@ -393,62 +500,10 @@ class MainWindow(QMainWindow):
         if not self.words[0].partOfSpeech:
             self.wordManager.tag(self.words)
 
-        self.highlighter.highlight(
-            self.words, self.spacesModeOn, self.tagsModeOn, check=True)
         self.setTextByDisplayMode()
+        self.highlight()
         self.textChanged = False
-        self.updateWordsCount()
         self.setWindowTitle('Tibetan Editor')
-
-    def scan(self, tempWords=False):
-        text = self.editor.toPlainText()
-        words = []
-        if self.spacesModeOn:
-            wordStrings = text.split()
-            if self.tagsModeOn:
-                for wordString in wordStrings:
-                    try:
-                        wordStringParts = wordString.split('/')
-                        word = Word(wordStringParts[0])
-                        word.partOfSpeech = wordStringParts[1]
-                        words.append(word)
-                    except IndexError:
-                        QMessageBox.question(
-                            self, 'Error',
-                            "Please don't edit words when tags are on.",
-                            QMessageBox.Yes)
-                        self.highlighter.highlight(
-                            self.words, self.spacesModeOn, self.tagsModeOn)
-                        self.setTextByDisplayMode()
-
-            else:
-                for wordString in wordStrings:
-                    word = Word(wordString)
-                    words.append(word)
-        else:
-            if self.tagsModeOn:
-                start, end = 0, 0
-                while True:
-                    if any(p in text[start: end] for p in self.partOfSpeeches):
-                        wordString = text[start: end]
-                        wordStringParts = wordString.split('/')
-                        word = Word(wordStringParts[0])
-                        word.partOfSpeech = wordStringParts[1]
-                        words.append(word)
-                        start = end
-                    else:
-                        end += 1
-                    if end - start >= 50:
-                        break
-            else:
-                text = self.editor.toPlainText()
-                words = self.wordManager.segment(text)
-
-        if tempWords:
-            self.tempWords = words
-        else:
-            self.words = words
-
 
     # Right bar and status
 
@@ -583,12 +638,6 @@ class MainWindow(QMainWindow):
 
         self.setTextByDisplayMode()
 
-    def cursorPosition(self):
-        cursor = self.editor.textCursor()
-        # Mortals like 1-indexed things
-        line = cursor.blockNumber() + 1
-        col = cursor.columnNumber()
-        self.statusBar().showMessage("Line: {} | Column: {}".format(line, col))
 
     # status
 
@@ -621,9 +670,6 @@ class MainWindow(QMainWindow):
             return True
         else:
             return False
-    
-    def refresh(self):
-        self.editor.setPlainText(self.editor.toPlainText())
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
