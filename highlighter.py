@@ -76,9 +76,3 @@ class Highlighter(QSyntaxHighlighter):
             if word.tagIsOn:
                 self.setFormat(word.partOfSpeechStart, word.partOfSpeechLen,
                                self.formats['partOfSpeech'])
-        # try:
-        #     print(self.words[0].start)
-        #     print(self.words[1].start)
-        #     print(self.words[2].start)
-        # except:
-        #     pass

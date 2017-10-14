@@ -52,3 +52,11 @@ Features comming soon:
 	* Change the tag dropdown to fixed mode
 	* Fix the highlight bug which leads to bad perfomance
 
+	
+- Version: 0.5 (2017.10.14)
+
+- Changelog
+	
+	* Fix "change-tag dropdown appears in the wrong position after resizing the window"
+	* Fix "find & replace triggers change-tag dropdown wrongly"
+	* Fix "editor somtimes doesn't save the change in real-time editing"

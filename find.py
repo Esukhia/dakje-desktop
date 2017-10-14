@@ -4,6 +4,8 @@
 from PyQt5 import QtWidgets
 #PYQT5 QTextEdit, QDialog, QPushButton, QRadioButton, QGridLayout
 
+from functools import wraps
+
 
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt
@@ -69,6 +71,7 @@ class FindDialog(QtWidgets.QDialog):
         self.normalRadio.setChecked(True)
 
     def find(self):
+        self.parent.editor.cursorPositionChanged.disconnect()
 
         # Grab the parent's text
         text = self.parent.editor.toPlainText()
@@ -117,34 +120,49 @@ class FindDialog(QtWidgets.QDialog):
                 # We set the cursor to the end if the search was unsuccessful
                 self.parent.editor.moveCursor(QtGui.QTextCursor.End)
 
-    def replace(self):
+        self.parent.editor.cursorPositionChanged.connect(
+            self.parent.cursorIsChanged)
+
+    def replace(self, highlight=True):
+        self.parent.editor.cursorPositionChanged.disconnect()
+        self.parent.editor.textChanged.disconnect()
 
         # Grab the text cursor
         cursor = self.parent.editor.textCursor()
 
         # Security
         if cursor.hasSelection():
+            for word in self.parent.words:
+                if cursor.selectionStart() == word.partOfSpeechStart + 1 and \
+                        cursor.selectionEnd() == word.partOfSpeechEnd + 1:
+                    word.partOfSpeech = self.replaceField.toPlainText()
 
-            # We insert the new text, which will override the selected
-            # text
             cursor.insertText(self.replaceField.toPlainText())
 
             # And set the new cursor
             self.parent.editor.setTextCursor(cursor)
 
-    def replaceAll(self):
+        self.parent.editor.cursorPositionChanged.connect(
+            self.parent.cursorIsChanged)
+        self.parent.editor.textChanged.connect(
+            self.parent.textIsChanged)
 
+        if highlight:
+            self.parent.highlight()
+
+    def replaceAll(self):
         self.lastStart = 0
 
         self.find()
 
         # Replace and find until self.lastStart is 0 again
         while self.lastStart:
-            self.replace()
+            self.replace(highlight=False)
             self.find()
 
-    def moveCursor(self,start,end):
+        self.parent.highlight()
 
+    def moveCursor(self,start,end):
         # We retrieve the QTextCursor object from the parent's QTextEdit
         cursor = self.parent.editor.textCursor()
 

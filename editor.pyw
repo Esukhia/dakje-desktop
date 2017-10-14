@@ -105,11 +105,13 @@ class MainWindow(QMainWindow):
         self.editor.setFont(font)
         self.editor.cursorPositionChanged.connect(self.cursorIsChanged)
         self.editor.textChanged.connect(self.textIsChanged)
+        self.editor.mousePressEvent = self.mouseIsPressed
 
         self.highlighter = Highlighter(self.editor.document())
 
     def cursorIsChanged(self):
         cursor = self.editor.textCursor()
+
         self.updateStatusBar(cursor)
 
         self.previousPosition = self.currentPosition
@@ -130,15 +132,6 @@ class MainWindow(QMainWindow):
                 'end': None
             }
 
-        if self.tagsModeOn:
-            position = self.editor.textCursor().position()
-            for word in self.words:
-                if position in range(
-                        word.partOfSpeechStart, word.partOfSpeechEnd + 1):
-                    self.selectedWord = word
-                    self.changeTag()
-                    break
-
     def updateStatusBar(self, cursor):
         # Mortals like 1-indexed things
         line = cursor.blockNumber() + 1
@@ -147,6 +140,9 @@ class MainWindow(QMainWindow):
 
     def textIsChanged(self):
         if self.words:
+            if not self.editor.toPlainText():
+                self.words = []
+
             if self.previousSelection['selected']:
                 shift = self.currentPosition - self.previousPosition
 
@@ -165,40 +161,71 @@ class MainWindow(QMainWindow):
 
             else:
                 shift = self.currentPosition - self.previousPosition
-
+                # 推位移
                 for word in self.words:
                     if word.start >= self.previousPosition:
                         word.start += shift
 
-                if self.spacesModeOn:
-                    reSegmentList = []
-                    newWordList =[]
+                # 處理那個字
+                if not self.spacesModeOn:
+                    removedList = []
+                    for i, word in enumerate(self.words):
+                        if word.start + 1 <= self.previousPosition <= word.end:
+                            removedList.append(i)
+
+                    for i in reversed(removedList):
+                        self.words.pop(i)
+                else:
+                    newWords = []
+                    newWords2 = []
+                    initPos = None
                     for index, word in enumerate(self.words):
-                        if word.start < self.previousPosition <= word.end:
+                        # split words
+                        if word.start < self.currentPosition <= word.end:
+                            initPos = word.start
                             text = self.editor.toPlainText()
                             sentence = text[
                                 word.start: self.words[index + 1].start]
                             words = sentence.split()
-                            reSegmentList.append((index, words))
-
-                        if self.currentPosition == word.start == self.words[index - 1].end + 1:
-                            text = self.editor.toPlainText()
-                            newWord = text[
-                                self.words[index - 1].start: word.end + 1]
-                            newWordList.append((index, newWord))
+                            newWords.append((index, words))
+                            break
 
 
-                    for index, words in reversed(reSegmentList):
+                        if word.start == self.currentPosition:
+                            # concat words
+                            if self.words[index - 1].end + 1 == self.currentPosition:
+                                initPos = self.words[index - 1].start
+                                text = self.editor.toPlainText()
+                                word = text[
+                                    self.words[index - 1].start:
+                                    self.words[index].end + 1]
+                                newWords2.append((index - 1, [word]))
+                                break
+
+                            # 在字首加字
+                            else:
+                                initPos = word.start - 1
+                                text = self.editor.toPlainText()
+                                word = text[word.start - 1:
+                                            word.end]
+                                newWords.append((index, [word]))
+                                break
+
+                    for index, words in reversed(newWords):
                         words = [Word(word) for word in words]
                         self.wordManager.tag(words)
                         self.wordManager.checkLevel(words)
-                        self.words[index: index] = words
+                        self.calStart(words, initPos=initPos)
+                        self.words[index: index + 1] = words
 
-                    for index, newWord in reversed(newWordList):
-                        newWord = [Word(newWord)]
-                        self.wordManager.tag(newWord)
-                        self.wordManager.checkLevel(newWord)
-                        self.words[index - 1: index] = newWord
+                    for index, words in reversed(newWords2):
+                        words = [Word(word) for word in words]
+                        self.wordManager.tag(words)
+                        self.wordManager.checkLevel(words)
+                        self.calStart(words, initPos=initPos)
+                        self.words[index: index + 2] = words
+
+
 
             self.highlighter.setWords(self.words)
             self.highlight()
@@ -444,9 +471,15 @@ class MainWindow(QMainWindow):
             triggered=FindDialog(self).show)
 
     def setTextByDisplayMode(self):
+        self.editor.textChanged.disconnect()
+        self.editor.setPlainText(self.calStart(self.words))
+        self.editor.textChanged.connect(self.textIsChanged)
+
+
+    def calStart(self, words, initPos=0):
         text = []
-        end = 0
-        for word in self.words:
+        end = initPos
+        for word in words:
             start = end
             end = start + len(word.content)
 
@@ -465,23 +498,32 @@ class MainWindow(QMainWindow):
                 text.append(' ')
                 end += 1
 
-        self.editor.textChanged.disconnect()
-        self.editor.setPlainText(''.join(text))
-        self.editor.textChanged.connect(self.textIsChanged)
+        return ''.join(text)
 
     # tag
-    def changeTag(self):
-        self.box = ComboBox(self)
-        self.box.addItems(self.partOfSpeeches)
+    def mouseIsPressed(self, event):
+        QTextEdit.mousePressEvent(self.editor, event)
 
-        pos = QCursor().pos()
-        self.box.setGeometry(pos.x(), pos.y(), 100, 200)
-        self.box.activated.connect(self.changing)
-        self.box.showPopup()
+        if self.tagsModeOn:
+            position = self.editor.textCursor().position()
+            for word in self.words:
+                if position in range(
+                        word.partOfSpeechStart, word.partOfSpeechEnd + 1):
+                    self.selectedWord = word
+                    self.changeTag(event.pos())
+                    break
+
+    def changeTag(self, pos):
+        self.editor.box = ComboBox(self.editor)
+        self.editor.box.setStyleSheet('font-size: 16px;')
+        self.editor.box.addItems(self.partOfSpeeches)
+        self.editor.box.setGeometry(pos.x(), pos.y() + 16, 50, 80)
+        self.editor.box.activated.connect(self.changing)
+        self.editor.box.showPopup()
 
     def changing(self):
-        tagName = self.box.currentText()
-        self.box.hideManually()
+        tagName = self.editor.box.currentText()
+        self.editor.box.hideManually()
 
         self.editor.cursorPositionChanged.disconnect()
 
@@ -497,8 +539,9 @@ class MainWindow(QMainWindow):
         elif mode == 'Tags':
             self.tagsModeOn = not self.tagsModeOn
 
-        if not self.words[0].partOfSpeech:
-            self.wordManager.tag(self.words)
+        if self.words:
+            if not self.words[0].partOfSpeech:
+                self.wordManager.tag(self.words)
 
         self.setTextByDisplayMode()
         self.highlight()

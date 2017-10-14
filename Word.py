@@ -39,6 +39,7 @@ class Word:
     def partOfSpeechLen(self):
         return len(self.partOfSpeech) + 1 # plus one for '/'
 
+
 class WordManager:
     def __init__(self):
         self.RDRPath = 'Tibetan.RDR'
