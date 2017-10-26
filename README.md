@@ -60,3 +60,13 @@ Features comming soon:
 	* Fix "change-tag dropdown appears in the wrong position after resizing the window"
 	* Fix "find & replace triggers change-tag dropdown wrongly"
 	* Fix "editor somtimes doesn't save the change in real-time editing"
+
+	
+- Version: 0.6 (2017.10.26)
+
+- Changelog
+	
+	* Add a new feature "Customed words level list and rules"
+	* Add a new feature "Profiles managements"
+	* Refactor codes to be more object-oriented
+	* Make some adjustments in UI
