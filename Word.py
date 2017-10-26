@@ -1,15 +1,9 @@
 
-import os
-import misc
 
 from typing import List, Set
 
 from RDRPOSTagger import strTag, getPartOfSpeeches
 from pytib import Segment
-
-from PyQt5.QtCore import Qt, QRegExp
-from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QFont
-
 
 class Word:
     def __init__(self, content):
@@ -18,43 +12,27 @@ class Word:
         self.tagIsOn = False
         self.level = 0
         self.start = 0
-
-    @property
-    def __len__(self):
-        return len(self.content)
+        self.length = len(self.content)
 
     @property
     def end(self):
-        return self.start + len(self.content) - 1
-
-    @property
-    def partOfSpeechStart(self):
-        return self.end + 1
+        return self.start + len(self.content)
 
     @property
     def partOfSpeechEnd(self):
-        return self.partOfSpeechStart + self.partOfSpeechLen - 1
+        return self.end + self.partOfSpeechLen
 
     @property
     def partOfSpeechLen(self):
         return len(self.partOfSpeech) + 1 # plus one for '/'
 
-
 class WordManager:
-    def __init__(self):
+    def __init__(self, parent):
+        self.parent = parent
+
         self.RDRPath = 'Tibetan.RDR'
         self.DICTPath = 'Tibetan.DICT'
-        self.wordsLevelDict = {}
-
-        for level in range(1, 4):
-            with open('files/Lists/General/{0}/General_Level_{0}'.format(
-                    level), encoding='utf-8') as f:
-                for line in f.readlines():
-                    word = line.rstrip('\n')
-                    # add a tsek where missing
-                    if not word.endswith('་'):
-                        word += '་'
-                    self.wordsLevelDict[word] = level
+        self._words = []
 
     def getPartOfSpeeches(self) -> Set[str]:
         return getPartOfSpeeches(self.DICTPath)
@@ -81,6 +59,123 @@ class WordManager:
 
         assert len(words) == len(taggedWords)
 
-    def checkLevel(self, words: List[Word]) -> None:
-        for word in words:
-            word.level = self.wordsLevelDict.get(word.content, 0)
+    def getWords(self, start=None, end=None):
+        if not start and not end:
+            return self._words
+
+        elif start and not end:
+            # 大於等於 start
+            index = None
+            for i, word in enumerate(self._words):
+                if word.start >= start:
+                    index = i
+                    break
+            return self._words[index:]
+
+    def getPartOfSpeechWord(self, position):
+        # position 介於 start, end 之間(不包含)，用在 changeTag
+        for i, word in enumerate(self._words):
+            if word.start < position < word.partOfSpeechEnd:
+                return word
+
+    def getWord(self, position):
+        # position 介於 start, end 之間(不包含)，用在 changeTag
+        for i, word in enumerate(self._words):
+            if word.start < position < word.end:
+                return word
+
+    def removeWord(self, position):
+        # position 介於 start, end 之間(不包含)，用在 插入字元在字中間
+        for i, word in enumerate(self._words):
+            if word.start < position < word.end:
+                self._words.pop(i)
+                return
+
+    def removeWords(self, start, end):
+        # start 剛好 < 第一個字的 end
+        # end 剛好 > 最後一個字的 start
+        if not self._words:
+            return
+
+        i = 0
+        deleted = False
+        deletedIndex = []
+        while True:
+            if start in range(self._words[i].start, self._words[i].end):
+                deleted = True
+            if deleted:
+                deletedIndex.append(i)
+            if end in range(self._words[i].start + 1, self._words[i].end + 1):
+                deleted = False
+            i += 1
+            if i == len(self._words):
+                break
+
+        for i in reversed(deletedIndex):
+            self._words.pop(i)
+
+    def setWords(self, words):
+        self._words = words
+
+    def popWord(self, index):
+        self._words.pop(index)
+
+    def insertWordsByIndex(self, wordTuples):
+        # [(Word('abc'), 3), ...] or
+        # [(Word('abc'), 3),
+        #  ([Word('abc'), Word('def')], 4)...]
+        for wordTuple in wordTuples:
+            self._words[wordTuple[1]: wordTuple[1]] = wordTuple[0]
+
+    def getNoSegBlocks(self, textLen):  # return [(start, end, index), ...]
+        noSegBlocks = []
+
+        if not self._words:
+            noSegBlocks =  [(0, textLen, 0)]
+
+        else:
+            index = 0
+            wordIndex = 0
+            start, end = None, None
+            while True:
+                if index == textLen or wordIndex == len(self._words):
+                    break
+
+                if index == self._words[wordIndex].end:
+                    if index == self._words[wordIndex + 1].start:
+                        # 同時也等於下一個字的開始
+                        wordIndex += 1
+                    else:
+                        if not start:
+                            start = index
+                            wordIndex += 1
+                elif index == self._words[wordIndex].start:
+                    if start:
+                        end = index
+                        noSegBlocks.append((start, end, wordIndex))
+                        start = None
+                index += 1
+
+        return noSegBlocks
+
+    def reSegmentWord(self, curPos, prePos, text):
+        # position 介於 start, end 之間(不包含)，用在 插入空白
+        start, end, index = None, None, None
+        for i, word in enumerate(self._words):
+            if word.start == curPos and curPos < prePos:
+                start, end, index = self._words[i - 1].start, word.end + 1, i - 1
+                self._words.pop(i)
+                self._words.pop(i - 1)
+                break
+
+            if word.start < prePos < word.end:
+                start, end, index = word.start, word.end + 1, i
+                self._words.pop(index)
+                break
+        else:
+            return
+
+        newWordStrings = text[start: end].split()
+        newWords = [Word(s) for s in newWordStrings]
+        self.tag(newWords)
+        self.insertWordsByIndex([(newWords, index)])
