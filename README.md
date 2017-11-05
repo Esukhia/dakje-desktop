@@ -70,3 +70,10 @@ Features comming soon:
 	* Add a new feature "Profiles managements"
 	* Refactor codes to be more object-oriented
 	* Make some adjustments in UI
+
+- Version: 0.7 (2017.11.05)
+
+- Changelog
+
+    * Minor changes on UI 
+      (Undo/Redo detection, window title displays file name & profile name)

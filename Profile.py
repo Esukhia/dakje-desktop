@@ -2,7 +2,7 @@
 import os
 import json
 import zipfile
-import textwrap
+import re
 
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
@@ -124,13 +124,11 @@ class ProfileManager:
                 self.msg.show()
 
             else:
-                if '_' in self.parent.windowTitle():
-                    self.parent.setWindowTitle(
-                        '_'.join(self.parent.windowTitle().split('_')[:-1]))
-
+                # 改 window title
                 profileName = filePath.split('/')[-1]
                 self.parent.setWindowTitle(
-                    self.parent.windowTitle() + '_' + profileName)
+                    re.sub(r'\(.*\)', '(' + profileName + ')',
+                           self.parent.windowTitle()))
 
                 self.parent.textFormatManager.clear()
                 for textFormat, listName, ruleName in textFormats:

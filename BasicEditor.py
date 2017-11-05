@@ -21,7 +21,7 @@ class BasicEditor(QMainWindow):
         self.setupToolBar()
         self.setupLayout()
 
-        self.setWindowTitle("Editor" + '(untitled)')
+        self.setWindowTitle("Untitled - Editor")
         self.setWindowIcon(QIcon("tab1.png"))
         self.setWindowState(Qt.WindowMaximized)
         self.resize(1200, 480)
@@ -34,6 +34,9 @@ class BasicEditor(QMainWindow):
 
         self.textEdit = QTextEdit()
         self.textEdit.setFont(font)
+
+        self.textEdit.redoAvailable.connect(self.redoAction.setEnabled)
+        self.textEdit.undoAvailable.connect(self.undoAction.setEnabled)
 
     def setupMenus(self):
         self.menu = self.menuBar()
@@ -102,9 +105,9 @@ class BasicEditor(QMainWindow):
         ### Redo ###
         self.redoAction = QAction(
             QIcon('files/editredo.png'), "&Redo", self)
-        self.openFileAction.setShortcut(QKeySequence.Redo)
-        self.openFileAction.setStatusTip("Redo the last editing action")
-        self.openFileAction.triggered.connect(self.redo)
+        self.redoAction.setShortcut(QKeySequence.Redo)
+        self.redoAction.setStatusTip("Redo the last editing action")
+        self.redoAction.triggered.connect(self.redo)
 
         ### Quit ###
         self.actionQuit = QAction("&Quit", self)
@@ -127,14 +130,6 @@ class BasicEditor(QMainWindow):
             with open(self.filename, "r", encoding='utf-8') as f:
                 self.textEdit.setText(f.read())
 
-            windowTitle = self.windowTitle()
-            start = windowTitle.find('(')
-            end = windowTitle.find(')')
-            self.setWindowTitle(
-                windowTitle[: start + 1] +
-                self.filename.split('/')[-1] +
-                windowTitle[end:]
-            )
 
     def saveFile(self):
         if not self.filename:

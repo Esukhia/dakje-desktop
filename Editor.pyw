@@ -72,13 +72,16 @@ class TibetanEditor(BasicEditor):
 
         super().__init__(parent)
 
-        if os.path.exists('temp.profile'):
-            self.profileManager.openProfile(filePath='temp.profile')
+        self.setWindowTitle("Untitled (default.profile) - TibetanEditor")
+
+        if not os.path.exists('default.profile'):
+            self.profileManager.saveProfile(filePath='default.profile')
+        self.profileManager.openProfile(filePath='default.profile')
 
     def closeEvent(self, *args, **kwargs):
         if not self.forceClose:
             self.eventHandler.checkSaving()
-            self.profileManager.saveProfile(filePath='temp.profile')
+            self.profileManager.saveProfile(filePath='default.profile')
         super().closeEvent(*args, **kwargs)
 
     def handleException(self):
@@ -97,6 +100,7 @@ class TibetanEditor(BasicEditor):
     def newFile(self):
         self.eventHandler.checkSaving()
         super().newFile()
+        self.filename = "Untitled (default.profile) - TibetanEditor"
         self.eventHandler.changedWithoutSaving = False
         self.eventHandler.checkTitle()
 
@@ -104,12 +108,19 @@ class TibetanEditor(BasicEditor):
         super().saveFile()
         self.eventHandler.changedWithoutSaving = False
         self.eventHandler.checkTitle()
+        self.setWindowTitle(
+            self.filename.split('/')[-1] + ' ' +
+            ' '.join(self.windowTitle().split(' ')[1:]))
 
     def openFile(self):
         self.eventHandler.checkSaving()
         super().openFile()
         self.eventHandler.changedWithoutSaving = False
         self.eventHandler.checkTitle()
+
+        self.setWindowTitle(
+            self.filename.split('/')[-1] + ' ' +
+            ' '.join(self.windowTitle().split(' ')[1:]))
 
     def setupLayout(self):
         self.tabWidget = TabWidget(self)
