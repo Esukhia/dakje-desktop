@@ -100,6 +100,7 @@ class BasicEditor(QMainWindow):
             QIcon('files/editundo.png'), "&Undo", self)
         self.undoAction.setShortcut(QKeySequence.Undo)
         self.undoAction.setStatusTip("Undo the last editing action")
+        self.undoAction.setEnabled(False)
         self.undoAction.triggered.connect(self.undo)
 
         ### Redo ###
@@ -107,6 +108,7 @@ class BasicEditor(QMainWindow):
             QIcon('files/editredo.png'), "&Redo", self)
         self.redoAction.setShortcut(QKeySequence.Redo)
         self.redoAction.setStatusTip("Redo the last editing action")
+        self.redoAction.setEnabled(False)
         self.redoAction.triggered.connect(self.redo)
 
         ### Quit ###
