@@ -16,6 +16,7 @@ class TextFormat(QTextCharFormat):
         self.type = type  # level or pos
 
         self.counter = 0
+        self.counterDict = {}
 
         # Tab
         self.tabHBox = None

@@ -9,10 +9,10 @@ import textwrap
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QPoint
-from PyQt5.QtGui import QIcon,  QTextCursor
+from PyQt5.QtGui import QIcon,  QTextCursor, QTextOption
 from PyQt5.QtWidgets import (QAction, QApplication, QComboBox,
                              QStyleFactory, QWidget, QMessageBox,
-                             QHBoxLayout, QVBoxLayout)
+                             QHBoxLayout, QVBoxLayout, QTextEdit)
 
 from highlighter import Highlighter
 
@@ -207,7 +207,8 @@ class TibetanEditor(BasicEditor):
             self.wordManager.insertWordsByIndex([(newWords, index)])
 
         self.modeManager.setText()
-        self.highlightViewpoint()
+        self.highlightViewpoint(
+            currentBlock=self.textEdit.document().firstBlock())
 
         self.spacesOpenAction.setEnabled(True)
         self.tagsOpenAction.setEnabled(True)
@@ -228,24 +229,33 @@ class TibetanEditor(BasicEditor):
         self.highlightViewpoint()
 
     # highlight
-    def highlightViewpoint(self):
+    def highlightViewpoint(self, currentBlock=None):
         cursor = self.textEdit.cursorForPosition(QPoint(0, 0))
         bottom_right = QPoint(self.textEdit.viewport().width() - 1,
                               self.textEdit.viewport().height() - 1)
         end_pos = self.textEdit.cursorForPosition(bottom_right).position()
         cursor.setPosition(end_pos, QTextCursor.KeepAnchor)
 
-        highlightedWords = [word for word in self.wordManager.getWords()
-                            if word.start >= cursor.selectionStart() and
-                            word.end < cursor.selectionEnd()]
-
-        self.highlighter.words = highlightedWords
         self.highlighter.formatList = self.textFormatManager.getFormats()
-
         self.highlighter.highLightBlockOn = True
         self.textEdit.textChanged.disconnect()
 
-        self.highlighter.rehighlight()
+        viewPointStart = cursor.selectionStart()
+        viewPointEnd = cursor.selectionEnd()
+
+        if not currentBlock:
+            textCursor = self.textEdit.textCursor()
+            textCursor.setPosition(viewPointStart)
+            currentBlock = textCursor.block()
+
+        print(viewPointStart, viewPointEnd)
+        while True:
+            if (not currentBlock.isValid() or
+                    currentBlock.position() > viewPointEnd):
+                break
+            self.highlighter.rehighlightBlock(currentBlock)
+            print(currentBlock.blockNumber())
+            currentBlock = currentBlock.next()
 
         self.textEdit.textChanged.connect(self.eventHandler.textChanged)
         self.highlighter.highLightBlockOn = False

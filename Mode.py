@@ -28,7 +28,7 @@ class ModeManager:
             text.append(word.content)
             word.start = start
 
-            if self._tagModeOn:
+            if self._tagModeOn and word.content != '\n':
                 text.append('/')
                 text.append(word.partOfSpeech)
                 word.tagIsOn = True
@@ -52,5 +52,6 @@ class ModeManager:
             self._tagModeOn = not self._tagModeOn
 
         self.setText()
-        self.parent.highlightViewpoint()
+        self.parent.highlightViewpoint(
+            currentBlock=self.parent.textEdit.document().firstBlock())
         self.checkIcon()

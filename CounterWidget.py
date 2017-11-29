@@ -34,4 +34,5 @@ class CounterWidget(QWidget):
 
     def refresh(self):
         for textFormat in self.parent.textFormatManager.getFormats():
-            textFormat.counterLabel.setText(str(textFormat.counter))
+            textFormat.counterLabel.setText(
+                str(sum(textFormat.counterDict.values())))

@@ -8,27 +8,38 @@ class Highlighter(QSyntaxHighlighter):
         self.mainWindow = mainWindow
         self.textFormatManager = self.mainWindow.textFormatManager
         self.highLightBlockOn = False
-        self.words = []
         self.formatList = []
 
     def highlightBlock(self, text):
         if not self.highLightBlockOn:
             return
 
-        for textFormat in self.textFormatManager.getFormats():
-            textFormat.counter = 0
-
         wordFormatDict = self.textFormatManager.getWordFormatDict()
         defaultFormat = self.textFormatManager.getDefaultFormat()
         partOfSpeechFormat = self.textFormatManager.getPartOfSpeechFormat()
+        currentBlock = self.currentBlock()
 
-        for word in self.words:
+        for textFormat in self.mainWindow.textFormatManager.getFormats():
+            textFormat.counterDict[str(currentBlock.blockNumber())] = 0
+        self.mainWindow.textFormatManager.getDefaultFormat().counterDict[
+            str(currentBlock.blockNumber())] = 0
+        self.mainWindow.textFormatManager.getPartOfSpeechFormat().counterDict[
+            str(currentBlock.blockNumber())] = 0
+
+        
+        start = currentBlock.position()
+        end = start + currentBlock.length()
+        wordsToHighlight = self.mainWindow.wordManager.getWords(start, end)
+
+        for word in wordsToHighlight:
             textFormat = wordFormatDict.get(word.content, defaultFormat)
-            self.setFormat(word.start, word.length, textFormat)
-            textFormat.counter += 1
+
+            self.setFormat(word.start - start, word.length, textFormat)
+
+            textFormat.counterDict[str(currentBlock.blockNumber())] += 1
 
             if word.tagIsOn:
-                self.setFormat(word.end, word.partOfSpeechLen,
+                self.setFormat(word.end - start, word.partOfSpeechLen,
                                partOfSpeechFormat)
 
         for textFormat in self.textFormatManager.getFormats():
@@ -38,7 +49,9 @@ class Highlighter(QSyntaxHighlighter):
                 while index >= 0:
                     length = expression.matchedLength()
                     self.setFormat(index, length, textFormat)
-                    textFormat.counter += 1
                     index = expression.indexIn(text, index + length)
+
+                    textFormat.counterDict[
+                        str(currentBlock.blockNumber())] += 1
 
         self.mainWindow.counterWidget.refresh()

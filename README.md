@@ -50,7 +50,7 @@ Features comming soon:
     * Add Find & Replace function
     * Add real-time detecting when editing
 	* Change the tag dropdown to fixed mode
-	* Fix the highlight bug which leads to bad perfomance
+	* Fix the highlight bug which leads to bad performance
 
 	
 - Version: 0.5 (2017.10.14)
@@ -71,9 +71,8 @@ Features comming soon:
 	* Refactor codes to be more object-oriented
 	* Make some adjustments in UI
 
-- Version: 0.7 (2017.11.05)
-
+- Version: 0.7 (2017.11.29)
+ 
 - Changelog
 
-    * Minor changes on UI 
-      (Undo/Redo detection, window title displays file name & profile name)
+    *  Changed the processing logic from "based on words" to "based on blocks"  which speeds up the performance.

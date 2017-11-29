@@ -41,23 +41,40 @@ class WordManager:
         if sentence == '':
             return []
         else:
-            return [Word(s.replace('#', ''))
-                    for s in Segment().segment(sentence, reinsert_aa=True).split()]
+            words = []
+            for s in Segment().segment(sentence, reinsert_aa=True).split(' '):
+                if s:
+                    if '\n' in s:
+                        words.append(Word('\n'))
+                    else:
+                        words.append(Word(s.replace('#', '')))
+            return words
 
     def tag(self, words: List[Word]) -> None:
-        taggedWords = []
-        for wordStr in strTag(' '.join([w.content for w in words]),
-                              self.RDRPath, self.DICTPath).split():
-            content = wordStr.split('/')[0]
-            partOfSpeech = wordStr.split('/')[1]
-            newWord = Word(content)
-            newWord.partOfSpeech = partOfSpeech
-            taggedWords.append(newWord)
+        tags = []
+
+        batchWords = []
+        for word in words:
+            if word.content == '\n':
+                for wordStr in strTag(' '.join([w.content for w in batchWords]),
+                                      self.RDRPath, self.DICTPath).split(' '):
+                    partOfSpeech = wordStr.split('/')[1]
+                    tags.append(partOfSpeech)
+                tags.append('NOUN')
+                batchWords = []
+            else:
+                batchWords.append(word)
+
+        if batchWords:
+            for wordStr in strTag(' '.join([w.content for w in batchWords]),
+                                  self.RDRPath, self.DICTPath).split(' '):
+                partOfSpeech = wordStr.split('/')[1]
+                tags.append(partOfSpeech)
 
         for index, word in enumerate(words):
-            word.partOfSpeech = taggedWords[index].partOfSpeech
+            word.partOfSpeech = tags[index]
 
-        assert len(words) == len(taggedWords)
+        assert len(words) == len(tags)
 
     def getWords(self, start=None, end=None):
         if not start and not end:
@@ -70,7 +87,21 @@ class WordManager:
                 if word.start >= start:
                     index = i
                     break
-            return self._words[index:]
+
+            if not index:
+                return []
+            else:
+                return self._words[index:]
+
+        elif start is not None and end is not None:
+            # 大於等於 start 小於等於 end
+            words = []
+            for i, word in enumerate(self._words):
+                if word.start >= start:
+                    words.append(word)
+                if word.end >= end:
+                    break
+            return words
 
     def getPartOfSpeechWord(self, position):
         # position 介於 start, end 之間(不包含)，用在 changeTag
@@ -131,7 +162,7 @@ class WordManager:
         noSegBlocks = []
 
         if not self._words:
-            noSegBlocks =  [(0, textLen, 0)]
+            noSegBlocks = [(0, textLen, 0)]
 
         else:
             index = 0
