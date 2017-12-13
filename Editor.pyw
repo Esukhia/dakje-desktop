@@ -248,13 +248,11 @@ class TibetanEditor(BasicEditor):
             textCursor.setPosition(viewPointStart)
             currentBlock = textCursor.block()
 
-        print(viewPointStart, viewPointEnd)
         while True:
             if (not currentBlock.isValid() or
                     currentBlock.position() > viewPointEnd):
                 break
             self.highlighter.rehighlightBlock(currentBlock)
-            print(currentBlock.blockNumber())
             currentBlock = currentBlock.next()
 
         self.textEdit.textChanged.connect(self.eventHandler.textChanged)

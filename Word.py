@@ -58,8 +58,9 @@ class WordManager:
             if word.content == '\n':
                 for wordStr in strTag(' '.join([w.content for w in batchWords]),
                                       self.RDRPath, self.DICTPath).split(' '):
-                    partOfSpeech = wordStr.split('/')[1]
-                    tags.append(partOfSpeech)
+                    partOfSpeech = wordStr.split('/')
+                    if len(partOfSpeech) > 1:  # is split by '/'
+                        tags.append(partOfSpeech[1])
                 tags.append('NOUN')
                 batchWords = []
             else:
@@ -165,27 +166,16 @@ class WordManager:
             noSegBlocks = [(0, textLen, 0)]
 
         else:
-            index = 0
-            wordIndex = 0
-            start, end = None, None
-            while True:
-                if index == textLen or wordIndex == len(self._words):
-                    break
-
-                if index == self._words[wordIndex].end:
-                    if index == self._words[wordIndex + 1].start:
-                        # 同時也等於下一個字的開始
-                        wordIndex += 1
-                    else:
-                        if not start:
-                            start = index
-                            wordIndex += 1
-                elif index == self._words[wordIndex].start:
-                    if start:
-                        end = index
-                        noSegBlocks.append((start, end, wordIndex))
-                        start = None
-                index += 1
+            for i, word in enumerate(self._words):
+                if i == len(self._words) - 1:
+                    if not self._words[i].end == textLen:
+                        noSegBlocks.append(
+                            (self._words[i].end, textLen, i + 1))
+                else:
+                    if not self._words[i].end == self._words[i + 1]:
+                        noSegBlocks.append(
+                            (self._words[i].end,
+                             self._words[i + 1].start, i + 1))
 
         return noSegBlocks
 

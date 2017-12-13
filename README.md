@@ -76,3 +76,8 @@ Features comming soon:
 - Changelog
 
     *  Changed the processing logic from "based on words" to "based on blocks"  which speeds up the performance.
+
+- Version: 0.71 (2017/12/13)
+
+    * Fix the error occurs when adding new sentences at the end of the article after segmenting
+    * Fix the error occurs when segmenting a new blank line
