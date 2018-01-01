@@ -7,7 +7,7 @@ def initializeSentence(FREQDICT, sentence):
     taggedSen = []
     for word in words:
         if word in ["“", "”", "\""]:
-            taggedSen.append("''/" + FREQDICT["''"])
+            taggedSen.append("''ᚽ" + FREQDICT["''"])
             continue
 
         tag = ''
@@ -44,7 +44,7 @@ def initializeSentence(FREQDICT, sentence):
                 else:
                     tag = FREQDICT["TAG4UNKN-WORD"]
 
-        taggedSen.append(word + "/" + tag)
+        taggedSen.append(word + "ᚽ" + tag)
 
     return " ".join(taggedSen)
 

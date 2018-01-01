@@ -3,8 +3,7 @@ from typing import List, Set
 
 from RDRPOSTagger.new_api import Tagger, models
 from pytib import Segment
-from Tokenizer import Tokenizer
-from ProcessingPipeline import Pipeline
+
 
 class Word:
     def __init__(self, content):
@@ -33,8 +32,6 @@ class WordManager:
         self.parent = parent
         self.lang = "bo"
         self.mode = "default"
-        self.tagger = None
-        self.tokenizer = None
         self._words = []
 
     def getPartOfSpeeches(self) -> Set[str]:
@@ -46,15 +43,44 @@ class WordManager:
         return partOfSpeeches
 
     def segment(self, sentence: str) -> List[Word]:
-        if not self.tokenizer:
-            self.tokenizer = Segment()  # only instanciate when required
-            self.tokenizer.include_user_vocab()
-        return [Word(token) for token in Tokenizer(self.tokenizer).process(sentence)]
+        if sentence == '':
+            return []
+        else:
+            words = []
+            for s in Segment().segment(sentence, unknown=0, reinsert_aa=False, space_at_punct=True,
+                                       distinguish_ra_sa=True, affix_particles=True).split(' '):
+                if s:
+                    if '\n' in s:
+                        words.append(Word('\n'))
+                    else:
+                        words.append(Word(s.replace('ᛰ', '')))
+            return words
 
     def tag(self, words: List[Word]) -> None:
-        if not self.tagger or self.lang != self.tagger.language or self.mode != self.tagger.mode:
-            self.tagger = Tagger(language=self.lang, mode=self.mode)  # only instanciate when required
-        return Pipeline(self.tagger, words).applyPipeline()
+        tagger = Tagger(language=self.lang, mode=self.mode)
+        tags = []
+
+        batchWords = []
+        for word in words:
+            if word.content == '\n':
+                for wordStr in tagger.tag_raw_line(' '.join([w.content for w in batchWords])).split(' '):
+                    print(wordStr)
+                    partOfSpeech = wordStr.split('ᚽ')[1]
+                    tags.append(partOfSpeech)
+                tags.append('NOUN')
+                batchWords = []
+            else:
+                batchWords.append(word)
+
+        if batchWords:
+            for wordStr in tagger.tag_raw_line(' '.join([w.content for w in batchWords])).split(' '):
+                partOfSpeech = wordStr.split('ᚽ')[1]
+                tags.append(partOfSpeech)
+
+        for index, word in enumerate(words):
+            word.partOfSpeech = tags[index]
+
+        assert len(words) == len(tags)
 
     def getWords(self, start=None, end=None):
         if not start and not end:
@@ -145,21 +171,33 @@ class WordManager:
             noSegBlocks = [(0, textLen, 0)]
 
         else:
-            for i, word in enumerate(self._words):
-                if i == len(self._words) - 1:
-                    if not self._words[i].end == textLen:
-                        noSegBlocks.append(
-                            (self._words[i].end, textLen, i + 1))
-                else:
-                    if not self._words[i].end == self._words[i + 1]:
-                        noSegBlocks.append(
-                            (self._words[i].end,
-                             self._words[i + 1].start, i + 1))
+            index = 0
+            wordIndex = 0
+            start, end = None, None
+            while True:
+                if index == textLen or wordIndex == len(self._words):
+                    break
+
+                if index == self._words[wordIndex].end:
+                    if index == self._words[wordIndex + 1].start:
+                        # 同時也等於下一個字的開始
+                        wordIndex += 1
+                    else:
+                        if not start:
+                            start = index
+                            wordIndex += 1
+                elif index == self._words[wordIndex].start:
+                    if start:
+                        end = index
+                        noSegBlocks.append((start, end, wordIndex))
+                        start = None
+                index += 1
 
         return noSegBlocks
 
     def reSegmentWord(self, curPos, prePos, text):
         # position 介於 start, end 之間(不包含)，用在 插入空白
+        start, end, index = None, None, None
         for i, word in enumerate(self._words):
             if word.start == curPos and curPos < prePos:
                 start, end, index = self._words[i - 1].start, word.end + 1, i - 1

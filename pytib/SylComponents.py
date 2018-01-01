@@ -153,6 +153,18 @@ class SylComponents:
             else:
                 return syl
 
+    def is_affixable(self, word):
+        if '་' in word:
+            last_syl = word.split('་')[-1]
+        else:
+            last_syl = word
+        mingzhi = self.get_mingzhi(last_syl)
+
+        if mingzhi and re.findall(mingzhi + '([ྱྲླྭྷ]?[ིེོུ]?|(འ[ིོུ]?))$', last_syl) != []:
+            return True
+        else:
+            return False
+
     def is_thame(self, word):
         if '་' in word:
             last_syl = word.split('་')[-1]

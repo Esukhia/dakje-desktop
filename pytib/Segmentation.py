@@ -90,7 +90,7 @@ class Segment:
             if maybe[1] == 'འིའོ':
                 maybe[1] = maybe[1][:2]+' '+maybe[1][2:]
             if distinguish_ra_sa:
-                list2.append('_{}་'.format(maybe[1]))
+                list2.append('ᛰ{}་'.format(maybe[1]))
             else:
                 list2.append(maybe[1] + '་')
             # del list1[:num]
@@ -112,7 +112,6 @@ class Segment:
         string = string.replace('༌', '་')  # replaces unbreakable tseks by normal tseks.
         paragraphs = re.split(self.punct_regex, string)
         strip_list(paragraphs)
-
         text = []
         for par in paragraphs:
             words = []
@@ -229,7 +228,18 @@ class Segment:
 
         return ' '.join(words)
 
-    def segment(self, string, unknown=1, syl_segmented=0, space_at_punct=True, danying=False, reinsert_aa=False, distinguish_ra_sa=False):
+    def segment(self, string, unknown=1, syl_segmented=0, space_at_punct=True, danying=False, reinsert_aa=False, distinguish_ra_sa=False, affix_particles=True, attach_tseks=True):
+        '''
+
+        :param string: the string to be segmented
+        :param unknown: tag unknown tokens with # if 1, do nothing if 0
+        :param syl_segmented: output syllables with affixed particles correctly segmented if 1, segment in words in 0
+        :param space_at_punct: include a space between words and the punctuation blocks if True, apply punctuation as usual if False
+        :param danying: mark old spellings if True
+        :param reinsert_aa: reconstruct the aa at a word's end if it should have one (when the affixed particle is considered as a distinct word),
+        :param distinguish_ra_sa: add a char to distinguish ra and sa when they are affixed particles instead of normal words.
+        :return: string
+        '''
         uncompound = self.basis_segmentation(string, unknown=unknown, syl_segmented=syl_segmented, space_at_punct=space_at_punct,
                                              reinsert_aa=reinsert_aa, distinguish_ra_sa=distinguish_ra_sa)
         compound = self.do_compound(uncompound)
@@ -239,6 +249,13 @@ class Segment:
                 seg_a = self.do_compound(self.basis_segmentation(a, unknown=unknown, syl_segmented=syl_segmented, space_at_punct=space_at_punct,
                                          reinsert_aa=reinsert_aa, distinguish_ra_sa=distinguish_ra_sa))
                 compound = compound.replace(seg_a, '#-{}-#'.format(seg_a))
+
+        if affix_particles:
+            compound = compound.replace(' ᛰ', 'ᛰ')
+
+        if attach_tseks:
+            compound = compound.replace(' ་', '་ ').replace('_་', '_་')
+
         return compound
 
 

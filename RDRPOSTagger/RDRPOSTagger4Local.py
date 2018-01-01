@@ -2,18 +2,20 @@
 
 import os
 import sys
+os.chdir("../")
 sys.setrecursionlimit(100000)
-#sys.path.append(os.path.abspath(""))
-#os.chdir("./RDRPOSTagger/pSCRDRtagger")
+sys.path.append(os.path.abspath(""))
+# os.chdir("../")
+
 
 from multiprocessing import Pool
-from RDRPOSTagger.InitialTagger.InitialTagger import initializeCorpus, initializeSentence
-from RDRPOSTagger.SCRDRlearner.Object import FWObject
-from RDRPOSTagger.SCRDRlearner.SCRDRTree import SCRDRTree
-from RDRPOSTagger.SCRDRlearner.SCRDRTreeLearner import SCRDRTreeLearner
-from RDRPOSTagger.Utility.Config import NUMBER_OF_PROCESSES, THRESHOLD
-from RDRPOSTagger.Utility.Utils import getWordTag, getRawText, readDictionary
-from RDRPOSTagger.Utility.LexiconCreator import createLexicon
+from InitialTagger.InitialTagger import initializeCorpus, initializeSentence
+from SCRDRlearner.Object import FWObject
+from SCRDRlearner.SCRDRTree import SCRDRTree
+from SCRDRlearner.SCRDRTreeLearner import SCRDRTreeLearner
+from Utility.Config import NUMBER_OF_PROCESSES, THRESHOLD
+from Utility.Utils import getWordTag, getRawText, readDictionary
+from Utility.LexiconCreator import createLexicon
 
 def unwrap_self_RDRPOSTagger(arg, **kwarg):
     return RDRPOSTagger.tagRawSentence(*arg, **kwarg)
@@ -34,9 +36,9 @@ class RDRPOSTagger(SCRDRTree):
             word, tag = getWordTag(wordTags[i])
             node = self.findFiredNode(fwObject)
             if node.depth > 0:
-                sen.append(word + "ᚽ" + node.conclusion)
+                sen.append(word + "/" + node.conclusion)
             else:# Fired at root, return initialized tag
-                sen.append(word + "ᚽ" + tag)
+                sen.append(word + "/" + tag)
         return " ".join(sen)
 
     def tagRawCorpus(self, DICT, rawCorpusPath):
@@ -65,46 +67,49 @@ def run(args = sys.argv[1:]):
         printHelp()
     elif args[0].lower() == "train":
         try:
-            print ("\n====== Start ======"          )
-            print ("\nGenerate from the gold standard training corpus a lexicon", args[1] + ".DICT")
-            createLexicon(args[1], 'full')
-            createLexicon(args[1], 'short')
-            print ("\nExtract from the gold standard training corpus a raw text corpus", args[1] + ".RAW")
-            getRawText(args[1], args[1] + ".RAW")
-            print ("\nPerform initially POS tagging on the raw text corpus, to generate", args[1] + ".INIT")
-            DICT = readDictionary(args[1] + ".sDict")
-            initializeCorpus(DICT, args[1] + ".RAW", args[1] + ".INIT")
-            print ('\nLearn a tree model of rules for POS tagging from %s and %s' % (args[1], args[1] + ".INIT"))
+            lexicon_path = '.' + args[1]
+            goldTrain_path = os.path.join('RDRPOSTagger', args[1])
+
+            print("\n====== Start ======"          )
+            print("\nGenerate from the gold standard training corpus a lexicon", args[1] + ".DICT")
+            createLexicon(lexicon_path, 'full')
+            createLexicon(lexicon_path, 'short')
+            print("\nExtract from the gold standard training corpus a raw text corpus", args[1] + ".RAW")
+            getRawText(goldTrain_path, goldTrain_path + ".RAW")
+            print("\nPerform initially POS tagging on the raw text corpus, to generate", args[1] + ".INIT")
+            DICT = readDictionary(goldTrain_path + ".sDict")
+            initializeCorpus(DICT, goldTrain_path + ".RAW", goldTrain_path + ".INIT")
+            print('\nLearn a tree model of rules for POS tagging from %s and %s' % (args[1], args[1] + ".INIT"))
             rdrTree = SCRDRTreeLearner(THRESHOLD[0], THRESHOLD[1])
-            rdrTree.learnRDRTree(args[1] + ".INIT", args[1])
+            rdrTree.learnRDRTree(goldTrain_path + ".INIT", goldTrain_path)
             print ("\nWrite the learned tree model to file ", args[1] + ".RDR")
-            rdrTree.writeToFile(args[1] + ".RDR")
+            rdrTree.writeToFile(goldTrain_path + ".RDR")
             print ('\nDone!')
-            os.remove(args[1] + ".INIT")
-            os.remove(args[1] + ".RAW")
-            os.remove(args[1] + ".sDict")
+            os.remove(goldTrain_path + ".INIT")
+            os.remove(goldTrain_path + ".RAW")
+            os.remove(goldTrain_path + ".sDict")
         except Exception as e:
             print ("\nERROR ==> ", e)
             printHelp()
             raise e
     elif args[0].lower() == "tag":
         try:
+            rdr_path = os.path.join('RDRPOSTagger', args[1])
+            dict_path = os.path.join('RDRPOSTagger', args[2])
+            corpus_path = os.path.join('RDRPOSTagger', args[3])
+
             r = RDRPOSTagger()
             print ("\n=> Read a POS tagging model from", args[1])
-            r.constructSCRDRtreeFromRDRfile(args[1])
+            r.constructSCRDRtreeFromRDRfile(rdr_path)
             print ("\n=> Read a lexicon from", args[2])
-            DICT = readDictionary(args[2])
+            DICT = readDictionary(dict_path)
             print ("\n=> Perform POS tagging on", args[3])
-            r.tagRawCorpus(DICT, args[3])
-        except Exception as e:
-            print ("\nERROR ==> ", e)
+            r.tagRawCorpus(DICT, corpus_path)
+        except:
+            print ("\nERROR ==> ")
             printHelp()
-            raise e
     else:
         printHelp()
-
-#os.chdir('../')
-#os.chdir('../')
 
 if __name__ == "__main__":
     run()

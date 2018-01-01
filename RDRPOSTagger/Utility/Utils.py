@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 def getWordTag(wordTag):
-    if wordTag == "///":
-        return "/", "/"
-    index = wordTag.rfind("/")
+    index = wordTag.rfind("ᚽ")
     word = wordTag[:index].strip()
     tag = wordTag[index + 1:].strip()
     return word, tag
