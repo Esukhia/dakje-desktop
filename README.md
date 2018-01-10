@@ -81,7 +81,7 @@ Features comming soon:
 
 - Version: 0.8 (2017/1/2)
     
-    * Merge the fork https://github.com/Esukhia/TibEdit/tree/add-support-for-affixed-POS,the main change is to use the Tokenization (formerly segmentation) and ProcessingPipeline to handle with segmentation and words tagging.
+    * Merge the fork https://github.com/Esukhia/TibEdit/tree/add-support-for-affixed-POS ,the main change is to use the Tokenization (formerly segmentation) and ProcessingPipeline to handle with segmentation and words tagging.
     * Details:
         - RDRPOSTagger4Local.py works even with current install of RDR (modified paths)
         - create an entry point to RDR that does not care about paths (it is the copy of what I had for my clean install of RDR)
