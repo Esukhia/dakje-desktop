@@ -102,3 +102,9 @@ note: I was thinking to move the content of newapi.py to RDR's __ init __.py. If
 
     * Fix the error occurs when adding new sentences at the end of the article after segmenting
     * Fix the error occurs when segmenting a new blank line
+
+- Version: 0.8 (2017/1/2)
+
+    * Merge the fork https://github.com/Esukhia/TibEdit/tree/add-support-for-affixed-POS,
+      the main change is to use the Tokenization (formerly segmentation) and ProcessingPipeline 
+      to handle with segmentation and words tagging.
