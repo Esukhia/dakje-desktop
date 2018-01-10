@@ -81,20 +81,20 @@ Features comming soon:
 
 - Version: 0.8 (2017/1/2)
     
-    * Merge the fork https://github.com/Esukhia/TibEdit/tree/add-support-for-affixed-POS,the main change is to use the Tokenization (formerly segmentation) and ProcessingPipeline to handle with segmentation and words tagging.
+    * Merge the fork https://github.com/Esukhia/TibEdit/tree/add-support-for-affixed-POS,the main change is to use the Tokenization (formerly segmentation) and ProcessingPipeline to handle with segmentation and words tagging.
     * Details:
-	- RDRPOSTagger4Local.py works even with current install of RDR (modified paths)
-	- create an entry point to RDR that does not care about paths (it is the copy of what I had for my clean install of RDR)
-	- adds mechanism to choose what language and what model to use
-	- ensures to only initialize the tagger when WordManager is instanciated or when we change model
-	- adds mechanism to add tags directly to words (list of Word objects), but also includes a classic mode (the one used now)
-	- filters which Word obj should be tagged and keeps an index to reinsert tags in the corresponding obj
-	- implements better RDR models for Tibetan
-	- improves pytib results by removing unnecessary lexical resources
-	- solves bug of disapearing punctuation (obj.content = \n + punctation)
-	- solves once and for all the problem of / in the original string by internally using a rune unicode character as separator. (the users still see /)
-	- prepares pytib for coming new post-tagging processing of words
-	- segmentation and re-segmentation works
-	- include two files (try_pytib.py, try-new-RDR-api.py) to test the new features
-	- added spaces around non-tib punctuation is solved
-	- revert _ to spaces before displaying in the editor.
+        - RDRPOSTagger4Local.py works even with current install of RDR (modified paths)
+        - create an entry point to RDR that does not care about paths (it is the copy of what I had for my clean install of RDR)
+        - adds mechanism to choose what language and what model to use
+        - ensures to only initialize the tagger when WordManager is instanciated or when we change model
+        - adds mechanism to add tags directly to words (list of Word objects), but also includes a classic mode (the one used now)
+        - filters which Word obj should be tagged and keeps an index to reinsert tags in the corresponding obj
+        - implements better RDR models for Tibetan
+        - improves pytib results by removing unnecessary lexical resources
+        - solves bug of disapearing punctuation (obj.content = \n + punctation)
+        - solves once and for all the problem of / in the original string by internally using a rune unicode character as separator. (the users still see /)
+        - prepares pytib for coming new post-tagging processing of words
+        - segmentation and re-segmentation works
+        - include two files (try_pytib.py, try-new-RDR-api.py) to test the new features
+        - added spaces around non-tib punctuation is solved
+        - revert _ to spaces before displaying in the editor.
