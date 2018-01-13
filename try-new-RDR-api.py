@@ -1,4 +1,4 @@
-from RDRPOSTagger.new_api import Tagger
+from RDRPOSTagger import Tagger
 
 
 class Word:

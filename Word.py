@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import List, Set
 
-from RDRPOSTagger.new_api import Tagger, models
+from RDRPOSTagger import Tagger, models
 from pytib import Segment
 from Tokenizer import Tokenizer
 from ProcessingPipeline import Pipeline

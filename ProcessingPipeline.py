@@ -1,7 +1,7 @@
 import re
 import os
 from pytib import getSylComponents
-from RDRPOSTagger.new_api import models
+from RDRPOSTagger import models
 
 
 class Pipeline:
