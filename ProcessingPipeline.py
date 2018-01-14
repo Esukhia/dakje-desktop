@@ -15,14 +15,7 @@ class Pipeline:
         self.pos_tagger.RDRPOSTagging(custom_initial_tagging=True)
 
         # 2. post-tagging attribute filling: UD POS tag, lemma, UD features
-        #self.add_lemma_and_UD()
-
-        # Temporary removed from the editor,
-        # because there will be some errors occurred,
-        # and we don't fully understand lemma, UD and "aa"
-        #
-        # UD, UD_feature, aa = self.words[i].partOfSpeech.split('_')
-        # ValueError: not enough values to unpack (expected 3, got 1)
+        self.add_lemma_and_UD()
 
         self.finalFormatting()
         return self.words
@@ -35,7 +28,12 @@ class Pipeline:
 
             # update attributes if needed
             if self.affixed_sep in self.words[i].content:
-                UD, UD_feature, aa = self.words[i].partOfSpeech.split('_')
+                UD, UD_feature, aa = "", "", ""
+                parts = self.words[i].partOfSpeech.split('_')
+                if len(parts) == 1:
+                    UD = parts[0]
+                elif len(parts) == 3:
+                    UD, UD_feature, aa = parts
                 self.words[i].partOfSpeech = UD
                 self.words[i].UD_features += UD_feature
                 self.words[i].lemma = self.words[i].content.split(self.affixed_sep)[0] + aa
