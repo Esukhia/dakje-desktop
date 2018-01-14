@@ -553,5 +553,6 @@ paket-files/
 # By default, sensitive information, such as encrypted password
 # should be stored in the .pubxml.user file.
 
+default.profile
 
 # End of https://www.gitignore.io/api/macos,pydev,python,eclipse,pycharm+all,visualstudio,visualstudiocode
