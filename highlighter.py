@@ -105,7 +105,6 @@ class Highlighter(QSyntaxHighlighter):
                         index = expression.indexIn(taggedText, index + length)
 
         for word in wordsToHighlight:
-            print(word.content, word.highlighted)
             for index, textFormat in word.highlighted.items():
                 if self.mainWindow.modeManager.isTagMode():
                     if index >= word.length + word.partOfSpeechLen:
@@ -116,7 +115,6 @@ class Highlighter(QSyntaxHighlighter):
                         break
 
                 self.setFormat(word.start - start + index, 1, textFormat)
-                print(word.start - start + index)
 
             textFormat = word.needHighlighted()
             if textFormat:
