@@ -2,6 +2,38 @@
 from PyQt5.QtCore import Qt, QRegExp
 from PyQt5.QtGui import QSyntaxHighlighter, QTextCharFormat, QFont
 
+
+def getText(words, mode):
+    if mode not in ('plainText', 'taggedText'):
+        raise NotImplementedError()
+
+    result = ''
+    for w in words:
+        if mode == 'plainText':
+            w.plainTextModePosition = len(result)
+            result += w.content
+        else:
+            w.taggedModePosition = len(result)
+            result += w.content + '/' + w.partOfSpeech
+    return result
+
+
+def getWord(position, words, mode):
+    if mode not in ('plainText', 'taggedText'):
+        raise NotImplementedError()
+
+    for w in words:
+        if mode == 'plainText':
+            start = w.plainTextModePosition
+            end = w.plainTextModePosition + len(w.content)
+        else:
+            start = w.taggedModePosition
+            end = w.taggedModePosition + len(w.content) + w.partOfSpeechLen
+
+        if start <= position < end:
+            return w
+
+
 class Highlighter(QSyntaxHighlighter):
     def __init__(self, parent=None, mainWindow=None):
         super().__init__(parent)
@@ -42,16 +74,52 @@ class Highlighter(QSyntaxHighlighter):
                 self.setFormat(word.end - start, word.partOfSpeechLen,
                                partOfSpeechFormat)
 
-        for textFormat in self.textFormatManager.getFormats():
-            for pattern in textFormat.regexList:
-                expression = QRegExp(pattern)
-                index = expression.indexIn(text)
-                while index >= 0:
-                    length = expression.matchedLength()
-                    self.setFormat(index, length, textFormat)
-                    index = expression.indexIn(text, index + length)
+        for w in wordsToHighlight:
+            w.highlighted = {}
 
-                    textFormat.counterDict[
-                        str(currentBlock.blockNumber())] += 1
+        plainText = getText(wordsToHighlight, 'plainText')
+        taggedText = getText(wordsToHighlight, 'taggedText')
+
+        for textFormat in self.textFormatManager.getFormats():
+            if textFormat.type == 'level':
+                for pattern in textFormat.regexList:
+                    expression = QRegExp(pattern)
+                    index = expression.indexIn(plainText)
+                    while index >= 0:
+                        length = expression.matchedLength()
+                        for i in range(length):
+                            word = getWord(index + i, wordsToHighlight, 'plainText')
+                            if word:
+                                word.highlighted[index - word.plainTextModePosition + i] = textFormat
+                        index = expression.indexIn(plainText, index + length)
+            else:
+                for pattern in textFormat.regexList:
+                    expression = QRegExp(pattern)
+                    index = expression.indexIn(taggedText)
+                    while index >= 0:
+                        length = expression.matchedLength()
+                        for i in range(length):
+                            word = getWord(index + i, wordsToHighlight, 'taggedText')
+                            if word:
+                                word.highlighted[index - word.taggedModePosition + i] = textFormat
+                        index = expression.indexIn(taggedText, index + length)
+
+        for word in wordsToHighlight:
+            print(word.content, word.highlighted)
+            for index, textFormat in word.highlighted.items():
+                if self.mainWindow.modeManager.isTagMode():
+                    if index >= word.length + word.partOfSpeechLen:
+                        break
+
+                else:
+                    if index >= word.length:
+                        break
+
+                self.setFormat(word.start - start + index, 1, textFormat)
+                print(word.start - start + index)
+
+            textFormat = word.needHighlighted()
+            if textFormat:
+                self.setFormat(word.start - start, word.length, textFormat)
 
         self.mainWindow.counterWidget.refresh()

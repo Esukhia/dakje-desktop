@@ -71,10 +71,10 @@ class FindDialog(QtWidgets.QDialog):
         self.normalRadio.setChecked(True)
 
     def find(self):
-        self.parent.editor.cursorPositionChanged.disconnect()
+        self.parent.textEdit.cursorPositionChanged.disconnect()
 
         # Grab the parent's text
-        text = self.parent.editor.toPlainText()
+        text = self.parent.textEdit.toPlainText()
 
         # And the text to find
         query = self.findField.toPlainText()
@@ -97,7 +97,7 @@ class FindDialog(QtWidgets.QDialog):
                 # Make the next search start from the begining again
                 self.lastStart = 0
 
-                self.parent.editor.moveCursor(QtGui.QTextCursor.End)
+                self.parent.textEdit.moveCursor(QtGui.QTextCursor.End)
 
         else:
 
@@ -118,17 +118,17 @@ class FindDialog(QtWidgets.QDialog):
                 self.lastStart = 0
 
                 # We set the cursor to the end if the search was unsuccessful
-                self.parent.editor.moveCursor(QtGui.QTextCursor.End)
+                self.parent.textEdit.moveCursor(QtGui.QTextCursor.End)
 
-        self.parent.editor.cursorPositionChanged.connect(
-            self.parent.cursorIsChanged)
+        self.parent.textEdit.cursorPositionChanged.connect(
+            self.parent.eventHandler.cursorPositionChanged)
 
     def replace(self, highlight=True):
-        self.parent.editor.cursorPositionChanged.disconnect()
-        self.parent.editor.textChanged.disconnect()
+        self.parent.textEdit.cursorPositionChanged.disconnect()
+        self.parent.textEdit.textChanged.disconnect()
 
         # Grab the text cursor
-        cursor = self.parent.editor.textCursor()
+        cursor = self.parent.textEdit.textCursor()
 
         # Security
         if cursor.hasSelection():
@@ -140,11 +140,11 @@ class FindDialog(QtWidgets.QDialog):
             cursor.insertText(self.replaceField.toPlainText())
 
             # And set the new cursor
-            self.parent.editor.setTextCursor(cursor)
+            self.parent.textEdit.setTextCursor(cursor)
 
-        self.parent.editor.cursorPositionChanged.connect(
+        self.parent.textEdit.cursorPositionChanged.connect(
             self.parent.cursorIsChanged)
-        self.parent.editor.textChanged.connect(
+        self.parent.textEdit.textChanged.connect(
             self.parent.textIsChanged)
 
         if highlight:
@@ -164,7 +164,7 @@ class FindDialog(QtWidgets.QDialog):
 
     def moveCursor(self, start, end):
         # We retrieve the QTextCursor object from the parent's QTextEdit
-        cursor = self.parent.editor.textCursor()
+        cursor = self.parent.textEdit.textCursor()
 
         # Then we set the position to the beginning of the last match
         cursor.setPosition(start)
@@ -175,4 +175,4 @@ class FindDialog(QtWidgets.QDialog):
                             QtGui.QTextCursor.KeepAnchor, end - start)
 
         # And finally we set this new cursor as the parent's 
-        self.parent.editor.setTextCursor(cursor)
+        self.parent.textEdit.setTextCursor(cursor)
