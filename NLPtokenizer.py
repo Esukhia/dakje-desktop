@@ -1,4 +1,4 @@
-from ProcessingPipeline import Helpers
+from NLPpipeline import Helpers
 
 
 class Tokenizer:
