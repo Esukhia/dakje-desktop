@@ -202,8 +202,8 @@ class TibetanEditor(BasicEditor):
 
         for start, end, index in reversed(
                 self.wordManager.getNoSegBlocks(textLen=len(text))):
-            newWords = self.wordManager.NLPtokenize(text[start:end])
-            self.wordManager.NLPpipeline(newWords)
+            newWords = self.wordManager.segment(text[start:end])
+            self.wordManager.tag(newWords)
             self.wordManager.insertWordsByIndex([(newWords, index)])
 
         self.modeManager.setText()

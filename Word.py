@@ -72,13 +72,13 @@ class WordManager:
                 partOfSpeeches.add(line.split()[-1])
         return partOfSpeeches
 
-    def NLPtokenize(self, sentence: str) -> List[Word]:
+    def segment(self, sentence: str) -> List[Word]:
         if not self.tokenizer:
             self.tokenizer = Segment()  # only instanciate when required
             self.tokenizer.include_user_vocab()
         return [Word(token) for token in Tokenizer(self.tokenizer).process(sentence)]
 
-    def NLPpipeline(self, words: List[Word]) -> None:
+    def tag(self, words: List[Word]) -> None:
         if not self.tagger or self.lang != self.tagger.language or self.mode != self.tagger.mode:
             self.tagger = Tagger(language=self.lang, mode=self.mode)  # only instanciate when required
         return Pipeline(self.tagger, words).applyPipeline()
