@@ -1,7 +1,7 @@
 
 from Word import Word
 
-from PyQt5.QtWidgets import QTextEdit, QMessageBox, QScrollBar
+from PyQt5.QtWidgets import QPlainTextEdit, QMessageBox, QScrollBar
 
 class EventHandler:
     def __init__(self, parent):
@@ -74,7 +74,7 @@ class EventHandler:
                     self.parent.windowTitle()[:-1])
 
     def mousePressEvent(self, event):
-        QTextEdit.mousePressEvent(self.parent.textEdit, event)
+        QPlainTextEdit.mousePressEvent(self.parent.textEdit, event)
 
         if self.parent.modeManager.isTagMode():
             self.parent.selectedWord = self.parent.wordManager.getPartOfSpeechWord(
@@ -84,7 +84,7 @@ class EventHandler:
                 self.parent.changeTag(event.pos())
 
     def wheelEvent(self, event):
-        QTextEdit.wheelEvent(self.parent.textEdit, event)
+        QPlainTextEdit.wheelEvent(self.parent.textEdit, event)
         self.parent.highlightViewpoint()
 
     def checkSaving(self):

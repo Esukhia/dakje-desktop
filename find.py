@@ -2,7 +2,6 @@
 
 
 from PyQt5 import QtWidgets
-# PYQT5 QTextEdit, QDialog, QPushButton, QRadioButton, QGridLayout
 
 from functools import wraps
 
@@ -44,12 +43,12 @@ class FindDialog(QtWidgets.QDialog):
         regexRadio = QtWidgets.QRadioButton("RegEx", self)
 
         # The field into which to type the query
-        self.findField = QtWidgets.QTextEdit(self)
+        self.findField = QtWidgets.QPlainTextEdit(self)
         self.findField.resize(250, 50)
 
         # The field into which to type the text to replace the
         # queried text
-        self.replaceField = QtWidgets.QTextEdit(self)
+        self.replaceField = QtWidgets.QPlainTextEdit(self)
         self.replaceField.resize(250, 50)
 
         layout = QtWidgets.QGridLayout()
@@ -163,7 +162,7 @@ class FindDialog(QtWidgets.QDialog):
         self.parent.highlight()
 
     def moveCursor(self, start, end):
-        # We retrieve the QTextCursor object from the parent's QTextEdit
+        # We retrieve the QTextCursor object from the parent's QPlainTextEdit
         cursor = self.parent.textEdit.textCursor()
 
         # Then we set the position to the beginning of the last match

@@ -92,6 +92,8 @@ class Highlighter(QSyntaxHighlighter):
                             if word:
                                 word.highlighted[index - word.plainTextModePosition + i] = textFormat
                         index = expression.indexIn(plainText, index + length)
+                        textFormat.counterDict[
+                            str(currentBlock.blockNumber())] += 1
             else:
                 for pattern in textFormat.regexList:
                     expression = QRegExp(pattern)
@@ -103,6 +105,8 @@ class Highlighter(QSyntaxHighlighter):
                             if word:
                                 word.highlighted[index - word.taggedModePosition + i] = textFormat
                         index = expression.indexIn(taggedText, index + length)
+                        textFormat.counterDict[
+                            str(currentBlock.blockNumber())] += 1
 
         for word in wordsToHighlight:
             for index, textFormat in word.highlighted.items():

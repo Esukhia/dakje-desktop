@@ -9,10 +9,10 @@ import textwrap
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QPoint
-from PyQt5.QtGui import QIcon,  QTextCursor, QTextOption
+from PyQt5.QtGui import QIcon,  QTextCursor
 from PyQt5.QtWidgets import (QAction, QApplication, QComboBox,
                              QStyleFactory, QWidget, QMessageBox,
-                             QHBoxLayout, QVBoxLayout, QTextEdit)
+                             QHBoxLayout, QVBoxLayout)
 
 from highlighter import Highlighter
 
@@ -202,6 +202,9 @@ class TibetanEditor(BasicEditor):
 
         for start, end, index in reversed(
                 self.wordManager.getNoSegBlocks(textLen=len(text))):
+
+            print(start, end, index)
+
             newWords = self.wordManager.segment(text[start:end])
             self.wordManager.tag(newWords)
             self.wordManager.insertWordsByIndex([(newWords, index)])

@@ -183,7 +183,7 @@ class WordManager:
                         noSegBlocks.append(
                             (self._words[i].end, textLen, i + 1))
                 else:
-                    if not self._words[i].end == self._words[i + 1]:
+                    if not self._words[i].end == self._words[i + 1].start:
                         noSegBlocks.append(
                             (self._words[i].end,
                              self._words[i + 1].start, i + 1))

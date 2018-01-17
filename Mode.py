@@ -46,6 +46,9 @@ class ModeManager:
             self.parent.eventHandler.textChanged)
 
     def switchDisplayMode(self, mode):
+        if not self._spaceModeOn and not self._tagModeOn:
+            self.parent.segment()
+
         if mode == 'Spaces':
             self._spaceModeOn = not self._spaceModeOn
         elif mode == 'Tags':
