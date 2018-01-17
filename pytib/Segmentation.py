@@ -11,7 +11,7 @@ class Segment:
         self.lexicon = lexicon
         self.user_vocabs = user_vocabs
         self.merged_part = r'(ར|ས|འི|འམ|འང|འོ|འིའོ)$'
-        self.punct_regex = r'(་?[༄༅༆༇༈།༎༏༐༑༔\s]+་?)'
+        self.punct_regex = r'(་?(?:[༄༅༆༇༈།༎༏༐༑༔\s]+|་$)་?)'
 
         self.SC = SC
 
@@ -151,7 +151,10 @@ class Segment:
             else:
                 par = par.replace('	', ' ').replace(' ', ' ')  # hack to eliminate tabs from punctuation blocks
                 if space_at_punct:
-                    text.append(' '+par.replace(' ', '_')+' ')
+                    if par == '་':
+                        text.append(par)
+                    else:
+                        text.append(' ' + par.replace(' ', '_') + ' ')
                 else:
                     text.append(par)
         #
