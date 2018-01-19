@@ -93,7 +93,9 @@ class TibStringUtil(TibString):
         indices = self.__chunk(start, end, self.__is_space)
         return [(yes, i[1], i[2]) if i[0] else (no, i[1], i[2]) for i in indices]
 
-    def get_chunked(self, indices):
+    def get_chunked(self, indices, gen=False):
+        if gen:
+            return ((t, self.string[start:start + length]) for t, start, length in indices)
         return [(t, self.string[start:start + length]) for t, start, length in indices]
 
     def __is_tib_unicode(self, string_idx):
@@ -166,7 +168,7 @@ if __name__ == '__main__':
 
     tsu = TibStringUtil(mixed)
     tib_nontib = tsu.chunk_nontib(yes='བོད་ཡིག')
-    print(tsu.get_chunked(tib_nontib))
+    print(list(tsu.get_chunked(tib_nontib)))
     # [('བོད་ཡིག', ' བཀྲ་  '), (None, 'tr'), ('བོད་ཡིག', ' ཤིས།')]
 
     tsu.pipe_chunk(tib_nontib, tsu.chunk_spaces, to_chunk='བོད་ཡིག', yes='བར་སྟོང་།')
