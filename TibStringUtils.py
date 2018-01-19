@@ -166,14 +166,14 @@ if __name__ == '__main__':
 
     tsu = TibStringUtil(mixed)
     tib_nontib = tsu.chunk_nontib(yes='བོད་ཡིག')
-    print(tsu.get_chunked(tib_nontib))
-    assert ''.join([t[1] for t in tsu.get_chunked(tib_nontib)]) == mixed
-
-    spaces = tsu.chunk_spaces(yes='བར་སྟོང་།')
-    print(tsu.get_chunked(spaces))
-    assert ''.join([t[1] for t in tsu.get_chunked(spaces)]) == mixed
+    tsu.get_chunked(tib_nontib)
+    # [('བོད་ཡིག', ' བཀྲ་  '), (None, 'tr'), ('བོད་ཡིག', ' ཤིས།')]
 
     tsu.pipe_chunk(tib_nontib, tsu.chunk_spaces, 'བོད་ཡིག', 'བར་སྟོང་།')
 
-    print(tsu.get_chunked(tib_nontib))
-    assert ''.join([t[1] for t in tsu.get_chunked(tib_nontib)]) == mixed
+    tsu.get_chunked(tib_nontib)
+    # [('བར་སྟོང་།', ' '), ('བོད་ཡིག', 'བཀྲ་'), ('བར་སྟོང་།', '  '), (None, 'tr'), ('བར་སྟོང་།', ' '), ('བོད་ཡིག', 'ཤིས།')]
+
+    spaces = tsu.chunk_spaces(yes='བར་སྟོང་།')
+    tsu.get_chunked(spaces)
+    # [('བར་སྟོང་།', ' '), (None, 'བཀྲ་'), ('བར་སྟོང་།', '  '), (None, 'tr'), ('བར་སྟོང་།', ' '), (None, 'ཤིས།')]
