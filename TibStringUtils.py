@@ -79,7 +79,7 @@ class TibStringUtil(TibString):
     def __init__(self, string):
         TibString.__init__(self, string)
 
-    def chunk_nontib(self, start=None, end=None, yes='bo', no=None):
+    def chunk_tib_chars(self, start=None, end=None, yes='bo', no=None):
         if not start and not end:
             start, end = 0, self.len
 
@@ -93,10 +93,25 @@ class TibStringUtil(TibString):
         indices = self.__chunk(start, end, self.__is_space)
         return [(yes, i[1], i[2]) if i[0] else (no, i[1], i[2]) for i in indices]
 
+    def syllabify(self, start=None, end=None, yes='syl', no=None):
+        #expects only tibetan text
+        if not start and not end:
+            start, end = 0, self.len
+
+        indices = self.__chunk(start, end, self.__is_tsek)
+        for num, i in enumerate(indices):
+            if i[0] and num-1 >= 0 and not indices[num-1][0]:
+                indices[num-1] = (indices[num-1][0], indices[num-1][1], indices[num-1][2] + i[2])
+
+        return [(yes, i[1], i[2]) for i in indices if not i[0] ]
+
     def get_chunked(self, indices, gen=False):
         if gen:
             return ((t, self.string[start:start + length]) for t, start, length in indices)
         return [(t, self.string[start:start + length]) for t, start, length in indices]
+
+    def __is_tsek(self, string_idx):
+        return self.base_structure[string_idx][self.BASE] == self.TSEK
 
     def __is_tib_unicode(self, string_idx):
         return self.base_structure[string_idx][self.BASE] != self.OTHER
@@ -164,18 +179,21 @@ if __name__ == '__main__':
     """
     test usage
     """
-    mixed = ' བཀྲ་  tr ཤིས།'
+    mixed = ' བཀྲ་ཤིས་  tr བདེ་ལེགས།'
 
     tsu = TibStringUtil(mixed)
-    tib_nontib = tsu.chunk_nontib(yes='བོད་ཡིག')
-    print(list(tsu.get_chunked(tib_nontib)))
-    # [('བོད་ཡིག', ' བཀྲ་  '), (None, 'tr'), ('བོད་ཡིག', ' ཤིས།')]
+    tib_nontib = tsu.chunk_tib_chars(yes='བོད་ཡིག')
+    print(tsu.get_chunked(tib_nontib))
+    # [('བོད་ཡིག', ' བཀྲ་ཤིས་  '), (None, 'tr'), ('བོད་ཡིག', ' བདེ་ལེགས།')]
 
     tsu.pipe_chunk(tib_nontib, tsu.chunk_spaces, to_chunk='བོད་ཡིག', yes='བར་སྟོང་།')
-
     print(tsu.get_chunked(tib_nontib))
-    # [('བར་སྟོང་།', ' '), ('བོད་ཡིག', 'བཀྲ་'), ('བར་སྟོང་།', '  '), (None, 'tr'), ('བར་སྟོང་།', ' '), ('བོད་ཡིག', 'ཤིས།')]
+    # [('བར་སྟོང་།', ' '), ('བོད་ཡིག', 'བཀྲ་ཤིས་'), ('བར་སྟོང་།', '  '), (None, 'tr'), ('བར་སྟོང་།', ' '), ('བོད་ཡིག', 'བདེ་ལེགས།')]
 
-    spaces = tsu.chunk_spaces(yes='བར།')
+    tsu.pipe_chunk(tib_nontib, tsu.syllabify, to_chunk='བོད་ཡིག', yes='ཚེག་བར།')
+    print(tsu.get_chunked(tib_nontib))
+    # [('བར་སྟོང་།', ' '), ('ཚེག་བར།', 'བཀྲ་'), ('ཚེག་བར།', 'ཤིས་'), ('བར་སྟོང་།', '  '), (None, 'tr'), ('བར་སྟོང་།', ' '), ('ཚེག་བར།', 'བདེ་'), ('ཚེག་བར།', 'ལེགས།')]
+
+    spaces = tsu.chunk_spaces()
     print(tsu.get_chunked(spaces))
-    # [('བར།', ' '), (None, 'བཀྲ་'), ('བར།', '  '), (None, 'tr'), ('བར།', ' '), (None, 'ཤིས།')]
+    # [('space', ' '), (None, 'བཀྲ་ཤིས་'), ('space', '  '), (None, 'tr'), ('space', ' '), (None, 'བདེ་ལེགས།')]
