@@ -8,7 +8,7 @@ from functools import partial
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
-    QWidget, QTabWidget, QFormLayout, QHBoxLayout, QVBoxLayout,
+    QWidget, QTabWidget, QFormLayout, QHBoxLayout, QVBoxLayout, QLineEdit,
     QColorDialog, QFileDialog, QInputDialog, QLabel, QPushButton
 )
 
@@ -84,15 +84,11 @@ class TabWidget(QTabWidget):
         # Name
         self.buttons.append(QPushButton())
         textFormat.editButton = self.buttons[-1]
-        textFormat.editButton.setText('Edit')
+        textFormat.editButton.setText(textFormat.name)
+        textFormat.editButton.setFlat(True)
         textFormat.editButton.clicked.connect(
             partial(self.changeName, textFormat))
-
-        textFormat.nameLabel = QLabel(textFormat.name)
-        vbox = QVBoxLayout()
-        vbox.addWidget(textFormat.nameLabel)
-        vbox.addWidget(textFormat.editButton)
-        hbox.addLayout(vbox, 3)
+        hbox.addWidget(textFormat.editButton, 3)
 
         # ColorButton
         self.buttons.append(QPushButton())
@@ -161,12 +157,7 @@ class TabWidget(QTabWidget):
 
     def removeTextFormat(self, textFormat):
         for i in reversed(range(textFormat.tabHBox.count())):
-            if i == 0:
-                vbox = textFormat.tabHBox.itemAt(i)
-                for j in reversed(range(vbox.count())):
-                    vbox.itemAt(j).widget().setParent(None)
-            else:
-                textFormat.tabHBox.itemAt(i).widget().setParent(None)
+            textFormat.tabHBox.itemAt(i).widget().setParent(None)
 
         if textFormat.type == 'level':
             self.levelFormLayout.removeItem(textFormat.tabHBox)
@@ -183,11 +174,25 @@ class TabWidget(QTabWidget):
             self.parent.highlightViewpoint()
 
     def changeName(self, textFormat):
-        text, _ = QInputDialog.getText(self.parent, 'Name', 'Please enter a name:')
-        textFormat.name = text
-        textFormat.nameLabel.setText(textFormat.name)
-        textFormat.counterNameLabel.setText(textFormat.name)
-        self.parent.highlightViewpoint()
+        textFormat.editButton.setParent(None)
+        self.nameLineEdit = QLineEdit()
+        textFormat.tabHBox.insertWidget(0, self.nameLineEdit, stretch=3)
+        self.nameLineEdit.setFocus()
+        self.nameLineEdit.returnPressed.connect(self.getChangedName)
+        self.nameLineEdit.focusOutEvent = self.nameLineEditFocusOut
+
+        self.textFormat = textFormat
+
+    def nameLineEditFocusOut(self, event):
+        QLineEdit.focusOutEvent(self.nameLineEdit, event)
+        self.getChangedName()
+
+    def getChangedName(self):
+        name = self.nameLineEdit.text()
+        if name:
+            self.textFormat.editButton.setText(name)
+        self.nameLineEdit.setParent(None)
+        self.textFormat.tabHBox.insertWidget(0, self.textFormat.editButton, stretch=3)
 
     def openFile(self, textFormat, type):
         filePath, _ = QFileDialog.getOpenFileName(self)

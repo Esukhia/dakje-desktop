@@ -1,7 +1,6 @@
 
-from Word import Word
-
 from PyQt5.QtWidgets import QPlainTextEdit, QMessageBox, QScrollBar
+
 
 class EventHandler:
     def __init__(self, parent):

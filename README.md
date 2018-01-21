@@ -21,7 +21,13 @@ Features comming soon:
 
 ## Release note
 
-- Version 0.91 (2017/1/15)
+- Version 0.10
+    
+    * Sovle the issues #8 ~ #16 (2017/1/17),  
+    * Change the UI & fix minor bugs 
+
+
+- Version 0.9.1 (2017/1/15)
 
     * Merge the pull request (drupchen/cleanup)
     * Clean the folders
@@ -50,7 +56,7 @@ Features comming soon:
         - added spaces around non-tib punctuation is solved
         - revert _ to spaces before displaying in the editor.
 
-- Version: 0.71 (2017/12/13)
+- Version: 0.7.1 (2017/12/13)
 
     * Fix the error occurs when adding new sentences at the end of the article after segmenting
     * Fix the error occurs when segmenting a new blank line

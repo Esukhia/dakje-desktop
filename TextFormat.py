@@ -20,7 +20,6 @@ class TextFormat(QTextCharFormat):
 
         # Tab
         self.tabHBox = None
-        self.nameLabel = None
         self.editButton = None
         self.colorButton = None
         self.listButton = None

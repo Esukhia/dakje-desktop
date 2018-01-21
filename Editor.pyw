@@ -8,7 +8,7 @@ import datetime
 import textwrap
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import QPoint
+from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QIcon,  QTextCursor
 from PyQt5.QtWidgets import (QAction, QApplication, QComboBox,
                              QStyleFactory, QWidget, QMessageBox,
@@ -49,15 +49,6 @@ class ExceptionHandler(QtCore.QObject):
 exceptionHandler = ExceptionHandler()
 sys._excepthook = sys.excepthook
 sys.excepthook = exceptionHandler.handler
-
-
-class ComboBox(QComboBox):
-    def hidePopup(self):
-        pass
-
-    def hideManually(self):
-        QComboBox.hidePopup(self)
-
 
 class TibetanEditor(BasicEditor):
 
@@ -218,7 +209,7 @@ class TibetanEditor(BasicEditor):
 
         # tag
     def changeTag(self, point):
-        self.box = ComboBox(self)
+        self.box = QComboBox()
         self.box.addItems(self.wordManager.getPartOfSpeeches())
         self.box.setGeometry(point.x(), point.y() + 100, 100, 200)
         self.box.activated.connect(self.changing)
@@ -226,7 +217,6 @@ class TibetanEditor(BasicEditor):
 
     def changing(self):
         tagName = self.box.currentText()
-        self.box.hideManually()
         self.selectedWord.partOfSpeech = tagName
         self.modeManager.setText()
         self.highlightViewpoint()
