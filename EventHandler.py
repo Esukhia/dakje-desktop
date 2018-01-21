@@ -1,6 +1,5 @@
 
-from PyQt5.QtWidgets import QPlainTextEdit, QMessageBox, QScrollBar
-
+from PyQt5.QtWidgets import QPlainTextEdit, QMessageBox, QScrollBar, QComboBox
 
 class EventHandler:
     def __init__(self, parent):

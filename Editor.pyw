@@ -9,7 +9,7 @@ import textwrap
 
 from PyQt5 import QtCore
 from PyQt5.QtCore import QPoint, Qt
-from PyQt5.QtGui import QIcon,  QTextCursor
+from PyQt5.QtGui import QIcon, QTextCursor, QFont
 from PyQt5.QtWidgets import (QAction, QApplication, QComboBox,
                              QStyleFactory, QWidget, QMessageBox,
                              QHBoxLayout, QVBoxLayout)
@@ -209,9 +209,15 @@ class TibetanEditor(BasicEditor):
 
         # tag
     def changeTag(self, point):
-        self.box = QComboBox()
+        self.box = QComboBox(self.textEdit)
         self.box.addItems(self.wordManager.getPartOfSpeeches())
-        self.box.setGeometry(point.x(), point.y() + 100, 100, 200)
+
+        font = QFont()
+        font.setFixedPitch(True)
+        font.setPointSize(12)
+
+        self.box.setFont(font)
+        self.box.setGeometry(point.x(), point.y(), 80, 100)
         self.box.activated.connect(self.changing)
         self.box.showPopup()
 

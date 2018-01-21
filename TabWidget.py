@@ -180,7 +180,6 @@ class TabWidget(QTabWidget):
         self.nameLineEdit.setFocus()
         self.nameLineEdit.returnPressed.connect(self.getChangedName)
         self.nameLineEdit.focusOutEvent = self.nameLineEditFocusOut
-
         self.textFormat = textFormat
 
     def nameLineEditFocusOut(self, event):
@@ -191,6 +190,7 @@ class TabWidget(QTabWidget):
         name = self.nameLineEdit.text()
         if name:
             self.textFormat.editButton.setText(name)
+            self.textFormat.counterNameLabel.setText(name)
         self.nameLineEdit.setParent(None)
         self.textFormat.tabHBox.insertWidget(0, self.textFormat.editButton, stretch=3)
 
