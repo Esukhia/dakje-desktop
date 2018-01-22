@@ -93,8 +93,8 @@ class TibStringUtil(TibString):
         indices = self.__chunk(start, end, self.__is_space)
         return [(yes, i[1], i[2]) if i[0] else (no, i[1], i[2]) for i in indices]
 
-    def syllabify(self, start=None, end=None, yes='syl', no=None):
-        #expects only tibetan text
+    def syllabify(self, start=None, end=None, yes='syl'):
+        # expects only tibetan text
         if not start and not end:
             start, end = 0, self.len
 
@@ -103,7 +103,7 @@ class TibStringUtil(TibString):
             if i[0] and num-1 >= 0 and not indices[num-1][0]:
                 indices[num-1] = (indices[num-1][0], indices[num-1][1], indices[num-1][2] + i[2])
 
-        return [(yes, i[1], i[2]) for i in indices if not i[0] ]
+        return [(yes, i[1], i[2]) for i in indices if not i[0]]
 
     def get_chunked(self, indices, gen=False):
         if gen:
