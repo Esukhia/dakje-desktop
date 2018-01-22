@@ -16,6 +16,7 @@ class TibString:
         self.SYMBOLS = 12
         self.OTHER = 13
         self.SPACE = 14
+        self.UNDERSCORE = 15  # used to mark spaces in input when segmented by pytib
         # all spaces from the unicode tables
         self.spaces = [" ", " ", "᠎", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "​", " ", " ", "　", "﻿"]
 
@@ -68,6 +69,8 @@ class TibString:
                 self.base_structure[i] = {self.BASE: self.SYMBOLS}
             elif char in self.spaces:
                 self.base_structure[i] = {self.BASE: self.SPACE}
+            elif char == '_':
+                self.base_structure[i] = {self.BASE: self.UNDERSCORE}
             else:
                 self.base_structure[i] = {self.BASE: self.OTHER}
 
@@ -79,14 +82,28 @@ class TibStringUtil(TibString):
     def __init__(self, string):
         TibString.__init__(self, string)
 
-    def chunk_tib_chars(self, start=None, end=None, yes='bo', no=None):
+    def chunk_tib_chars(self, start=None, end=None, yes='bo', no='non-bo'):
         if not start and not end:
             start, end = 0, self.len
 
         indices = self.__chunk(start, end, self.__is_tib_unicode)
         return [(yes, i[1], i[2]) if i[0] else (no, i[1], i[2]) for i in indices]
 
-    def chunk_spaces(self, start=None, end=None, yes='space', no=None):
+    def chunk_segmented_tib(self, start=None, end=None, yes='bo', no='non-bo'):
+        if not start and not end:
+            start, end = 0, self.len
+
+        indices = self.__chunk(start, end, self.__is_segmented_tib)
+        return [(yes, i[1], i[2]) if i[0] else (no, i[1], i[2]) for i in indices]
+
+    def chunk_punct(self, start=None, end=None, yes='punct', no=None):
+        if not start and not end:
+            start, end = 0, self.len
+
+        indices = self.__chunk(start, end, self.__is_punct)
+        return [(yes, i[1], i[2]) if i[0] else (no, i[1], i[2]) for i in indices]
+
+    def chunk_spaces(self, start=None, end=None, yes='space', no='chars'):
         if not start and not end:
             start, end = 0, self.len
 
@@ -110,11 +127,20 @@ class TibStringUtil(TibString):
             return ((t, self.string[start:start + length]) for t, start, length in indices)
         return [(t, self.string[start:start + length]) for t, start, length in indices]
 
+    def __is_punct(self, string_idx):
+        return self.base_structure[string_idx][self.BASE] == self.PUNCT or \
+               self.base_structure[string_idx][self.BASE] == self.SPECIAL_PUNCT or \
+               self.base_structure[string_idx][self.BASE] == self.UNDERSCORE
+
     def __is_tsek(self, string_idx):
         return self.base_structure[string_idx][self.BASE] == self.TSEK
 
     def __is_tib_unicode(self, string_idx):
         return self.base_structure[string_idx][self.BASE] != self.OTHER
+
+    def __is_segmented_tib(self, string_idx):
+        return self.base_structure[string_idx][self.BASE] != self.OTHER or \
+               self.base_structure[string_idx][self.BASE] == self.UNDERSCORE
 
     def __is_space(self, string_idx):
         return self.base_structure[string_idx][self.BASE] == self.SPACE
@@ -133,12 +159,12 @@ class TibStringUtil(TibString):
             if chunk[0] == to_chunk:
                 new = piped_chunk(chunk[1], chunk[1]+chunk[2], yes=yes)
                 if new:
-                    del tib_nontib[i]
+                    del indices[i]
                     for j, n_chunk in enumerate(new):
                         if n_chunk[0] != yes:
-                            tib_nontib.insert(i+j, (chunk[0], n_chunk[1], n_chunk[2]))
+                            indices.insert(i+j, (chunk[0], n_chunk[1], n_chunk[2]))
                         else:
-                            tib_nontib.insert(i+j, n_chunk)
+                            indices.insert(i+j, n_chunk)
 
     @staticmethod
     def __chunk(start_idx, end_idx, condition):
