@@ -555,4 +555,5 @@ paket-files/
 
 default.profile
 
+*.pickled
 # End of https://www.gitignore.io/api/macos,pydev,python,eclipse,pycharm+all,visualstudio,visualstudiocode
