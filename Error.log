@@ -426,3 +426,41 @@ Traceback (most recent call last):
     if start in range(self._words[i].start, self._words[i].end):
 IndexError: list index out of range
 INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-02-25 02:36:33.778859
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/home/drupchen/PycharmProjects/tibetaneditor/Editor.pyw", line 205, in segment
+    newWords = self.wordManager.NLPtokenize(text[start:end])
+  File "/home/drupchen/PycharmProjects/tibetaneditor/Word.py", line 51, in NLPtokenize
+    return [Word(token) for token in Tokenizer(self.tokenizer).process(sentence)]
+  File "/home/drupchen/PycharmProjects/tibetaneditor/Word.py", line 51, in <listcomp>
+    return [Word(token) for token in Tokenizer(self.tokenizer).process(sentence)]
+  File "/home/drupchen/PycharmProjects/tibetaneditor/Word.py", line 16, in __init__
+    self.length = len(self.content)
+TypeError: object of type 'Word' has no len()
+INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-02-25 02:38:57.069625
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/home/drupchen/PycharmProjects/tibetaneditor/Editor.pyw", line 206, in segment
+    self.wordManager.NLPpipeline(newWords)
+  File "/home/drupchen/PycharmProjects/tibetaneditor/Word.py", line 56, in NLPpipeline
+    return Pipeline(self.tagger, words).applyPipeline()
+  File "/home/drupchen/PycharmProjects/tibetaneditor/NLPpipeline.py", line 10, in __init__
+    self.pos_tagger = POStagging(self.words, tagger)
+  File "/home/drupchen/PycharmProjects/tibetaneditor/NLPpipeline.py", line 53, in __init__
+    self.pos = self.get_expanded_vocab()
+AttributeError: 'POStagging' object has no attribute 'get_expanded_vocab'
+INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-02-25 02:46:02.789443
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/home/drupchen/PycharmProjects/tibetaneditor/EventHandler.py", line 61, in textChanged
+    wordManager.reSegmentWord(self.curPos, self.prePos, text)
+  File "/home/drupchen/PycharmProjects/tibetaneditor/Word.py", line 178, in reSegmentWord
+    self.tag(newWords)
+AttributeError: 'WordManager' object has no attribute 'tag'
+INFO:root:========================================

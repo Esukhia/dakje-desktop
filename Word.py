@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from typing import List, Set
-
 from RDRPOSTagger import Tagger, models
-from pytib import Segment
+from pybo.BoTokenizer import Tokenizer as tokenizer
 from NLPtokenizer import Tokenizer
 from NLPpipeline import Pipeline
+
 
 class Word:
     def __init__(self, content):
@@ -47,9 +47,8 @@ class WordManager:
 
     def NLPtokenize(self, sentence: str) -> List[Word]:
         if not self.tokenizer:
-            self.tokenizer = Segment()  # only instanciate when required
-            self.tokenizer.include_user_vocab()
-        return [Word(token) for token in Tokenizer(self.tokenizer).process(sentence)]
+            self.tokenizer = tokenizer()  # only instanciate when required
+        return [token for token in Tokenizer(self.tokenizer).process(sentence)]
 
     def NLPpipeline(self, words: List[Word]) -> None:
         if not self.tagger or self.lang != self.tagger.language or self.mode != self.tagger.mode:

@@ -1,14 +1,10 @@
-from NLPpipeline import Helpers
 from TibStringUtils import TibStringUtil
 from RDRPOSTagger import Tagger
-from NLPpipeline import POStagging
-from pytib import Segment
 
 
 class Tokenizer:
     def __init__(self, tokenizer):
-        self.pytib = tokenizer
-        self.helpers = Helpers()
+        self.tok = tokenizer
         self.lang = "bo"
         self.mode = "segment"
         self.tagger = Tagger(language=self.lang, mode=self.mode)  # only instanciate when required
@@ -20,35 +16,9 @@ class Tokenizer:
         else:
             # pre-processing
 
-            # segment (note: spaces in input are replaced by underscores, they will be returned in the pipeline)
-            text = self.pytib.segment(text, unknown=0, reinsert_aa=False, space_at_punct=True, distinguish_ra_sa=True,
-                                      affix_particles=True)
+            words = self.tok.tokenize(text)
 
-            # RDR pass to adjust segmentation
-            ## segmented to tagged
-            tagged = self.stc.segmented2tagged(text)
-
-            ## apply RDR
-            words = []
-            for token in tagged:
-                syl, tag = token.split('/')
-                word = Word(syl)
-                word.partOfSpeech = tag
-                words.append(word)
-
-            POS_tagger = POStagging(words, self.tagger)
-            POS_tagger.RDRPOSTagging(custom_initial_tagging=True)
-
-            tagged = ['{}/{}'.format(w.content, w.partOfSpeech) for w in words]
-
-            text = self.stc.tagged2segmented(tagged)
-            # post-process segmented
-            text = self.helpers.normalize_punct_of(text)
-
-            # split in tokens using spaces
-            tokens = self.split_in_tokens(text)
-
-            return tokens
+            return words
 
     def split_in_tokens(self, sentence):
         words = []
@@ -183,11 +153,5 @@ class Word:
         self.start = 0
         self.length = len(self.content)
 
-if __name__ == '__main__':
-    seg = Segment()
-    tok = Tokenizer(seg)
-    inPut = 'སྐྱེས།__།རྒན་པོ་ ལོ་ལོན་ འདི་ གཅིག་པུ།_།;_དཀར་གསལ་ དུང་ཟླ་ འདི་ མཛེས་པ-ས།__།སྣང་བ-འི་ མེ་ཏོག་ ཀྱང་ འབུས་ ཏེ།_'
-    tagged = tok.process(inPut)
-    print(tagged)
 
 
