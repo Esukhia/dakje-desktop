@@ -1,5 +1,7 @@
 # tibetaneditor
 
+Dev here: https://github.com/nuwainfo/tibetaneditor
+
 This PyQt5 project is a beta version of readability editor for the Tibetan language.
 
 The readability editor assesses the readability of a text by highlighting words according to their level of difficulty. Levels of frequency are defined by analysing the frequency of words in a given language.
