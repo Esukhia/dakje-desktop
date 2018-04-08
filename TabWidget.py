@@ -5,10 +5,10 @@ import textwrap
 
 from functools import partial
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
-    QWidget, QTabWidget, QFormLayout, QHBoxLayout, QVBoxLayout,
+    QWidget, QTabWidget, QFormLayout, QHBoxLayout, QVBoxLayout, QLineEdit,
     QColorDialog, QFileDialog, QInputDialog, QLabel, QPushButton
 )
 
@@ -32,46 +32,50 @@ class TabWidget(QTabWidget):
     def initLevelTab(self):
         # Adding button
         button = QPushButton()
+        button.setFlat(True)
+        button.setIconSize(QSize(30, 30))
         button.setIcon(QIcon('files/add.png'))
         button.clicked.connect(partial(self.addNewFormat, 'level'))
 
-        # Name and button
-        hbox2 = QHBoxLayout()
-        hbox2.addWidget(QLabel('Name'))
-        hbox2.addWidget(button)
-
         # Titles
         hbox = QHBoxLayout()
-        hbox.addLayout(hbox2)
-        hbox.addWidget(QLabel('Color'))
-        hbox.addWidget(QLabel('List'))
-        hbox.addWidget(QLabel('Rule'))
-        hbox.addWidget(QLabel('Delete'))
+        hbox.addWidget(QLabel('Name'), 3)
+        hbox.addWidget(QLabel('Color'), 3)
+        hbox.addWidget(QLabel('List'), 3)
+        hbox.addWidget(QLabel('Rule'), 3)
+        hbox.addWidget(QLabel(), 1)
+
+        hbox2 = QHBoxLayout()
+        hbox2.addWidget(button, alignment=Qt.AlignCenter)
+        hbox2.addStretch()
 
         self.levelFormLayout = QFormLayout()
         self.levelFormLayout.addRow(hbox)
+        self.levelFormLayout.addRow(hbox2)
         self.levelTab.setLayout(self.levelFormLayout)
 
     def initPosTab(self):
         # Adding button
         button = QPushButton()
+        button.setFlat(True)
+        button.setIconSize(QSize(30, 30))
         button.setIcon(QIcon('files/add.png'))
         button.clicked.connect(partial(self.addNewFormat, 'pos'))
 
-        # Name and button
-        hbox2 = QHBoxLayout()
-        hbox2.addWidget(QLabel('Name'))
-        hbox2.addWidget(button)
-
         # Titles
         hbox = QHBoxLayout()
-        hbox.addLayout(hbox2)
-        hbox.addWidget(QLabel('Color'))
-        hbox.addWidget(QLabel('Rule'))
-        hbox.addWidget(QLabel('Delete'))
+        hbox.addWidget(QLabel('Name'), 3)
+        hbox.addWidget(QLabel('Color'), 3)
+        hbox.addWidget(QLabel('Rule'), 3)
+        hbox.addWidget(QLabel(), 1)
+
+        hbox2 = QHBoxLayout()
+        hbox2.addWidget(button)
+        hbox2.addStretch()
 
         self.posFormLayout = QFormLayout()
         self.posFormLayout.addRow(hbox)
+        self.posFormLayout.addRow(hbox2)
         self.posTab.setLayout(self.posFormLayout)
 
     def addTextFormat(self, textFormat):
@@ -80,15 +84,11 @@ class TabWidget(QTabWidget):
         # Name
         self.buttons.append(QPushButton())
         textFormat.editButton = self.buttons[-1]
-        textFormat.editButton.setText('Edit')
+        textFormat.editButton.setText(textFormat.name)
+        textFormat.editButton.setFlat(True)
         textFormat.editButton.clicked.connect(
             partial(self.changeName, textFormat))
-
-        textFormat.nameLabel = QLabel(textFormat.name)
-        vbox = QVBoxLayout()
-        vbox.addWidget(textFormat.nameLabel)
-        vbox.addWidget(textFormat.editButton)
-        hbox.addLayout(vbox)
+        hbox.addWidget(textFormat.editButton, 3)
 
         # ColorButton
         self.buttons.append(QPushButton())
@@ -98,7 +98,7 @@ class TabWidget(QTabWidget):
             'background-color: ' + textFormat.getColorRgbaCss())
         textFormat.colorButton.clicked.connect(
             partial(self.changeColor, textFormat))
-        hbox.addWidget(textFormat.colorButton)
+        hbox.addWidget(textFormat.colorButton, 3)
 
         # ListButton
         if textFormat.type == 'level':
@@ -106,41 +106,58 @@ class TabWidget(QTabWidget):
             textFormat.listButton = self.buttons[-1]
             textFormat.listButton.clicked.connect(
                 partial(self.openFile, textFormat, type='list'))
-            hbox.addWidget(textFormat.listButton)
+            hbox.addWidget(textFormat.listButton, 3)
 
         # RuleButton
         self.buttons.append(QPushButton())
         textFormat.ruleButton = self.buttons[-1]
         textFormat.ruleButton.clicked.connect(
             partial(self.openFile, textFormat, type='rule'))
-        hbox.addWidget(textFormat.ruleButton)
+        hbox.addWidget(textFormat.ruleButton, 3)
 
         # DeleteButton
         self.buttons.append(QPushButton())
         textFormat.removeButton = self.buttons[-1]
+        textFormat.removeButton.setFlat(True)
+        textFormat.removeButton.setIconSize(QSize(25, 25))
         textFormat.removeButton.clicked.connect(
             partial(self.parent.textFormatManager.remove, textFormat))
         textFormat.removeButton.setIcon(QIcon('files/delete.png'))
-        hbox.addWidget(textFormat.removeButton)
+        hbox.addWidget(textFormat.removeButton, 1)
 
         textFormat.tabHBox = hbox
         if textFormat.type == 'level':
-            self.levelFormLayout.addRow(hbox)
+            row = self.levelFormLayout.rowCount() - 1
+            self.levelFormLayout.insertRow(row, hbox)
         else:
-            self.posFormLayout.addRow(hbox)
+            row = self.posFormLayout.rowCount() - 1
+            self.posFormLayout.insertRow(row, hbox)
 
     def addNewFormat(self, type):
-        textFormat = TextFormat('(New Format)', type)
+
+        def getLatestNumber(formats, matchString):
+            i = 1
+            while True:
+                if '{}{}'.format(matchString, i) in [
+                        f.name for f in formats]:
+                    i += 1
+                else:
+                    break
+            return i
+
+        if type == 'level':
+            textFormat = TextFormat('Level' + str(getLatestNumber(
+                self.parent.textFormatManager.getFormats(type='level'), 'Level')
+            ), type)
+        else:
+            textFormat = TextFormat('POS' + str(getLatestNumber(
+                self.parent.textFormatManager.getFormats(type='pos'), 'POS')
+            ), type)
         self.parent.textFormatManager.insert(textFormat)
 
     def removeTextFormat(self, textFormat):
         for i in reversed(range(textFormat.tabHBox.count())):
-            if i == 0:
-                vbox = textFormat.tabHBox.itemAt(i)
-                for j in reversed(range(vbox.count())):
-                    vbox.itemAt(j).widget().setParent(None)
-            else:
-                textFormat.tabHBox.itemAt(i).widget().setParent(None)
+            textFormat.tabHBox.itemAt(i).widget().setParent(None)
 
         if textFormat.type == 'level':
             self.levelFormLayout.removeItem(textFormat.tabHBox)
@@ -157,11 +174,25 @@ class TabWidget(QTabWidget):
             self.parent.highlightViewpoint()
 
     def changeName(self, textFormat):
-        text, _ = QInputDialog.getText(self.parent, 'Name', 'Please enter a name:')
-        textFormat.name = text
-        textFormat.nameLabel.setText(textFormat.name)
-        textFormat.counterNameLabel.setText(textFormat.name)
-        self.parent.highlightViewpoint()
+        textFormat.editButton.setParent(None)
+        self.nameLineEdit = QLineEdit()
+        textFormat.tabHBox.insertWidget(0, self.nameLineEdit, stretch=3)
+        self.nameLineEdit.setFocus()
+        self.nameLineEdit.returnPressed.connect(self.getChangedName)
+        self.nameLineEdit.focusOutEvent = self.nameLineEditFocusOut
+        self.textFormat = textFormat
+
+    def nameLineEditFocusOut(self, event):
+        QLineEdit.focusOutEvent(self.nameLineEdit, event)
+        self.getChangedName()
+
+    def getChangedName(self):
+        name = self.nameLineEdit.text()
+        if name:
+            self.textFormat.editButton.setText(name)
+            self.textFormat.counterNameLabel.setText(name)
+        self.nameLineEdit.setParent(None)
+        self.textFormat.tabHBox.insertWidget(0, self.textFormat.editButton, stretch=3)
 
     def openFile(self, textFormat, type):
         filePath, _ = QFileDialog.getOpenFileName(self)

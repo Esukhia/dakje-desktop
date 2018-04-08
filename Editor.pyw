@@ -8,11 +8,11 @@ import datetime
 import textwrap
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import QPoint
-from PyQt5.QtGui import QIcon,  QTextCursor, QTextOption
+from PyQt5.QtCore import QPoint, Qt
+from PyQt5.QtGui import QIcon, QTextCursor, QFont
 from PyQt5.QtWidgets import (QAction, QApplication, QComboBox,
                              QStyleFactory, QWidget, QMessageBox,
-                             QHBoxLayout, QVBoxLayout, QTextEdit)
+                             QHBoxLayout, QVBoxLayout)
 
 from highlighter import Highlighter
 
@@ -49,15 +49,6 @@ class ExceptionHandler(QtCore.QObject):
 exceptionHandler = ExceptionHandler()
 sys._excepthook = sys.excepthook
 sys.excepthook = exceptionHandler.handler
-
-
-class ComboBox(QComboBox):
-    def hidePopup(self):
-        pass
-
-    def hideManually(self):
-        QComboBox.hidePopup(self)
-
 
 class TibetanEditor(BasicEditor):
 
@@ -202,8 +193,11 @@ class TibetanEditor(BasicEditor):
 
         for start, end, index in reversed(
                 self.wordManager.getNoSegBlocks(textLen=len(text))):
-            newWords = self.wordManager.NLPtokenize(text[start:end])
-            self.wordManager.NLPpipeline(newWords)
+
+            print(start, end, index)
+
+            newWords = self.wordManager.segment(text[start:end])
+            self.wordManager.tag(newWords)
             self.wordManager.insertWordsByIndex([(newWords, index)])
 
         self.modeManager.setText()
@@ -215,15 +209,20 @@ class TibetanEditor(BasicEditor):
 
         # tag
     def changeTag(self, point):
-        self.box = ComboBox(self)
+        self.box = QComboBox(self.textEdit)
         self.box.addItems(self.wordManager.getPartOfSpeeches())
-        self.box.setGeometry(point.x(), point.y() + 100, 100, 200)
+
+        font = QFont()
+        font.setFixedPitch(True)
+        font.setPointSize(12)
+
+        self.box.setFont(font)
+        self.box.setGeometry(point.x(), point.y(), 80, 100)
         self.box.activated.connect(self.changing)
         self.box.showPopup()
 
     def changing(self):
         tagName = self.box.currentText()
-        self.box.hideManually()
         self.selectedWord.partOfSpeech = tagName
         self.modeManager.setText()
         self.highlightViewpoint()

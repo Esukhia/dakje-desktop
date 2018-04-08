@@ -2,7 +2,7 @@
 import re
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QTextCharFormat
+from PyQt5.QtGui import QTextCharFormat, QColor
 from PyQt5.QtWidgets import QMessageBox
 
 from functools import partial
@@ -20,7 +20,6 @@ class TextFormat(QTextCharFormat):
 
         # Tab
         self.tabHBox = None
-        self.nameLabel = None
         self.editButton = None
         self.colorButton = None
         self.listButton = None
@@ -29,6 +28,22 @@ class TextFormat(QTextCharFormat):
         # Counter
         self.counterNameLabel = None
         self.counterHBox = None
+
+        levelColors = {
+            'Level1': '#87a840',
+            'Level2': '#ddc328',
+            'Level3': '#b63226',
+            'Level4': '#278da9',
+            'Level5': '#363d5c'
+        }
+        if 'Level' in self.name:
+            if self.name in levelColors:
+                hex = levelColors[self.name]
+            else:
+                hex = levelColors['Level3']
+            r, g, b = hex[1:3], hex[3:5], hex[5:7]
+            self.setColor(QColor(int(r, 16), int(g, 16), int(b, 16)))
+
 
     def setupWordList(self, listPath, lines=None):
         self.wordList = []
@@ -112,8 +127,14 @@ class TextFormatManager:
     def remove(self, textFormat):
         self.parent.tabWidget.removeTextFormat(textFormat)
         self.parent.counterWidget.removeTextFormat(textFormat)
-        self._formats.remove(textFormat)
+
+        for index, f in enumerate(reversed(self._formats)):
+            if f is textFormat:
+                self._formats.pop(len(self._formats) - 1 - index)
+
         self.parent.highlightViewpoint()
+
+
 
     def clear(self):
         for textFormat in self._formats:
@@ -121,7 +142,9 @@ class TextFormatManager:
             self.parent.counterWidget.removeTextFormat(textFormat)
         self._formats = []
 
-    def getFormats(self):
+    def getFormats(self, type=None):
+        if type:
+            return [f for f in self._formats if f.type == type]
         return self._formats
 
     def getWordFormatDict(self):

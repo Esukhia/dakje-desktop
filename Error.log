@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 INFO:root:========================================
 INFO:root:
 Time: 2017-10-25 14:51:28.807832
@@ -463,4 +464,30 @@ Traceback (most recent call last):
   File "/home/drupchen/PycharmProjects/tibetaneditor/Word.py", line 178, in reSegmentWord
     self.tag(newWords)
 AttributeError: 'WordManager' object has no attribute 'tag'
+INFO:root:========================================
+=======
+>>>>>>> 2bbc7cd849ff1cff810f0744822befa76e8cfe05
+INFO:root:========================================
+INFO:root:Time: 2018-04-08 15:15:41.516596
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/Users/trinley/github/tibetaneditor/highlighter.py", line 123, in highlightBlock
+    textFormat = word.needHighlighted()
+AttributeError: 'Word' object has no attribute 'needHighlighted'
+INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-04-08 15:48:47.402200
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/Users/trinley/github/tibetaneditor/Editor.pyw", line 199, in segment
+    newWords = self.wordManager.segment(text[start:end])
+AttributeError: 'WordManager' object has no attribute 'segment'
+INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-04-08 15:50:40.841701
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/Users/trinley/github/tibetaneditor/highlighter.py", line 123, in highlightBlock
+    textFormat = word.needHighlighted()
+AttributeError: 'Word' object has no attribute 'needHighlighted'
 INFO:root:========================================
