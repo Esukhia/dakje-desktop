@@ -475,3 +475,19 @@ Traceback (most recent call last):
     textFormat = word.needHighlighted()
 AttributeError: 'Word' object has no attribute 'needHighlighted'
 INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-04-08 15:48:47.402200
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/Users/trinley/github/tibetaneditor/Editor.pyw", line 199, in segment
+    newWords = self.wordManager.segment(text[start:end])
+AttributeError: 'WordManager' object has no attribute 'segment'
+INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-04-08 15:50:40.841701
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/Users/trinley/github/tibetaneditor/highlighter.py", line 123, in highlightBlock
+    textFormat = word.needHighlighted()
+AttributeError: 'Word' object has no attribute 'needHighlighted'
+INFO:root:========================================
