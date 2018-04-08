@@ -515,3 +515,35 @@ Traceback (most recent call last):
     textFormat = word.needHighlighted()
 AttributeError: 'Word' object has no attribute 'needHighlighted'
 INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-04-08 16:12:40.025586
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/Users/trinley/github/tibetaneditor/highlighter.py", line 123, in highlightBlock
+    textFormat = word.needHighlighted()
+AttributeError: 'Word' object has no attribute 'needHighlighted'
+INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-04-08 16:15:56.341826
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/Users/trinley/github/tibetaneditor/highlighter.py", line 123, in highlightBlock
+    textFormat = word.needHighlighted()
+AttributeError: 'Word' object has no attribute 'needHighlighted'
+INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-04-08 16:20:22.135326
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/Users/trinley/github/tibetaneditor/highlighter.py", line 123, in highlightBlock
+    textFormat = word.needHighlighted()
+AttributeError: 'Word' object has no attribute 'needHighlighted'
+INFO:root:========================================
+INFO:root:========================================
+INFO:root:Time: 2018-04-08 16:20:38.482712
+ERROR:root:Uncaught exception
+Traceback (most recent call last):
+  File "/Users/trinley/github/tibetaneditor/highlighter.py", line 123, in highlightBlock
+    textFormat = word.needHighlighted()
+AttributeError: 'Word' object has no attribute 'needHighlighted'
+INFO:root:========================================
