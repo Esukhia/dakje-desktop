@@ -1,11 +1,10 @@
 
 import sys
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import Qt, QFile
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QKeySequence, QTextDocumentWriter, QFont
-from PyQt5.QtWidgets import QMainWindow, QWidget, QMessageBox, \
-    QFileDialog, QAction, QTextEdit, QVBoxLayout, QHBoxLayout, QApplication, QMenuBar, QPlainTextEdit
+from PyQt5.QtWidgets import QMainWindow, QMessageBox, \
+    QFileDialog, QAction, QApplication, QMenuBar, QPlainTextEdit
 
 class BasicEditor(QMainWindow):
     def __init__(self, parent=None):
@@ -32,7 +31,7 @@ class BasicEditor(QMainWindow):
         font.setFixedPitch(True)
         font.setPointSize(15)
 
-        self.textEdit = QTextEdit()
+        self.textEdit = QPlainTextEdit()
         self.textEdit.setFont(font)
 
         self.textEdit.redoAvailable.connect(self.redoAction.setEnabled)
@@ -130,7 +129,7 @@ class BasicEditor(QMainWindow):
 
         if self.filename:
             with open(self.filename, "r", encoding='utf-8') as f:
-                self.textEdit.setText(f.read())
+                self.textEdit.setPlainText(f.read())
 
 
     def saveFile(self):

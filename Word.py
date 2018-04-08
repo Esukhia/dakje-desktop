@@ -12,8 +12,28 @@ class Word:
         self.partOfSpeech = None
         self.tagIsOn = False
         self.level = 0
+
+        self.taggedModePosition = 0
+        self.plainTextModePosition = 0
+
         self.start = 0
-        self.length = len(self.content)
+        self.highlighted = {}
+
+    def isInPartOfSpeech(self, index):
+        if self.length <= index < self.length + self.partOfSpeechLen:
+            return True
+        else:
+            return False
+
+    def needHighlighted(self):
+        if True:
+            for index, textFormat in self.highlighted.items():
+                if self.isInPartOfSpeech(index):
+                    return textFormat
+
+    @property
+    def length(self):
+        return len(self.content)
 
     @property
     def end(self):
@@ -22,6 +42,13 @@ class Word:
     @property
     def partOfSpeechEnd(self):
         return self.end + self.partOfSpeechLen
+
+    @property
+    def modeEnd(self):
+        if self.tagIsOn:
+            return self.partOfSpeechEnd
+        else:
+            return self.end
 
     @property
     def partOfSpeechLen(self):
@@ -45,12 +72,12 @@ class WordManager:
                 partOfSpeeches.add(line.split()[-1])
         return partOfSpeeches
 
-    def NLPtokenize(self, sentence: str) -> List[Word]:
+    def segment(self, sentence: str) -> List[Word]:
         if not self.tokenizer:
             self.tokenizer = tokenizer()  # only instanciate when required
         return [token for token in Tokenizer(self.tokenizer).process(sentence)]
 
-    def NLPpipeline(self, words: List[Word]) -> None:
+    def tag(self, words: List[Word]) -> None:
         if not self.tagger or self.lang != self.tagger.language or self.mode != self.tagger.mode:
             self.tagger = Tagger(language=self.lang, mode=self.mode)  # only instanciate when required
         return Pipeline(self.tagger, words).applyPipeline()
@@ -92,6 +119,11 @@ class WordManager:
         # position 介於 start, end 之間(不包含)，用在 changeTag
         for i, word in enumerate(self._words):
             if word.start < position < word.end:
+                return word
+
+    def getIndexWord(self, position):
+        for i, word in enumerate(self._words):
+            if word.start <= position < word.end:
                 return word
 
     def removeWord(self, position):
@@ -150,7 +182,7 @@ class WordManager:
                         noSegBlocks.append(
                             (self._words[i].end, textLen, i + 1))
                 else:
-                    if not self._words[i].end == self._words[i + 1]:
+                    if not self._words[i].end == self._words[i + 1].start:
                         noSegBlocks.append(
                             (self._words[i].end,
                              self._words[i + 1].start, i + 1))
