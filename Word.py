@@ -19,18 +19,6 @@ class Word:
         self.start = 0
         self.highlighted = {}
 
-    def isInPartOfSpeech(self, index):
-        if self.length <= index < self.length + self.partOfSpeechLen:
-            return True
-        else:
-            return False
-
-    def needHighlighted(self):
-        if True:
-            for index, textFormat in self.highlighted.items():
-                if self.isInPartOfSpeech(index):
-                    return textFormat
-
     @property
     def length(self):
         return len(self.content)
