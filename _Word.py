@@ -2,10 +2,9 @@
 from typing import List, Set
 
 from RDRPOSTagger import Tagger, models
-from pybo.BoTokenizer import Tokenizer as tokenizer
+from pytib import Segment
 from NLPtokenizer import Tokenizer
 from NLPpipeline import Pipeline
-
 
 class Word:
     def __init__(self, content):
@@ -53,7 +52,7 @@ class Word:
 
     @property
     def partOfSpeechLen(self):
-        return len(self.partOfSpeech) + 1  # plus one for '/'
+        return len(self.partOfSpeech) + 1 # plus one for '/'
 
 
 class WordManager:
@@ -75,13 +74,13 @@ class WordManager:
 
     def segment(self, sentence: str) -> List[Word]:
         if not self.tokenizer:
-            self.tokenizer = tokenizer()  # only instanciate when required
-        return [token for token in Tokenizer(self.tokenizer).process(sentence)]
+            self.tokenizer = Segment()  # only instanciate when required
+            self.tokenizer.include_user_vocab()
+        return [Word(token) for token in Tokenizer(self.tokenizer).process(sentence)]
 
     def tag(self, words: List[Word]) -> None:
         if not self.tagger or self.lang != self.tagger.language or self.mode != self.tagger.mode:
-            # only instanciate when required
-            self.tagger = Tagger(language=self.lang, mode=self.mode)
+            self.tagger = Tagger(language=self.lang, mode=self.mode)  # only instanciate when required
         return Pipeline(self.tagger, words).applyPipeline()
 
     def getWords(self, start=None, end=None):
@@ -195,8 +194,7 @@ class WordManager:
         # position 介於 start, end 之間(不包含)，用在 插入空白
         for i, word in enumerate(self._words):
             if word.start == curPos and curPos < prePos:
-                start, end, index = self._words[i -
-                                                1].start, word.end + 1, i - 1
+                start, end, index = self._words[i - 1].start, word.end + 1, i - 1
                 self._words.pop(i)
                 self._words.pop(i - 1)
                 break
