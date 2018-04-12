@@ -2,23 +2,41 @@
 from typing import List, Set
 
 from RDRPOSTagger import Tagger, models
-from pybo.BoTokenizer import Tokenizer as tokenizer
+from pybo.pybo import Tokenizer as tokenizer
+from pybo.pybo import PyBoTrie, BoSyl
 from NLPtokenizer import Tokenizer
 from NLPpipeline import Pipeline
 
 
 class Word:
-    def __init__(self, content):
-        self.content = content
-        self.partOfSpeech = None
+    def __init__(self, token):
+        # from pybo Token object
+        self.content = None        # substring of the raw input string
+        self.char_groups = None    # a group attributed to every character. from BoStringUtils
+        self.chunk_type = None     # attributed by BoTokenizer.Tokenizer
+        self.chunk_markers = None  # convert the int in chunk_type into something readable
+        self.syls = None           # indices of syl chars to find cleaned syllables from self.content
+        self.start = None          # start index of the word in the raw input string
+        self.tag = None            # tag attributed by BoTokenizer.Tokenizer (more than UD tag)
+        self.partOfSpeech = None   # POS attributed by BoTokenizer.Tokenizer (raw UD POS tag)
+        self.__import_token(token)
+
+        # specific to Word object
         self.tagIsOn = False
         self.level = 0
-
         self.taggedModePosition = 0
         self.plainTextModePosition = 0
-
-        self.start = 0
         self.highlighted = {}
+
+    def __import_token(self, token):
+        self.content = token.content
+        self.char_groups = token.char_groups
+        self.chunk_type = token.chunk_type
+        self.chunk_markers = token.chunk_markers
+        self.syls = token.syls
+        self.start = token.start
+        self.tag = token.tag
+        self.partOfSpeech = token.pos
 
     def isInPartOfSpeech(self, index):
         if self.length <= index < self.length + self.partOfSpeechLen:
@@ -38,7 +56,7 @@ class Word:
 
     @property
     def end(self):
-        return self.start + len(self.content)
+        return self.start + self.length
 
     @property
     def partOfSpeechEnd(self):
@@ -54,7 +72,6 @@ class Word:
     @property
     def partOfSpeechLen(self):
         return len(self.partOfSpeech) + 1  # plus one for '/'
-
 
 class WordManager:
     def __init__(self, parent):
@@ -75,8 +92,10 @@ class WordManager:
 
     def segment(self, sentence: str) -> List[Word]:
         if not self.tokenizer:
-            self.tokenizer = tokenizer()  # only instanciate when required
-        return [token for token in Tokenizer(self.tokenizer).process(sentence)]
+            trie = PyBoTrie(BoSyl(), 'POS')
+            tok = tokenizer(trie)
+            self.tokenizer = tok  # only instanciate when required
+        return [Word(token) for token in Tokenizer(self.tokenizer).process(sentence)]
 
     def tag(self, words: List[Word]) -> None:
         if not self.tagger or self.lang != self.tagger.language or self.mode != self.tagger.mode:

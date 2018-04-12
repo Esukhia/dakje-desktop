@@ -1,5 +1,6 @@
 from TibStringUtils import TibStringUtil
 from RDRPOSTagger import Tagger
+from pybo.pybo import PyBoTextChunks as pre_process
 
 
 class Tokenizer:
@@ -16,7 +17,7 @@ class Tokenizer:
         else:
             # pre-processing
 
-            words = self.tok.tokenize(text)
+            words = self.tok.tokenize(pre_process(text))
 
             return words
 
@@ -152,6 +153,3 @@ class Word:
         self.level = 0
         self.start = 0
         self.length = len(self.content)
-
-
-
