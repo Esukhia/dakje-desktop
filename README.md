@@ -21,9 +21,14 @@ Features comming soon:
 
 ## Release note
 
+- Version 0.11
+    
+    * Change "pytib" library with "pybo"
+      (https://github.com/Esukhia/pybo)
+
 - Version 0.10
     
-    * Sovle the issues #8 ~ #16 (2017/1/17),  
+    * Solve the issues #8 ~ #16 (2017/1/17),  
     * Change the UI & fix minor bugs 
 
 

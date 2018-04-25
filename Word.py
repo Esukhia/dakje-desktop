@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 from typing import List, Set
 
-from RDRPOSTagger import Tagger, models
-from pytib import Segment
-from NLPtokenizer import Tokenizer
-from NLPpipeline import Pipeline
+import pybo
 
-class Word:
-    def __init__(self, content):
-        self.content = content
-        self.partOfSpeech = None
+_Word = pybo.Word
+
+
+class Word(_Word):
+    def __init__(self, content=None):
+        if content:
+            self.content = content
+            self.length = len(content)
+            self.tag = ''
+        else:
+            super().__init__()
         self.tagIsOn = False
         self.level = 0
-
         self.taggedModePosition = 0
         self.plainTextModePosition = 0
-
         self.start = 0
         self.highlighted = {}
 
@@ -30,10 +32,6 @@ class Word:
             for index, textFormat in self.highlighted.items():
                 if self.isInPartOfSpeech(index):
                     return textFormat
-
-    @property
-    def length(self):
-        return len(self.content)
 
     @property
     def end(self):
@@ -55,6 +53,10 @@ class Word:
         return len(self.partOfSpeech) + 1 # plus one for '/'
 
 
+pybo.Word = Word
+pybo.Tokenizer.create_token.__globals__['Word'] = Word
+
+
 class WordManager:
     def __init__(self, parent):
         self.parent = parent
@@ -65,23 +67,24 @@ class WordManager:
         self._words = []
 
     def getPartOfSpeeches(self) -> Set[str]:
-        partOfSpeeches = set()
-        with open(models['{}_{}'.format(self.lang, self.mode)][1],
-                  encoding='utf-8') as f:
-            for line in f.readlines():
-                partOfSpeeches.add(line.split()[-1])
-        return partOfSpeeches
+        # TODO: Dont hard-coding
+        return {'ADJ', 'ADP', 'NUM', 'ADV', 'NOUN', 'INTJ', 'PART', 'PRON',
+                'DET', 'AUX', 'PUNCT', 'SCONJ', 'PROPN', 'OTHER', 'X', 'VERB'}
 
     def segment(self, sentence: str) -> List[Word]:
         if not self.tokenizer:
-            self.tokenizer = Segment()  # only instanciate when required
-            self.tokenizer.include_user_vocab()
-        return [Word(token) for token in Tokenizer(self.tokenizer).process(sentence)]
+            # a. instanciate the tokenizer
+            bs = pybo.BoSyl()  # used to dynamically generate affixed versions
+            trie = pybo.PyBoTrie(bs, profile='POS')  # loads or builds a trie
+            self.tokenizer = pybo.Tokenizer(trie)
 
-    def tag(self, words: List[Word]) -> None:
-        if not self.tagger or self.lang != self.tagger.language or self.mode != self.tagger.mode:
-            self.tagger = Tagger(language=self.lang, mode=self.mode)  # only instanciate when required
-        return Pipeline(self.tagger, words).applyPipeline()
+        # b. pre-process the input string
+        pre_processed = pybo.PyBoTextChunks(sentence)
+
+        # c. tokenize
+        tokens = self.tokenizer.tokenize(pre_processed)
+
+        return tokens  # same as "words"
 
     def getWords(self, start=None, end=None):
         if not start and not end:
@@ -208,5 +211,4 @@ class WordManager:
 
         newWordStrings = text[start: end].split()
         newWords = [Word(s) for s in newWordStrings]
-        self.tag(newWords)
         self.insertWordsByIndex([(newWords, index)])

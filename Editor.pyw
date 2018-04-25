@@ -197,7 +197,6 @@ class TibetanEditor(BasicEditor):
             print(start, end, index)
 
             newWords = self.wordManager.segment(text[start:end])
-            self.wordManager.tag(newWords)
             self.wordManager.insertWordsByIndex([(newWords, index)])
 
         self.modeManager.setText()
@@ -223,7 +222,8 @@ class TibetanEditor(BasicEditor):
 
     def changing(self):
         tagName = self.box.currentText()
-        self.selectedWord.partOfSpeech = tagName
+        self.selectedWord.tag = self.selectedWord.tag.replace(
+            self.selectedWord.partOfSpeech, tagName)
         self.modeManager.setText()
         self.highlightViewpoint()
 
