@@ -23,8 +23,7 @@ from Word import Word, WordManager
 from EventHandler import EventHandler
 
 from find import FindDialog
-from TabWidget import TabWidget
-from CounterWidget import CounterWidget
+from widgets import ProfileWidget, CounterWidget, FindWidget
 
 from BasicEditor import BasicEditor
 
@@ -114,17 +113,23 @@ class TibetanEditor(BasicEditor):
             ' '.join(self.windowTitle().split(' ')[1:]))
 
     def setupLayout(self):
-        self.tabWidget = TabWidget(self)
+        self.profileWidget = ProfileWidget(self)
         self.counterWidget = CounterWidget(self)
+        self.findWidget = FindWidget(self)
+
         widget = QWidget()
 
-        vbox = QVBoxLayout()
-        vbox.addWidget(self.tabWidget, 1)
-        vbox.addWidget(self.counterWidget, 1)
+        rightVBox = QVBoxLayout()
+        rightVBox.addWidget(self.profileWidget, 1)
+        rightVBox.addWidget(self.counterWidget, 1)
+
+        leftVBox = QVBoxLayout()
+        leftVBox.addWidget(self.findWidget, 1)
 
         hbox = QHBoxLayout()
+        hbox.addLayout(leftVBox, 1)
         hbox.addWidget(self.textEdit, 3)
-        hbox.addLayout(vbox, 1)
+        hbox.addLayout(rightVBox, 1)
 
         widget.setLayout(hbox)
         self.setCentralWidget(widget)
@@ -227,7 +232,6 @@ class TibetanEditor(BasicEditor):
         self.modeManager.setText()
         self.highlightViewpoint()
 
-    # highlight
     def highlightViewpoint(self, currentBlock=None):
         cursor = self.textEdit.cursorForPosition(QPoint(0, 0))
         bottom_right = QPoint(self.textEdit.viewport().width() - 1,

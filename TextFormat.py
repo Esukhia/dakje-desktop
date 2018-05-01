@@ -121,11 +121,11 @@ class TextFormatManager:
 
     def insert(self, textFormat):
         self._formats.append(textFormat)
-        self.parent.tabWidget.addTextFormat(textFormat)
+        self.parent.profileWidget.addTextFormat(textFormat)
         self.parent.counterWidget.addTextFormat(textFormat)
 
     def remove(self, textFormat):
-        self.parent.tabWidget.removeTextFormat(textFormat)
+        self.parent.profileWidget.removeTextFormat(textFormat)
         self.parent.counterWidget.removeTextFormat(textFormat)
 
         for index, f in enumerate(reversed(self._formats)):
@@ -138,7 +138,7 @@ class TextFormatManager:
 
     def clear(self):
         for textFormat in self._formats:
-            self.parent.tabWidget.removeTextFormat(textFormat)
+            self.parent.profileWidget.removeTextFormat(textFormat)
             self.parent.counterWidget.removeTextFormat(textFormat)
         self._formats = []
 

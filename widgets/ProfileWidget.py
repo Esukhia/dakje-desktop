@@ -16,7 +16,7 @@ from TextFormat import TextFormat
 
 # deal with buttons: https://stackoverflow.com/questions/17425367/pyqt4-create-many-buttons-from-dict-dynamically
 
-class TabWidget(QTabWidget):
+class ProfileWidget(QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
