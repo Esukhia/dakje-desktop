@@ -3,17 +3,18 @@ from typing import List, Set
 
 import pybo
 
-_Word = pybo.Word
-
-
-class Word(_Word):
-    def __init__(self, content=None):
-        if content:
+class Word():
+    def __init__(self, content=None, token=None):
+        if token:
+            self.content = token.content
+            self.partOfSpeech = token.pos
+        elif content:
             self.content = content
-            self.length = len(content)
-            self.tag = ''
+            self.partOfSpeech = ''
         else:
-            super().__init__()
+            raise TypeError(
+                'content and token can not be both NoneType')
+
         self.tagIsOn = False
         self.level = 0
         self.taggedModePosition = 0
@@ -34,6 +35,10 @@ class Word(_Word):
                     return textFormat
 
     @property
+    def length(self):
+        return len(self.content)
+
+    @property
     def end(self):
         return self.start + len(self.content)
 
@@ -51,10 +56,6 @@ class Word(_Word):
     @property
     def partOfSpeechLen(self):
         return len(self.partOfSpeech) + 1 # plus one for '/'
-
-
-pybo.Word = Word
-pybo.Tokenizer.create_token.__globals__['Word'] = Word
 
 
 class WordManager:
@@ -84,7 +85,7 @@ class WordManager:
         # c. tokenize
         tokens = self.tokenizer.tokenize(pre_processed)
 
-        return tokens  # same as "words"
+        return [Word(token=token) for token in tokens]  # same as "words"
 
     def getWords(self, start=None, end=None):
         if not start and not end:

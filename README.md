@@ -21,6 +21,11 @@ Features comming soon:
 
 ## Release note
 
+- Version 0.12
+
+    * Use new Pybo from pypi
+    * Add CQL generator to left side bar
+
 - Version 0.11
     
     * Change "pytib" library with "pybo"
