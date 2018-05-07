@@ -227,8 +227,7 @@ class TibetanEditor(BasicEditor):
 
     def changing(self):
         tagName = self.box.currentText()
-        self.selectedWord.tag = self.selectedWord.tag.replace(
-            self.selectedWord.partOfSpeech, tagName)
+        self.selectedWord.partOfSpeech = tagName
         self.modeManager.setText()
         self.highlightViewpoint()
 
