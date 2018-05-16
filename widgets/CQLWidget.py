@@ -20,8 +20,8 @@ class RemoveButton(QPushButton):
 
 class ComboBoxFactory:
     KEYWORD = ['WORD', 'LEMMA', 'POS', 'TAG']
-    RELATIONAL_OPR = ['=', '>', '<']
-    LOGICAL_OPR = ['', '&', '|']
+    RELATIONAL_OPR = ['=', '>=', '<=', '!=', '!<=', '!>=', '==', '!==']
+    LOGICAL_OPR = ['', '&', '|', '!']
 
     @staticmethod
     def createComboBox(items):
@@ -170,6 +170,7 @@ class CQLQueryGenerator(QDialog):
         self.parent = parent
         self.tokens = []
         self.resize(450, 600)
+        self.setWindowTitle('CQL Query Generator')
         self.initUI()
 
     def initUI(self):
