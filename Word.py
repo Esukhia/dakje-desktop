@@ -66,6 +66,9 @@ class WordManager:
         self.tagger = None
         self.tokenizer = None
         self._words = []
+        
+        if not self.tokenizer:
+            self.tokenizer = pybo.BoTokenizer('POS')
 
     def getPartOfSpeeches(self) -> Set[str]:
         # TODO: Dont hard-coding
@@ -73,17 +76,7 @@ class WordManager:
                 'DET', 'AUX', 'PUNCT', 'SCONJ', 'PROPN', 'OTHER', 'X', 'VERB'}
 
     def segment(self, sentence: str) -> List[Word]:
-        if not self.tokenizer:
-            # a. instanciate the tokenizer
-            bs = pybo.BoSyl()  # used to dynamically generate affixed versions
-            trie = pybo.PyBoTrie(bs, profile='POS')  # loads or builds a trie
-            self.tokenizer = pybo.Tokenizer(trie)
-
-        # b. pre-process the input string
-        pre_processed = pybo.PyBoTextChunks(sentence)
-
-        # c. tokenize
-        tokens = self.tokenizer.tokenize(pre_processed)
+        tokens = self.tokenizer.tokenize(sentence)
 
         return [Word(token=token) for token in tokens]  # same as "words"
 
