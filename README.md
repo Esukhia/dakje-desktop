@@ -21,32 +21,31 @@ Features comming soon:
 
 ## Release note
 
-- Version 0.12
+- version 0.12 (2018.6.5)
 
-    * Use new Pybo from pypi
-    * Add CQL generator to left side bar
+    * Add Dictionary Editor
 
 - Version 0.11
     
     * Change "pytib" library with "pybo"
       (https://github.com/Esukhia/pybo)
 
-- Version 0.10
+- Version 0.10 (2018.1.17)
     
-    * Solve the issues #8 ~ #16 (2017/1/17),  
+    * Solve the issues #8 ~ #16  
     * Change the UI & fix minor bugs 
 
 
-- Version 0.9.1 (2017/1/15)
+- Version 0.9.1 (2018.1.15)
 
     * Merge the pull request (drupchen/cleanup)
     * Clean the folders
 
-- Version: 0.9 (2017/1/14)
+- Version: 0.9 (2018.1.14)
 
     * Fix Issue 4, the editor will highlight the word object now.
 
-- Version: 0.8 (2017/1/2)
+- Version: 0.8 (2018.1.2)
     
     * Merge the fork https://github.com/Esukhia/TibEdit/tree/add-support-for-affixed-POS ,the main change is to use the Tokenization (formerly segmentation) and ProcessingPipeline to handle with segmentation and words tagging.
     * Details:
@@ -66,7 +65,7 @@ Features comming soon:
         - added spaces around non-tib punctuation is solved
         - revert _ to spaces before displaying in the editor.
 
-- Version: 0.7.1 (2017/12/13)
+- Version: 0.7.1 (2017.12.13)
 
     * Fix the error occurs when adding new sentences at the end of the article after segmenting
     * Fix the error occurs when segmenting a new blank line

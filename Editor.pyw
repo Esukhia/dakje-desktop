@@ -23,7 +23,7 @@ from Word import Word, WordManager
 from EventHandler import EventHandler
 
 from find import FindDialog
-from widgets import ProfileWidget, CounterWidget, FindWidget
+from widgets import ProfileWidget, CounterWidget, FindWidget, DictionaryEditorWidget
 
 from BasicEditor import BasicEditor
 
@@ -164,6 +164,9 @@ class TibetanEditor(BasicEditor):
         self.toolbar.addAction(self.openProfileAction)
         self.toolbar.addAction(self.saveProfileAction)
 
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.openDictionaryEditorAction)
+
     def createActions(self):
         super().createActions()
         self.segmentAction = QAction(
@@ -191,6 +194,10 @@ class TibetanEditor(BasicEditor):
         self.openProfileAction = QAction(
             QIcon('files/import.png'), "&Import profile", self,
             triggered=self.profileManager.openProfile)
+
+        self.openDictionaryEditorAction = QAction(
+            QIcon('files/dictionary.png'), "&Open dictionary editor", self,
+            triggered=lambda: DictionaryEditorWidget(self).show())
 
     # segment
     def segment(self):
