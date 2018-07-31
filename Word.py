@@ -5,9 +5,11 @@ import pybo
 
 class Word():
     def __init__(self, content=None, token=None):
+        self.token = None
         if token:
             self.content = token.content
             self.partOfSpeech = token.pos
+            self.token = token
         elif content:
             self.content = content
             self.partOfSpeech = ''
