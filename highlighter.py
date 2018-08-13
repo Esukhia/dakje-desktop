@@ -57,7 +57,6 @@ class Highlighter(QSyntaxHighlighter):
             str(currentBlock.blockNumber())] = 0
         self.mainWindow.textFormatManager.getPartOfSpeechFormat().counterDict[
             str(currentBlock.blockNumber())] = 0
-
         
         start = currentBlock.position()
         end = start + currentBlock.length()
