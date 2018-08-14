@@ -18,7 +18,6 @@ class ModeManager:
             self.parent.segmentAction.setEnabled(True)
 
     def setText(self):
-        # print([w.content for w in self.parent.wordManager.getWords()])
         text = []
         end = 0
         for word in self.parent.wordManager.getWords():

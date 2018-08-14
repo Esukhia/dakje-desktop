@@ -86,7 +86,7 @@ class WordManager:
         if not start and not end:
             return self._words
 
-        elif start and not end:
+        elif start is not None and end is None:
             # 大於等於 start
             index = None
             for i, word in enumerate(self._words):
@@ -94,7 +94,7 @@ class WordManager:
                     index = i
                     break
 
-            if not index:
+            if index is None:
                 return []
             else:
                 return self._words[index:]
@@ -108,6 +108,10 @@ class WordManager:
                 if word.end >= end:
                     break
             return words
+
+    def getWordsByIndex(self, start=None):
+        if start:
+            return self._words[start:]
 
     def getPartOfSpeechWord(self, position):
         # position 介於 start, end 之間(不包含)，用在 changeTag
@@ -177,12 +181,16 @@ class WordManager:
 
         else:
             for i, word in enumerate(self._words):
-                if i == len(self._words) - 1:
-                    if not self._words[i].end == textLen:
+                if i == 0:  # first
+                    if self._words[i].start != 0:
+                        noSegBlocks.append([0, self._words[i].start, 0])
+
+                if i == len(self._words) - 1:  # last
+                    if self._words[i].end != textLen:
                         noSegBlocks.append(
                             (self._words[i].end, textLen, i + 1))
                 else:
-                    if not self._words[i].end == self._words[i + 1].start:
+                    if self._words[i].end != self._words[i + 1].start:
                         noSegBlocks.append(
                             (self._words[i].end,
                              self._words[i + 1].start, i + 1))

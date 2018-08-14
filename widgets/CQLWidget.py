@@ -19,7 +19,7 @@ class RemoveButton(QPushButton):
         self.setFixedSize(20, 20)
 
 class ComboBoxFactory:
-    KEYWORD = ['WORD', 'LEMMA', 'POS', 'TAG']
+    KEYWORD = ['content', 'pos']
     RELATIONAL_OPR = ['=', '>=', '<=', '!=', '!<=', '!>=', '==', '!==']
     LOGICAL_OPR = ['', '&', '|', '!']
 
@@ -165,9 +165,9 @@ class Token:
 
 
 class CQLQueryGenerator(QDialog):
-    def __init__(self, parent=None):
+    def __init__(self, lineEdit, parent=None):
         super().__init__(parent)
-        self.parent = parent
+        self.lineEdit = lineEdit
         self.tokens = []
         self.resize(450, 600)
         self.setWindowTitle('CQL Query Generator')
@@ -210,7 +210,7 @@ class CQLQueryGenerator(QDialog):
         self.CQLQueryLabel.setText(str(self))
 
     def confirm(self):
-        self.parent.lineEdit.setText(str(self))
+        self.lineEdit.setText(str(self))
         self.close()
 
     def __str__(self):

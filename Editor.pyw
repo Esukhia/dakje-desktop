@@ -206,8 +206,6 @@ class TibetanEditor(BasicEditor):
         for start, end, index in reversed(
                 self.wordManager.getNoSegBlocks(textLen=len(text))):
 
-            print(start, end, index)
-
             newWords = self.wordManager.segment(text[start:end])
             self.wordManager.insertWordsByIndex([(newWords, index)])
 
@@ -266,6 +264,16 @@ class TibetanEditor(BasicEditor):
 
         self.textEdit.textChanged.connect(self.eventHandler.textChanged)
         self.highlighter.highLightBlockOn = False
+
+    def selectWord(self, start, end):
+        words = self.wordManager.getWords()
+        self.setSelection(words[start].start, words[end].modeEnd)
+
+    def setSelection(self, start, end):
+        cursor = self.textEdit.textCursor()
+        cursor.setPosition(start)
+        cursor.setPosition(end, QTextCursor.KeepAnchor)
+        self.textEdit.setTextCursor(cursor)
 
 
 if __name__ == '__main__':

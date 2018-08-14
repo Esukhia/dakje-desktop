@@ -21,6 +21,7 @@ class EventHandler:
         cursor = textEdit.textCursor()
         self.prePos = self.curPos
         self.curPos = cursor.position()
+
         self.preStart = self.curStart
         self.preEnd = self.curEnd
 
@@ -35,14 +36,19 @@ class EventHandler:
         textEdit = self.parent.textEdit
         wordManager = self.parent.wordManager
         text = self.parent.textEdit.toPlainText()
-        shift = self.curPos - self.prePos
+        if self.preEnd:
+            shift = self.curPos - self.preEnd
+        else:
+            shift = self.curPos - self.prePos
 
-        if not textEdit.toPlainText() or self.preStart == 0:
+        if not textEdit.toPlainText() or (
+                self.preStart == 0
+                and self.preEnd == len(textEdit.toPlainText())):
             wordManager.setWords([])
 
         # plain text mode:
         if not self.parent.modeManager.isSpaceMode():
-            if self.preStart:
+            if self.preStart is not None:
                 wordManager.removeWords(self.preStart, self.preEnd)
                 for word in wordManager.getWords(start=self.prePos):
                     word.start += shift
