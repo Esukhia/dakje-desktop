@@ -17,7 +17,13 @@ class ModeManager:
         else:
             self.parent.segmentAction.setEnabled(True)
 
-    def setText(self):
+    def setText(self, keepCursor=False):
+        if keepCursor:
+            cursor = self.parent.textEdit.textCursor()
+            position = cursor.position()
+            selectedWord = self.parent.wordManager.getWordByModeEnd(position)
+            distance = position - selectedWord.start
+
         text = []
         end = 0
         for word in self.parent.wordManager.getWords():
@@ -44,16 +50,20 @@ class ModeManager:
         self.parent.textEdit.textChanged.connect(
             self.parent.eventHandler.textChanged)
 
+        if keepCursor:
+            cursor.setPosition(selectedWord.start + distance)
+            self.parent.textEdit.setTextCursor(cursor)
+
     def switchDisplayMode(self, mode):
         if not self._spaceModeOn and not self._tagModeOn:
-            self.parent.segment()
+            self.parent.segment(keepCursor=True)
 
         if mode == 'Spaces':
             self._spaceModeOn = not self._spaceModeOn
         elif mode == 'Tags':
             self._tagModeOn = not self._tagModeOn
 
-        self.setText()
+        self.setText(keepCursor=True)
         self.parent.highlightViewpoint(
             currentBlock=self.parent.textEdit.document().firstBlock())
         self.checkIcon()

@@ -78,11 +78,10 @@ class WordManager:
 
     def segment(self, sentence: str) -> List[Word]:
         tokens = self.tokenizer.tokenize(sentence)
-
         return [Word(token=token) for token in tokens]  # same as "words"
 
     def getWords(self, start=None, end=None):
-        if not start and not end:
+        if start is None and end is None:
             return self._words
 
         elif start is not None and end is None:
@@ -128,6 +127,13 @@ class WordManager:
         for i, word in enumerate(self._words):
             if word.start <= position < word.end:
                 return word
+
+    def getWordByModeEnd(self, position):
+        for i, word in enumerate(self._words):
+            if word.start <= position <= word.modeEnd:
+                return word
+        else:
+            return self._words[-1]
 
     def removeWord(self, position):
         # position 介於 start, end 之間(不包含)，用在 插入字元在字中間

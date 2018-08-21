@@ -88,7 +88,8 @@ class TibetanEditor(BasicEditor):
         self.close()
 
     def newFile(self):
-        self.eventHandler.checkSaving()
+        if self.textEdit.toPlainText() != "":
+            self.eventHandler.checkSaving()
         super().newFile()
         self.filename = "Untitled (default.profile) - TibetanEditor"
         self.eventHandler.changedWithoutSaving = False
@@ -200,7 +201,7 @@ class TibetanEditor(BasicEditor):
             triggered=lambda: DictionaryEditorWidget(self).show())
 
     # segment
-    def segment(self):
+    def segment(self, keepCursor=False):
         text = self.textEdit.toPlainText()
 
         for start, end, index in reversed(
@@ -209,7 +210,7 @@ class TibetanEditor(BasicEditor):
             newWords = self.wordManager.segment(text[start:end])
             self.wordManager.insertWordsByIndex([(newWords, index)])
 
-        self.modeManager.setText()
+        self.modeManager.setText(keepCursor)
         self.highlightViewpoint(
             currentBlock=self.textEdit.document().firstBlock())
 

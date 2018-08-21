@@ -63,7 +63,11 @@ class Highlighter(QSyntaxHighlighter):
         wordsToHighlight = self.mainWindow.wordManager.getWords(start, end)
 
         for word in wordsToHighlight:
-            textFormat = wordFormatDict.get(word.content, defaultFormat)
+            textFormat = wordFormatDict.get(
+                word.content[:-1]
+                if word.content.endswith('་') else word.content,
+                defaultFormat
+            )
 
             self.setFormat(word.start - start, word.length, textFormat)
 
