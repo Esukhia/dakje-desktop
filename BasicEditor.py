@@ -131,7 +131,6 @@ class BasicEditor(QMainWindow):
             with open(self.filename, "r", encoding='utf-8') as f:
                 self.textEdit.setPlainText(f.read())
 
-
     def saveFile(self):
         if not self.filename:
             self.filename, ok = QFileDialog.getSaveFileName(
