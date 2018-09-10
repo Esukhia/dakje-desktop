@@ -65,11 +65,17 @@ class ActionManager:
             triggered=self.editor.toggleSpaceView
         )
 
+        self.dictionaryAction = self.createAction(
+            '&Open Dictionary', 'icons/dictionary.png',
+            triggered=lambda: None
+        )
+
     def getToolBarActions(self):
         return [
             [self.newFileAction, self.openFileAction, self.saveFileAction],
             [self.undoAction, self.redoAction],
-            [self.spaceViewAction, self.tagViewAction]
+            [self.spaceViewAction, self.tagViewAction],
+            [self.dictionaryAction]
         ]
 
     def getMenuBarActions(self, menu):
@@ -84,7 +90,8 @@ class ActionManager:
                 self.undoAction,
                 self.redoAction,
                 self.spaceViewAction,
-                self.tagViewAction
+                self.tagViewAction,
+                self.dictionaryAction
             ]
         elif self.MENU_HELP == menu:
             return []

@@ -20,3 +20,5 @@ class MenuBar(QtWidgets.QMenuBar):
         self.addMenu(self.menuHelp)
         for action in actionManager.getMenuBarActions(actionManager.MENU_HELP):
             self.menuHelp.addAction(action)
+        self.menuHelp.addAction(
+            "About &Qt", QtWidgets.QApplication.instance().aboutQt)
