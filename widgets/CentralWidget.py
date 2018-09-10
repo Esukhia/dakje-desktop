@@ -42,6 +42,7 @@ class FindWidget(QtWidgets.QWidget):
 
         # Find Mode Choices
         self.simpleRadio = QtWidgets.QRadioButton('Simple')
+        self.simpleRadio.setChecked(True)
         self.cqlRadio = QtWidgets.QRadioButton('CQL')
         self.forms.addRow(self.simpleRadio, self.cqlRadio)
 

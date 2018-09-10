@@ -124,7 +124,7 @@ class EditorTab(QtWidgets.QWidget):
             self.errorGrids.addWidget(
                 QtWidgets.QPushButton(
                     styleSheet='font-weight: 900; font-size: 20px;'
-                               'border: 3px solid ' + errorType[2],
+                               'border: 5px solid ' + errorType[2],
                     text=str(errorType[1]),
                     minimumHeight=50
                 ), 1, i)
