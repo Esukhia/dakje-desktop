@@ -108,7 +108,8 @@ class Editor(QtWidgets.QMainWindow):
 
     def editToken(self):
         self.dialog = QtWidgets.QDialog(self)
-        self.dialog.setStyleSheet('background-color: white')
+        self.dialog.setWindowTitle("Edit Token...")
+        self.dialog.setStyleSheet("background-color: white; width: 150px;")
 
         fbox = QtWidgets.QFormLayout(self.dialog)
         fbox.addRow(QtWidgets.QLabel("Word1"))
