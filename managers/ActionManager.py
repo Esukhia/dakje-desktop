@@ -70,12 +70,17 @@ class ActionManager:
             triggered=lambda: None
         )
 
+        self.editTokenAction = self.createAction(
+            '&Edit Token', 'icons/tab1.png',
+            triggered=self.editor.editToken
+        )
+
     def getToolBarActions(self):
         return [
             [self.newFileAction, self.openFileAction, self.saveFileAction],
             [self.undoAction, self.redoAction],
             [self.spaceViewAction, self.tagViewAction],
-            [self.dictionaryAction]
+            [self.dictionaryAction, self.editTokenAction]
         ]
 
     def getMenuBarActions(self, menu):

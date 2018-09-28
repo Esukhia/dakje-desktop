@@ -1,6 +1,6 @@
 import sys
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from widgets import MenuBar, ToolBar, CentralWidget
 from managers import ActionManager, TokenManager, ViewManager
@@ -105,6 +105,33 @@ class Editor(QtWidgets.QMainWindow):
         self.textEdit.redo()
 
     ### TextEdit Actions End ###
+
+    def editToken(self):
+        self.dialog = QtWidgets.QDialog(self)
+        self.dialog.setStyleSheet('background-color: white')
+
+        fbox = QtWidgets.QFormLayout(self.dialog)
+        fbox.addRow(QtWidgets.QLabel("Word1"))
+        fbox.addRow("POS", QtWidgets.QLineEdit())
+        fbox.addRow("Lemma", QtWidgets.QLineEdit())
+        fbox.addRow("Level", QtWidgets.QLineEdit())
+
+        fbox.addWidget(QtWidgets.QLabel(""))
+
+        self.dialog.addButton = QtWidgets.QPushButton("Add")
+        fbox.addRow(QtWidgets.QLabel("Rules"))
+        fbox.addRow("Pattern1", QtWidgets.QLineEdit())
+        fbox.addRow("Pattern2", QtWidgets.QLineEdit())
+        fbox.addRow("Pattern3", QtWidgets.QLineEdit())
+
+        button = QtWidgets.QPushButton()
+        button.setIcon(QtGui.QIcon("icons/add.png"))
+        button.setFlat(True)
+        button.setStyleSheet("border: none")
+        fbox.addRow(button, QtWidgets.QLabel(""))
+
+        self.dialog.setLayout(fbox)
+        self.dialog.show()
 
 
 if __name__ == '__main__':
