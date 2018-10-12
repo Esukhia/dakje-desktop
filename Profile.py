@@ -29,6 +29,8 @@ class ProfileManager:
                     if char in listFilename:
                         listFilename = listFilename.replace(char, '_')
 
+                listFilename = os.path.join(
+                    self.parent.SETTINGS_DIRECTORY, listFilename)
                 with open(listFilename, 'w', encoding='utf-8') as f:
                     f.write('\n'.join(textFormat.wordList))
 
@@ -42,6 +44,8 @@ class ProfileManager:
                 if char in ruleFilename:
                     ruleFilename = ruleFilename.replace(char, '_')
 
+            ruleFilename = os.path.join(
+                self.parent.SETTINGS_DIRECTORY, ruleFilename)
             with open(ruleFilename, 'w', encoding='utf-8') as f:
                 f.write('\n'.join(textFormat.regexList))
 
@@ -52,20 +56,22 @@ class ProfileManager:
                     'name': textFormat.name,
                     'type': textFormat.type,
                     'color': textFormat.getColorRgba(),
-                    'listFilename': listFilename,
-                    'ruleFilename': ruleFilename,
+                    'listFilename': os.path.basename(listFilename),
+                    'ruleFilename': os.path.basename(ruleFilename),
                 }
             else:
                 textFormatDict = {
                     'name': textFormat.name,
                     'type': textFormat.type,
                     'color': textFormat.getColorRgba(),
-                    'ruleFilename': ruleFilename,
+                    'ruleFilename': os.path.basename(ruleFilename),
                 }
 
             setting.append(textFormatDict)
 
-        with open('setting.json', 'w', encoding='utf-8') as f:
+        settingFile = os.path.join(self.parent.SETTINGS_DIRECTORY,
+                                   'setting.json')
+        with open(settingFile, 'w+', encoding='utf-8') as f:
             f.write(json.dumps(setting))
 
         if not filePath:
@@ -77,10 +83,10 @@ class ProfileManager:
                 filePath, 'w', compression=zipfile.ZIP_DEFLATED
             ) as zf:
                 for filename in filenames:
-                    zf.write(filename)
+                    zf.write(filename, arcname=os.path.basename(filename))
                     os.remove(filename)
-                zf.write('setting.json')
-                os.remove('setting.json')
+                zf.write(settingFile, arcname=os.path.basename(settingFile))
+                os.remove(settingFile)
 
     def openProfile(self, filePath=None):
         if not filePath:
@@ -90,8 +96,13 @@ class ProfileManager:
         if filePath:
             textFormats = []
             try:
-                with zipfile.ZipFile(filePath, 'r', compression=zipfile.ZIP_DEFLATED) as zf:
-                    setting = json.loads(zf.read('setting.json').decode())
+                with zipfile.ZipFile(filePath, 'r',
+                                     compression=zipfile.ZIP_DEFLATED) as zf:
+                    settingFile = os.path.join(self.parent.SETTINGS_DIRECTORY,
+                                               'setting.json')
+                    setting = json.loads(zf.read(
+                        os.path.basename(settingFile)
+                    ).decode())
 
                     for textFormatDict in setting:
                         textFormat = TextFormat(

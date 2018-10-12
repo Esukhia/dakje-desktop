@@ -1,12 +1,15 @@
 #!/usr/local/bin/env python3.5
 # -*- coding: utf-8 -*-
 import os
+
+
 import sys
 import logging
 import datetime
 
 import textwrap
 
+from appdirs import user_data_dir
 from PyQt5 import QtCore
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QIcon, QTextCursor, QFont
@@ -23,7 +26,8 @@ from Word import Word, WordManager
 from EventHandler import EventHandler
 
 from find import FindDialog
-from widgets import ProfileWidget, CounterWidget, FindWidget, DictionaryEditorWidget
+from widgets import ProfileWidget, CounterWidget, FindWidget, \
+    DictionaryEditorWidget
 
 from BasicEditor import BasicEditor
 
@@ -35,7 +39,7 @@ class ExceptionHandler(QtCore.QObject):
         super(ExceptionHandler, self).__init__()
 
     def handler(self, exctype, value, traceback):
-        logging.basicConfig(filename='Error.log', level=logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG)
         logging.info('========================================')
         logging.info('Time: ' + str(datetime.datetime.now()))
         logging.error("Uncaught exception\n",
@@ -45,13 +49,29 @@ class ExceptionHandler(QtCore.QObject):
         self.errorSignal.emit()
         sys._excepthook(exctype, value, traceback)
 
+
 exceptionHandler = ExceptionHandler()
 sys._excepthook = sys.excepthook
 sys.excepthook = exceptionHandler.handler
 
+if hasattr(sys, '_MEIPASS'):
+    BASE_DIRECTORY = sys._MEIPASS
+else:
+    directory = os.path.dirname(os.path.realpath(__file__))
+    BASE_DIRECTORY = directory if os.path.basename(directory) == "tibetaneditor" \
+        else os.path.dirname(directory)
+os.chdir(BASE_DIRECTORY)
+
+APP_NAME = "Tibetan Editor"
+SETTINGS_DIRECTORY = user_data_dir(APP_NAME, appauthor=False)
+
 class TibetanEditor(BasicEditor):
+    APP_NAME = "Tibetan Editor"
+    SETTINGS_DIRECTORY = user_data_dir(APP_NAME, appauthor=False)
 
     def __init__(self, parent=None):
+        os.makedirs(SETTINGS_DIRECTORY, exist_ok=True) 
+
         self.modeManager = ModeManager(self)
         self.wordManager = WordManager(self)
         self.textFormatManager = TextFormatManager(self)
@@ -64,14 +84,16 @@ class TibetanEditor(BasicEditor):
 
         self.setWindowTitle("Untitled (default.profile) - TibetanEditor")
 
-        if not os.path.exists('default.profile'):
-            self.profileManager.saveProfile(filePath='default.profile')
-        self.profileManager.openProfile(filePath='default.profile')
+        defaultProfilePath = os.path.join(SETTINGS_DIRECTORY, 'default.profile')
+        if not os.path.exists(defaultProfilePath):
+            self.profileManager.saveProfile(filePath=defaultProfilePath)
+        self.profileManager.openProfile(filePath=defaultProfilePath)
 
     def closeEvent(self, *args, **kwargs):
         if not self.forceClose:
             self.eventHandler.checkSaving()
-            self.profileManager.saveProfile(filePath='default.profile')
+            self.profileManager.saveProfile(
+                filePath=os.path.join(SETTINGS_DIRECTORY, 'default.profile'))
         super().closeEvent(*args, **kwargs)
 
     def handleException(self):
@@ -165,39 +187,45 @@ class TibetanEditor(BasicEditor):
         self.toolbar.addAction(self.openProfileAction)
         self.toolbar.addAction(self.saveProfileAction)
 
-        self.toolbar.addSeparator()
-        self.toolbar.addAction(self.openDictionaryEditorAction)
+        # self.toolbar.addSeparator()
+        # self.toolbar.addAction(self.openDictionaryEditorAction)
 
     def createActions(self):
-        super().createActions()
+        super().createActions(BASE_DIRECTORY)
         self.segmentAction = QAction(
-            QIcon('files/segment.png'), "&Segment", self,
-            triggered=self.segment)
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/segment.png')),
+            "&Segment", self, triggered=self.segment)
 
         self.spacesOpenAction = QAction(
-            QIcon('files/space.png'), "&Open Spaces Mode", self,
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/space.png')),
+            "&Open Spaces Mode", self,
             checkable=True, enabled=False,
             triggered=lambda: self.modeManager.switchDisplayMode('Spaces'))
 
         self.tagsOpenAction = QAction(
-            QIcon('files/tag.png'), "&Open Tags Mode", self,
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/tag.png')),
+            "&Open Tags Mode", self,
             checkable=True, enabled=False,
             triggered=lambda: self.modeManager.switchDisplayMode('Tags'))
 
         self.findAction = QAction(
-            QIcon('files/searching.png'), "&Find & Replace", self,
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/searching.png')),
+            "&Find & Replace", self,
             triggered=FindDialog(self).show)
 
         self.saveProfileAction = QAction(
-            QIcon('files/export.png'), "&Export profile", self,
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/export.png')),
+            "&Export profile", self,
             triggered=self.profileManager.saveProfile)
 
         self.openProfileAction = QAction(
-            QIcon('files/import.png'), "&Import profile", self,
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/import.png')),
+            "&Import profile", self,
             triggered=self.profileManager.openProfile)
 
         self.openDictionaryEditorAction = QAction(
-            QIcon('files/dictionary.png'), "&Open dictionary editor", self,
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/dictionary.png')),
+            "&Open dictionary editor", self,
             triggered=lambda: DictionaryEditorWidget(self).show())
 
     # segment
@@ -206,7 +234,6 @@ class TibetanEditor(BasicEditor):
 
         for start, end, index in reversed(
                 self.wordManager.getNoSegBlocks(textLen=len(text))):
-
             newWords = self.wordManager.segment(text[start:end])
             self.wordManager.insertWordsByIndex([(newWords, index)])
 
@@ -218,6 +245,7 @@ class TibetanEditor(BasicEditor):
         self.tagsOpenAction.setEnabled(True)
 
         # tag
+
     def changeTag(self, point):
         self.box = QComboBox(self.textEdit)
         self.box.addItems(self.wordManager.getPartOfSpeeches())
@@ -277,7 +305,7 @@ class TibetanEditor(BasicEditor):
         self.textEdit.setTextCursor(cursor)
 
 
-if __name__ == '__main__':
+def main():
     app = QApplication(sys.argv)
     QApplication.setStyle(QStyleFactory.create('Fusion'))
     window = TibetanEditor()
@@ -290,3 +318,7 @@ if __name__ == '__main__':
     except:
         print("exiting")
         sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()

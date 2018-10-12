@@ -1,10 +1,11 @@
-
+import os
 import sys
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QKeySequence, QTextDocumentWriter, QFont
 from PyQt5.QtWidgets import QMainWindow, QMessageBox, \
     QFileDialog, QAction, QApplication, QMenuBar, QPlainTextEdit
+
 
 class BasicEditor(QMainWindow):
     def __init__(self, parent=None):
@@ -72,31 +73,36 @@ class BasicEditor(QMainWindow):
     def setupLayout(self):
         self.setCentralWidget(self.textEdit)
 
-    def createActions(self):
+    def createActions(self, BASE_DIRECTORY):
+
         ### New File ###
         self.newFileAction = QAction(
-            QIcon('files/filenew.png'), "&New...", self,)
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/filenew.png')),
+            "&New...", self, )
         self.newFileAction.setShortcut(QKeySequence.New)
         self.newFileAction.setStatusTip("Create a new file")
         self.newFileAction.triggered.connect(self.newFile)
 
         ### Open File ###
         self.openFileAction = QAction(
-            QIcon('files/fileopen.png'), "&Open...", self)
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/fileopen.png')),
+            "&Open...", self)
         self.openFileAction.setShortcut(QKeySequence.Open)
         self.openFileAction.setStatusTip("Open a text file")
         self.openFileAction.triggered.connect(self.openFile)
 
         ### Save File ###
         self.saveFileAction = QAction(
-            QIcon('files/filesave.png'), "&Save...", self,)
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/filesave.png')),
+            "&Save...", self, )
         self.saveFileAction.setShortcut(QKeySequence.Save)
         self.saveFileAction.setStatusTip("Save the current document")
         self.saveFileAction.triggered.connect(self.saveFile)
 
         ### Undo ###
         self.undoAction = QAction(
-            QIcon('files/editundo.png'), "&Undo", self)
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/editundo.png')),
+            "&Undo", self)
         self.undoAction.setShortcut(QKeySequence.Undo)
         self.undoAction.setStatusTip("Undo the last editing action")
         self.undoAction.setEnabled(False)
@@ -104,7 +110,8 @@ class BasicEditor(QMainWindow):
 
         ### Redo ###
         self.redoAction = QAction(
-            QIcon('files/editredo.png'), "&Redo", self)
+            QIcon(os.path.join(BASE_DIRECTORY, 'files/editredo.png')),
+            "&Redo", self)
         self.redoAction.setShortcut(QKeySequence.Redo)
         self.redoAction.setStatusTip("Redo the last editing action")
         self.redoAction.setEnabled(False)

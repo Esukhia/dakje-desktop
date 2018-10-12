@@ -107,3 +107,17 @@ Features comming soon:
 	* Words Counting
 	* Highlighter Optimized
 	* Optional Display by Spaces or Tags
+
+## How to make a MacOS Executable
+1. Install "pyinstaller", using `pip install pyinstaller.`
+2. Open `Editor.spec` file, edit the two lines as shown below.
+   ``` python
+   # path to pybo resources in site-packages folder
+   a.datas += Tree('C:/Users/Kevin/Miniconda3/envs/editor/lib/site-packages/pybo/resources', prefix='pybo/resources')
+   
+   # path to files folder in the root folder
+   a.datas += Tree('C:/Users/Kevin/Desktop/TibetanEditor/Source/tibetaneditor/files', prefix='files')
+   ```
+3. Use `pyinstaller Editor.spce` in the terminal, and it will create two folders named `build` and `dist`.
+
+4. In the `dist` folder, there will be a Unix Executable file named `Editor`, which users can easily run by double clicking.

@@ -1,5 +1,4 @@
 import os
-import pkg_resources
 
 from collections import OrderedDict
 
@@ -189,6 +188,7 @@ class DictionaryEditorWidget(QDialog):
         return self.getDict(self.pyboDictPath)
 
     def downloadPyboDict(self):
+        import pkg_resources
         resourcePkg = 'pybo'
         resourcePath = '/'.join(('resources', 'trie', 'Tibetan.DICT'))
         reader = pkg_resources.resource_stream(resourcePkg, resourcePath)

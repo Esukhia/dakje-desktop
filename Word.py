@@ -5,7 +5,6 @@ import pybo
 
 class Word():
     def __init__(self, content=None, token=None):
-        self.token = None
         if token:
             self.content = token.content
             self.partOfSpeech = token.pos
