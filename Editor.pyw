@@ -1,8 +1,6 @@
 #!/usr/local/bin/env python3.5
 # -*- coding: utf-8 -*-
 import os
-
-
 import sys
 import logging
 import datetime
@@ -10,6 +8,7 @@ import datetime
 import textwrap
 
 from appdirs import user_data_dir
+
 from PyQt5 import QtCore
 from PyQt5.QtCore import QPoint, Qt
 from PyQt5.QtGui import QIcon, QTextCursor, QFont
@@ -54,7 +53,19 @@ exceptionHandler = ExceptionHandler()
 sys._excepthook = sys.excepthook
 sys.excepthook = exceptionHandler.handler
 
+EXECUTING_TYPE = None
+NORMAL = 0
+PYINSTALLER = 1
+NSIS = 2
+
 if hasattr(sys, '_MEIPASS'):
+    # pyinstaller will add _MEIPASS variable to sys
+    # which indicates the executing script's directory
+    EXECUTING_TYPE = PYINSTALLER
+else:
+    EXECUTING_TYPE = NORMAL
+
+if EXECUTING_TYPE == PYINSTALLER:
     BASE_DIRECTORY = sys._MEIPASS
 else:
     directory = os.path.dirname(os.path.realpath(__file__))
@@ -67,7 +78,7 @@ SETTINGS_DIRECTORY = user_data_dir(APP_NAME, appauthor=False)
 
 class TibetanEditor(BasicEditor):
     APP_NAME = "Tibetan Editor"
-    SETTINGS_DIRECTORY = user_data_dir(APP_NAME, appauthor=False)
+    SETTINGS_DIRECTORY = SETTINGS_DIRECTORY
 
     def __init__(self, parent=None):
         os.makedirs(SETTINGS_DIRECTORY, exist_ok=True) 

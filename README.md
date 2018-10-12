@@ -108,7 +108,10 @@ Features comming soon:
 	* Highlighter Optimized
 	* Optional Display by Spaces or Tags
 
-## How to make a MacOS Executable
+
+## How to Make an Executable File
+
+### MacOS
 1. Install "pyinstaller", using `pip install pyinstaller.`
 2. Open `Editor.spec` file, edit the two lines as shown below.
    ``` python
@@ -121,3 +124,18 @@ Features comming soon:
 3. Use `pyinstaller Editor.spce` in the terminal, and it will create two folders named `build` and `dist`.
 
 4. In the `dist` folder, there will be a Unix Executable file named `Editor`, which users can easily run by double clicking.
+
+
+## Settings
+
+The editor will create settings files (e.g. default.profile) in the below path.
+
+### In MacOS
+```
+~/Library/Application Support/Tibetan Editor
+```
+
+### In Windows
+```
+C:\Users\<User>\AppData\Local\Tibetan Editor
+```
