@@ -1,3 +1,5 @@
+from widgets import DictionaryEditorWidget
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class ActionManager:
@@ -67,12 +69,7 @@ class ActionManager:
 
         self.dictionaryAction = self.createAction(
             '&Open Dictionary', 'icons/dictionary.png',
-            triggered=lambda: None
-        )
-
-        self.editTokenAction = self.createAction(
-            '&Edit Token', 'icons/tab1.png',
-            triggered=self.editor.editToken
+            triggered=lambda: DictionaryEditorWidget(self.editor).show()
         )
 
     def getToolBarActions(self):
@@ -80,7 +77,7 @@ class ActionManager:
             [self.newFileAction, self.openFileAction, self.saveFileAction],
             [self.undoAction, self.redoAction],
             [self.spaceViewAction, self.tagViewAction],
-            [self.dictionaryAction, self.editTokenAction]
+            [self.dictionaryAction]
         ]
 
     def getMenuBarActions(self, menu):

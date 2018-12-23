@@ -59,17 +59,38 @@ class LevelTab(QtWidgets.QWidget):
 
         # Token Coverage
         self.tokenCoverageLabel = QtWidgets.QLabel('Token Coverage')
-        self.tokenCoverageProgBar = ProgressBar(self, 75, '#278da9')
+        self.tokenCoverageProgBar = ProgressBar(self, 0, '#278da9')
         self.grids.addWidget(self.tokenCoverageLabel, 0, 0, 1, 4)
         self.grids.addWidget(self.tokenCoverageProgBar, 1, 0, 1, 4)
 
-        # LevelCoverage
+        # Level Coverage
         self.levelCoverageLabel = QtWidgets.QLabel('Level Coverage')
+
+        self.levelNoneButton = QtWidgets.QPushButton()
+        self.levelNoneButton.setFlat(True)
+        self.levelNoneButton.setText('None Level')
+        self.levelNoneProgBar = ProgressBar(self, 0, '#363d5c')
+
+        self.level1Button = QtWidgets.QPushButton()
+        self.level1Button.setFlat(True)
+        self.level1Button.setText('Level 1')
+        self.level1ProgBar = ProgressBar(self, 0, '#87a840')
+
+        self.level2Button = QtWidgets.QPushButton()
+        self.level2Button.setFlat(True)
+        self.level2Button.setText('Level 2')
+        self.level2ProgBar = ProgressBar(self, 0, '#ddc328')
+
+        self.level3Button = QtWidgets.QPushButton()
+        self.level3Button.setFlat(True)
+        self.level3Button.setText('Level 3')
+        self.level3ProgBar = ProgressBar(self, 0, '#b63226')
+
         self.levelCoverages = [
-            [QtWidgets.QLabel('None Level'), ProgressBar(self, 25, '#363d5c')],
-            [QtWidgets.QLabel('Level 1'), ProgressBar(self, 60, '#87a840')],
-            [QtWidgets.QLabel('Level 2'), ProgressBar(self, 10, '#ddc328')],
-            [QtWidgets.QLabel('Level 3'), ProgressBar(self, 5, '#b63226')],
+            [self.levelNoneButton, self.levelNoneProgBar],
+            [self.level1Button, self.level1ProgBar],
+            [self.level2Button, self.level2ProgBar],
+            [self.level3Button, self.level3ProgBar],
         ]
         self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 4)
         for i, levelCoverage in enumerate(self.levelCoverages):
