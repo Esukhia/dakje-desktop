@@ -234,7 +234,7 @@ if __name__ == '__main__':
 
     import multiprocessing
 
-    multiprocessing.Process(target=call_command, args=('runserver',)).start()
+    # multiprocessing.Process(target=call_command, args=('runserver',)).start()
 
     try:
         sys.exit(app.exec_())

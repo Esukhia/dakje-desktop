@@ -1,0 +1,9 @@
+appdirs==1.4.3
+certifi==2018.8.24
+Django==1.11
+pybo==0.2.18
+PyQt5==5.11.3
+PyQt5-sip==4.19.13
+pytz==2018.7
+PyYAML==3.13
+wincertstore==0.2
