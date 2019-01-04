@@ -1,19 +1,63 @@
 import json
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore, QtWidgets, QtGui
+
+from pybo import Token as PyboToken
 
 from storage.models import Rule
 
+class CqlHBox(QtWidgets.QHBoxLayout):
+    def __init__(self):
+        super().__init__()
+
+        # previous
+        self.previousCql = QtWidgets.QLineEdit()
+        self.addWidget(self.previousCql)
+
+        self.tokenCqlLabel = QtWidgets.QLabel()
+        self.attrCql = QtWidgets.QLineEdit()
+        self.addWidget(self.tokenCqlLabel)
+        self.addWidget(self.attrCql)
+        self.addWidget(QtWidgets.QLabel(']'))
+
+        # next
+        self.nextCql = QtWidgets.QLineEdit()
+        self.addWidget(self.nextCql)
+
+    def setToken(self, token):
+        self.tokenCqlLabel.setText('[content="{}"'.format(token.content))
+
+    def getCql(self):
+        return self.previousCql.text() + \
+               self.getActionCql() + self.nextCql.text()
+
+    def getActionCql(self):
+        return self.tokenCqlLabel.text() + self.attrCql.text() + ']'
+
+
 class EditTokenDialog(QtWidgets.QDialog):
+    MODE_ADD = 1
+    MODE_ADD_2 = 2
+    MODE_UPDATE = 3
+
     def __init__(self, editor=None):
         super().__init__(parent=editor)
         self.editor = editor
+        self.mode = self.MODE_UPDATE
+        self.ruleBoxes = []
+        self.token = None
+        self.secondToken = None
         self.initForm()
         self.setWindowTitle("Edit Token...")
-        self.setStyleSheet("background-color: white; width: 150px;")
+        self.setStyleSheet("QDialog{background-color: white; width: 150px;}")
 
     def initForm(self):
         self.fbox = QtWidgets.QFormLayout(self)
+
+        # Add To Dict
+        self.addToDictButton = QtWidgets.QPushButton('Add To Dict...')
+        self.addToDictButton.clicked.connect(self.addToDict)
+        self.fbox.addRow(self.addToDictButton)
 
         # Content
         self.contentLabel = QtWidgets.QLabel()
@@ -32,59 +76,132 @@ class EditTokenDialog(QtWidgets.QDialog):
         self.levelField = QtWidgets.QLineEdit()
         self.fbox.addRow("Level", self.levelField)
 
+        # Meaning
+        self.meaningField = QtWidgets.QTextEdit()
+        self.fbox.addRow("Meaning", self.meaningField)
+
         # Rule
-        self.ruleBox = QtWidgets.QHBoxLayout()
+        self.fbox.addRow(QtWidgets.QLabel('Rule'))
 
-        # previous
-        self.previousCql = QtWidgets.QLineEdit()
-        self.ruleBox.addWidget(self.previousCql)
+        # Add Rule Button & Confirm
+        self.addRuleButton = QtWidgets.QPushButton()
+        self.addRuleButton.setFlat(True)
+        self.addRuleButton.setIcon(QtGui.QIcon('icons/add.png'))
+        self.addRuleButton.setIconSize(QtCore.QSize(30, 30))
+        self.addRuleButton.clicked.connect(self.addRuleBox)
 
-        self.tokenCqlLabel = QtWidgets.QLabel()
-        self.attrCql = QtWidgets.QLineEdit()
-        self.ruleBox.addWidget(self.tokenCqlLabel)
-        self.ruleBox.addWidget(self.attrCql)
-        self.ruleBox.addWidget(QtWidgets.QLabel(']'))
-
-        # next
-        self.nextCql = QtWidgets.QLineEdit()
-        self.ruleBox.addWidget(self.nextCql)
-
-        self.fbox.addRow("Rule", self.ruleBox)
-
-        # Confirm
         self.confirmButton = QtWidgets.QPushButton()
         self.confirmButton.setText('Confirm')
         self.confirmButton.clicked.connect(self.confirm)
-        self.fbox.addRow(self.confirmButton)
+        self.fbox.addRow(self.addRuleButton, self.confirmButton)
 
         self.setLayout(self.fbox)
+
+    def addToDict(self):
+        self.editor.actionManager.dictionaryAction.trigger()
+        self.editor.dictionaryDialog.addWord(content=self.token.content)
+
+    def addRuleBox(self):
+        newRuleBox = CqlHBox()
+        newRuleBox.setToken(self.token)
+        row = self.fbox.rowCount() - 1
+        self.fbox.insertRow(row, newRuleBox)
+        self.ruleBoxes.append(newRuleBox)
 
     def setToken(self, token):
         self.token = token
         self.contentLabel.setText(token.content)
-        self.tokenCqlLabel.setText('[content=' + token.content)
         self.posField.setText(token.pos)
         self.lemmaField.setText(token.lemma)
-        self.levelField.setText(str(token.level))
+        self.levelField.setText('')
+        self.meaningField.setText('')
+
+        if token.level is not None:
+            self.levelField.setText(str(token.level))
+
+        if token.meaning is not None:
+            self.meaningField.setText(token.meaning)
+
+        if token.pos == 'OOV':
+            self.addToDictButton.setVisible(True)
+        else:
+            self.addToDictButton.setVisible(False)
+
+        self.addRuleBox()
+
+    def setSecondToken(self, token):
+        self.secondToken = token
+
+    def setMode(self, mode):
+        self.mode = mode
+
+    def setAddingIndex(self, index):
+        self.addingIndex = index
 
     def confirm(self):
-        data = {
-            'pos': self.posField.text(),
-            'lemma': self.lemmaField.text(),
-            'level': int(self.levelField.text())
-        }
-
-        actionCql = self.tokenCqlLabel.text() + self.attrCql.text() + ']'
-        cql = self.previousCql.text() + actionCql + self.nextCql.text()
-
-        Rule.objects.create(
-            cql=cql,
-            actionCql=actionCql,
-            action=json.dumps(data),
-            type='U',
-            order=1
-        )
+        if self.mode == self.MODE_UPDATE:
+            self.updateToken()
+        else:
+            self.addToken()
 
         self.editor.refreshView()
         self.editor.refreshCoverage()
         self.close()
+
+    def updateToken(self):
+        data = {
+            'pos': self.posField.text(),
+            'lemma': self.lemmaField.text(),
+            'meaning': self.meaningField.toPlainText()
+        }
+
+        if self.levelField.text() != '':
+            data['level'] = int(self.levelField.text())
+
+        for ruleBox in self.ruleBoxes:
+            actionCql = ruleBox.getActionCql()
+            cql = ruleBox.getCql()
+
+            Rule.objects.get_or_create(
+                cql=cql,
+                actionCql=actionCql,
+                action=json.dumps(data),
+                type=Rule.TYPE_UPDATE,
+                order=1
+            )
+
+    def addToken(self):
+        from managers import Token
+
+        pyboToken = PyboToken()
+        pyboToken.content = self.contentLabel.text()
+        pyboToken.pos = self.posField.text()
+        pyboToken.lemma = self.lemmaField.text()
+
+        token = Token(pyboToken)
+        if self.levelField.text() != '':
+            token.level = int(self.levelField.text())
+        token.meaning = self.meaningField.toPlainText()
+
+        self.editor.tokens.insert(self.addingIndex, token)
+        self.editor.dictionaryDialog.model.bt.add(token.content)
+
+    def reject(self):
+        for ruleBox in self.ruleBoxes:
+            self.fbox.removeRow(ruleBox)
+        self.ruleBoxes = []
+
+        super().reject()
+
+    def close(self):
+        for ruleBox in self.ruleBoxes:
+            self.fbox.removeRow(ruleBox)
+        self.ruleBoxes = []
+
+        super().close()
+
+        if self.mode == self.MODE_ADD_2 and self.secondToken:
+            self.setToken(self.secondToken)
+            self.setAddingIndex(self.addingIndex + 1)
+            self.setSecondToken(None)
+            self.show()

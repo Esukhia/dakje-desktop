@@ -11,7 +11,8 @@ Configure.configure()
 from PyQt5 import QtCore, QtWidgets, QtGui
 from pybo import CQLMatcher
 
-from widgets import MenuBar, ToolBar, CentralWidget, EditTokenDialog, Highlighter
+from widgets import (MenuBar, ToolBar, CentralWidget, EditTokenDialog,
+                     Highlighter, DictionaryEditorWidget)
 from managers import ActionManager, TokenManager, ViewManager, FormatManager
 
 
@@ -40,6 +41,7 @@ class Editor(QtWidgets.QMainWindow):
         self.initUI()
         self.bindEvents()
         self.setWindowTitle("Tibetan Editor")
+        self.setWindowIcon(QtGui.QIcon(os.path.join('icons', 'icon.jpg')))
         self.setWindowState(QtCore.Qt.WindowMaximized)
 
         self.textEdit.setPlainText = self.ignoreCursorPositionChanged(
@@ -65,6 +67,7 @@ class Editor(QtWidgets.QMainWindow):
         self.filename = None
 
         self.editTokenDialog = EditTokenDialog(self)
+        self.dictionaryDialog = DictionaryEditorWidget(self)
 
     def initManagers(self):
         self.actionManager = ActionManager(self)
@@ -143,6 +146,10 @@ class Editor(QtWidgets.QMainWindow):
     def levelTab(self):
         return self.centralWidget.tabWidget.levelTab
 
+    @property
+    def editorTab(self):
+        return self.centralWidget.tabWidget.editorTab
+
     # TextEdit Actions #
 
     def newFile(self):
@@ -169,7 +176,8 @@ class Editor(QtWidgets.QMainWindow):
 
         if (self.viewManager.isTagView() and
                 not self.editTokenDialog.isVisible()):
-            token = self.tokenManager.find(position)
+            token = self.tokenManager.find(position)[1]
+            self.editTokenDialog.setMode(EditTokenDialog.MODE_UPDATE)
             self.editTokenDialog.setToken(token)
             self.editTokenDialog.show()
 
@@ -196,13 +204,7 @@ class Editor(QtWidgets.QMainWindow):
         with open(filePath, encoding='utf-8') as f:
             rules = [line.rstrip('\r\n') for line in f.readlines()]
 
-        for rule in rules:
-            matcher = CQLMatcher(rule)
-            slices = matcher.match([t.pyboToken for t in self.tokens])
-
-            for slice in slices:
-                for token in self.tokens[slice[0]:slice[1] + 1]:
-                    token.level = level
+        self.matcher.match(self.tokens, rules)
 
         self.refreshView()
         self.refreshCoverage()
@@ -210,20 +212,60 @@ class Editor(QtWidgets.QMainWindow):
     # Refresh #
 
     def refreshView(self):
+        self.tokenManager.matchRules()
         text = self.tokenManager.getString()
         self.textEdit.setPlainText(text)
+        self.refreshCoverage()
+
 
     def refreshCoverage(self):
-        counter = Counter([token.level for token in self.tokens])
+        tokenNum = len(self.tokens)
 
-        def getProp(key):
-            return counter[key] / len(self.tokens) * 100.0
+        levelCounter = Counter([
+            token.level for token in self.tokens])
 
-        self.levelTab.tokenCoverageProgBar.setValue(100 - getProp(None))
-        self.levelTab.levelNoneProgBar.setValue(getProp(None))
-        self.levelTab.level1ProgBar.setValue(getProp(1))
-        self.levelTab.level2ProgBar.setValue(getProp(2))
-        self.levelTab.level3ProgBar.setValue(getProp(3))
+        def getLevelProp(key):
+            if tokenNum == 0:
+                return 0
+            else:
+                return levelCounter[key] / tokenNum * 100.0
+
+        self.levelTab.tokenCoverageProgBar.setValue(100 - getLevelProp(None))
+        self.levelTab.levelNoneProgBar.setValue(getLevelProp(None))
+        self.levelTab.level1ProgBar.setValue(getLevelProp(1))
+        self.levelTab.level2ProgBar.setValue(getLevelProp(2))
+        self.levelTab.level3ProgBar.setValue(getLevelProp(3))
+
+        posCounter = Counter([
+            token.pos for token in self.tokens])
+
+        posFreq = posCounter.most_common()
+
+        self.editorTab.firstFreqLabel.setText(posFreq[0][0])
+        self.editorTab.firstFreqProgBar.setValue(
+            posFreq[0][1] / tokenNum * 100.0)
+
+        self.editorTab.secondFreqLabel.setText(posFreq[1][0])
+        self.editorTab.secondFreqProgBar.setValue(
+            posFreq[1][1] / tokenNum * 100.0)
+
+        self.editorTab.thirdFreqLabel.setText(posFreq[2][0])
+        self.editorTab.thirdFreqProgBar.setValue(
+            posFreq[2][1] / tokenNum * 100.0)
+
+    def getHighlightedLevels(self):
+        result = []
+        if self.levelTab.levelNoneCheckbox.isChecked():
+            result.append(None)
+        if self.levelTab.level1Checkbox.isChecked():
+            result.append(1)
+        if self.levelTab.level2Checkbox.isChecked():
+            result.append(2)
+        if self.levelTab.level3Checkbox.isChecked():
+            result.append(3)
+        return result
+
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
@@ -234,7 +276,7 @@ if __name__ == '__main__':
 
     import multiprocessing
 
-    multiprocessing.Process(target=call_command, args=('runserver',)).start()
+    # multiprocessing.Process(target=call_command, args=('runserver',)).start()
 
     try:
         sys.exit(app.exec_())

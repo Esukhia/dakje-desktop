@@ -1,5 +1,3 @@
-from widgets import DictionaryEditorWidget
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class ActionManager:
@@ -69,7 +67,7 @@ class ActionManager:
 
         self.dictionaryAction = self.createAction(
             '&Open Dictionary', 'icons/dictionary.png',
-            triggered=lambda: DictionaryEditorWidget(self.editor).show()
+            triggered=lambda: self.editor.dictionaryDialog.show()
         )
 
     def getToolBarActions(self):

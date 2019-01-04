@@ -1,9 +1,15 @@
+import copy
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 class TextEdit(QtWidgets.QTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.filename = None
+
+    @property
+    def editor(self):
+        return self.parent().parent()
 
     def newFile(self):
         self.clear()
@@ -41,3 +47,50 @@ class TextEdit(QtWidgets.QTextEdit):
 
     def redo(self):
         self.document().redo()
+
+    def keyPressEvent(self, e):
+        from widgets.EditTokenDialog import EditTokenDialog
+
+        if self.editor.viewManager.isSpaceView():
+
+            if self.textCursor().hasSelection():
+                QtWidgets.QMessageBox.warning(
+                    self, 'Mode Error', 'Please dont edit text in space mode.',
+                    buttons=QtWidgets.QMessageBox.Ok
+                )
+                return
+
+            # split token
+            if e.key() == QtCore.Qt.Key_Space:
+                position = self.textCursor().position()
+                index, token = self.editor.tokenManager.find(position - 1)
+                del self.editor.tokens[index]
+
+                tokenLeft = copy.deepcopy(token)
+                tokenLeft.content = token.content[:(position - 1) - token.start]
+
+                tokenRight = copy.deepcopy(token)
+                tokenRight.content = token.content[(position - 1) - token.start:]
+
+                self.editor.editTokenDialog.setMode(EditTokenDialog.MODE_ADD_2)
+                self.editor.editTokenDialog.setAddingIndex(index)
+                self.editor.editTokenDialog.setToken(tokenLeft)
+                self.editor.editTokenDialog.setSecondToken(tokenRight)
+                self.editor.editTokenDialog.show()
+
+            # merge tokens
+            elif e.key() == QtCore.Qt.Key_Backspace:
+                position = self.textCursor().position()
+                indexLeft, tokenLeft = self.editor.tokenManager.find(position - 1)
+                indexRight, tokenRight = self.editor.tokenManager.find(position + 1)
+                del self.editor.tokens[indexLeft:indexRight + 1]
+
+                newToken = copy.deepcopy(tokenLeft)
+                newToken.content = tokenLeft.content + tokenRight.content
+
+                self.editor.editTokenDialog.setMode(EditTokenDialog.MODE_ADD)
+                self.editor.editTokenDialog.setAddingIndex(indexLeft)
+                self.editor.editTokenDialog.setToken(newToken)
+                self.editor.editTokenDialog.show()
+
+        super().keyPressEvent(e)

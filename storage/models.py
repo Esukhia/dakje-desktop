@@ -26,3 +26,12 @@ class Format(models.Model):
 class Token(models.Model):
     content = models.CharField(max_length=255)
     format = models.ForeignKey(Format, on_delete=models.CASCADE)
+
+
+class Dict(models.Model):
+    ACTION_ADD = 1
+    ACTION_DELETE = 2
+
+    content = models.CharField(max_length=255)
+    pos = models.CharField(max_length=255)
+    action = models.IntegerField()

@@ -1,7 +1,11 @@
+import json
+import copy
+
 import pybo
 
+from widgets import Matchers
+from storage.models import Rule
 from .ViewManager import ViewManager
-
 
 class Token:
     def __init__(self, token, id=None):
@@ -17,6 +21,7 @@ class Token:
         self.string = None
 
         self.level = None
+        self.meaning = None
 
     @property
     def length(self):
@@ -33,6 +38,7 @@ class TokenManager:
         self.lang = "bo"
         self.mode = "default"
         self.tagger = None
+        self.matcher = Matchers.SimpleRuleMatcher()
         self.tokenizer = None
 
         if not self.tokenizer:
@@ -69,35 +75,14 @@ class TokenManager:
 
         elif self.view == ViewManager.TAG_VIEW:
             return _join(self.tokens, lambda t: t.content + '/' + t.pos, sep='')
-
         else:
             return _join(self.tokens, lambda t: t.content + '/' + t.pos, sep=' ')
 
     def find(self, position):
-        for token in self.tokens:
+        for i, token in enumerate(self.tokens):
             if position in range(token.start, token.end):
-                return token
+                return (i, token)
 
-    # def getSavedTokens(self):
-    #     return [Token(tokenDoc, tokenDoc.doc_id)
-    #             for tokenDoc in self.editor.storage.all()]
-
-    def saveTokens(self):
-        for token in self.tokens:
-            token.id = self.editor.db.insert({
-                'content': token.content,
-                'pos': token.pos,
-                'level': token.level
-            })
-
-    def readTokens(self):
-        self.editor.tokens = [Token(tokenDoc, tokenDoc.doc_id)
-                              for tokenDoc in self.editor.db.all()]
-        self.editor.refreshView()
-        self.editor.refreshCoverage()
-
-    # def updateToken(self, token, attrsDict):
-    #     if token.id is not None:
-    #         self.editor.storage.get(doc_id=token.id)
-    #     else:
-    #         raise AttributeError('The token must have an id for updating.')
+    def matchRules(self):
+        rules = Rule.objects.all()
+        self.matcher.match(self.tokens, rules)

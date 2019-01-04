@@ -9,12 +9,26 @@ from PyQt5.QtWidgets import (
     QDialog, QHeaderView, QTableView, QMessageBox
 )
 
+from pybo import BasicTrie, PyBoTrie, Config
+from pybo import BoSyl
+from pathlib import Path
+
+from Configure import BASE_DIR
+from storage.models import Dict
+
+
 class TableModel(QAbstractTableModel):
-    def __init__(self, parent, data, header):
+    def __init__(self, parent, data, header, addTrieFile, delTrieFile):
         QAbstractTableModel.__init__(self, parent)
         self.parent = parent
         self.data = data
         self.header = header
+
+        self.bt = PyBoTrie(
+            BoSyl(), 'POS',
+            toadd_filenames=[Path(addTrieFile)],
+            todel_filenames=[Path(delTrieFile)],
+            config=Config(os.path.join(BASE_DIR, "config.yaml")))
 
     def rowCount(self, parent):
         return len(self.data)
@@ -45,17 +59,16 @@ class TableModel(QAbstractTableModel):
         return None
 
     def saveDict(self):
+        # TODO: using cache (compare self.data before & after)
         pyboDict = self.parent.pyboDict.copy()
-        userDict = OrderedDict()
 
         warningBlank = False
         warningTags = False
         tags = self.parent.getAllTags()
 
-        # user's words and pybo default words
         for key, value in self.data:
-            # warning for blank fields
             if not key or not value:
+                # warning for blank fields
                 if not warningBlank:
                     QMessageBox.warning(
                         self.parent,
@@ -64,73 +77,99 @@ class TableModel(QAbstractTableModel):
                         buttons=QMessageBox.Ok
                     )
                     warningBlank = True
+
+            # key and value
+            else:
+                # warning for non_existent tags
+                if not warningTags:
+                    if value not in tags:
+                        QMessageBox.warning(
+                            self.parent,
+                            'Tags Warning!',
+                            'The tag "' + value + '" is not used by other words.',
+                            buttons=QMessageBox.Ok
+                        )
+                        warningTags = True
+
+                # save normals
                 if key in pyboDict:
-                    pyboDict.pop(key)
-                continue
+                    pos = pyboDict[key]
 
-            # warning for non_existent tags
-            if not warningTags:
-                if value not in tags:
-                    QMessageBox.warning(
-                        self.parent,
-                        'Tags Warning!',
-                        'The tag "{}" is not used by other words.'.format(value),
-                        buttons=QMessageBox.Ok
-                    )
-                    warningTags = True
+                    del pyboDict[key]
+                    # the remains means tokens to be deleted
 
-            if key in pyboDict:
-                if pyboDict[key] == value:
-                    pyboDict.pop(key)
-                    continue
-            userDict[key] = value
-            pyboDict.pop(key)
+                    if pos == value:
+                        # totally same with pybo
+                        continue
+                try:
+                    # if record exists, cover it
+                    dict = Dict.objects.get(content=key)
+                    dict.pos = value
+                    dict.save()
 
-        # removed words
+                except Dict.DoesNotExist:
+                    # create new
+                    Dict.objects.create(content=key, pos=value,
+                                        action=Dict.ACTION_ADD)
+
         for key, value in pyboDict.items():
-            key = '--' + key
-            userDict[key] = value
+            Dict.objects.get_or_create(content=key, pos=value,
+                                       action=Dict.ACTION_DELETE)
 
-        # write user dict
-        with open(self.parent.userDictPath, 'w', encoding='UTF-8') as f:
-            for key, value in userDict.items():
-                f.write(key + ' ' + value + '\n')
 
 class DictionaryEditorWidget(QDialog):
-    userDictPath = os.path.join('sources', 'dicts', 'User.DICT')
-    pyboDictPath = os.path.join('sources', 'dicts', 'Tibetan.DICT')
+    TRIE_ADD_TEMP_FILE = os.path.join(BASE_DIR, 'TrieAddTempFile.txt')
+    TRIE_DEL_TEMP_FILE = os.path.join(BASE_DIR, 'TrieDelTempFile.txt')
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
-        self.pyboDict = self.getPyboDict()
-        self.userDict = self.getUserDict()
+
+        self.pyboDict = dict()
+        self.initPyboDict()
+
         self.tokens = []
         self.resize(400, 600)
         self.setWindowTitle('Dictionary Editor')
         self.setupTable()
         self.initUI()
 
-    @property
-    def dict(self):
+    def getDict(self):
         mergedDict = self.pyboDict.copy()
-        for key, value in  self.userDict.items():
-            removed = False
-            if key.startswith('--'):
-                removed = True
-                key = key[2:]
-            if removed:
-                mergedDict.pop(key)
-            else:
-                mergedDict[key] = value
+        # mergedDict = {'ཉམ་ཐག་པ': 'VERB'}
+
+        for dict in Dict.objects.all():
+            if dict.action == Dict.ACTION_ADD:
+                mergedDict[dict.content] = dict.pos
+            else:  # Dict.ACTION_DELETE
+                del mergedDict[dict.content]
+
         return mergedDict
 
     def setupTable(self):
+        dict = self.getDict()
+
+        with open(self.TRIE_ADD_TEMP_FILE, 'w', encoding="utf-8") as f:
+            f.write('\n'.join(['{} {}'.format(d.content, d.pos) for d in
+                               Dict.objects.filter(action=Dict.ACTION_ADD)]))
+
+        with open(self.TRIE_DEL_TEMP_FILE, 'w', encoding="utf-8") as f:
+            f.write('\n'.join(['{} {}'.format(d.content, d.pos) for d in
+                               Dict.objects.filter(action=Dict.ACTION_DELETE)]))
+
         self.model = TableModel(
             parent=self,
             header=('Text', 'Tag'),
-            data=[[k, v] for k, v in self.dict.items()]
+            data=[[k, v] for k, v in dict.items()],
+            addTrieFile=self.TRIE_ADD_TEMP_FILE,
+            delTrieFile=self.TRIE_DEL_TEMP_FILE
         )
+
+        # print(self.model.bt.has_word('ནང་ཆོས་'))
+
+        os.remove(self.TRIE_ADD_TEMP_FILE)
+        os.remove(self.TRIE_DEL_TEMP_FILE)
+
         self.proxyModel = QSortFilterProxyModel()
         self.proxyModel.setSourceModel(self.model)
 
@@ -154,13 +193,13 @@ class DictionaryEditorWidget(QDialog):
 
         self.addButton = QPushButton()
         self.addButton.setFlat(True)
-        self.addButton.setIcon(QIcon('files/add.png'))
+        self.addButton.setIcon(QIcon('icons/add.png'))
         self.addButton.setIconSize(QSize(30, 30))
         self.addButton.clicked.connect(self.addWord)
 
         self.removeButton = QPushButton()
         self.removeButton.setFlat(True)
-        self.removeButton.setIcon(QIcon('files/delete.png'))
+        self.removeButton.setIcon(QIcon('icons/delete.png'))
         self.removeButton.setIconSize(QSize(30, 30))
         self.removeButton.clicked.connect(self.removeWord)
 
@@ -180,36 +219,19 @@ class DictionaryEditorWidget(QDialog):
         self.proxyModel.setFilterKeyColumn(-1)  # -1 means all cols
         self.proxyModel.setFilterFixedString(text)
 
-    def getPyboDict(self):
-        if not os.path.isfile(self.pyboDictPath):
-            self.downloadPyboDict()
-        return self.getDict(self.pyboDictPath)
-
-    def downloadPyboDict(self):
+    def initPyboDict(self):
         import pkg_resources
         resourcePkg = 'pybo'
         resourcePath = '/'.join(('resources', 'trie', 'Tibetan.DICT'))
         reader = pkg_resources.resource_stream(resourcePkg, resourcePath)
         file = reader.read()
+
+        for line in file.decode().splitlines():
+            key, val = line.split()
+            self.pyboDict[key] = val
+
+        file.decode()
         reader.close()
-
-        with open(self.pyboDictPath, 'w', encoding='UTF-8') as f:
-            f.write(file.decode())
-
-    def getUserDict(self):
-        if not os.path.isfile(self.userDictPath):
-            with open(self.userDictPath, 'w', encoding='UTF-8') as f:
-                f.write('')
-        return self.getDict(self.userDictPath)
-
-    def getDict(self, filename):
-        dictionary = OrderedDict()
-        with open(filename, 'r', encoding='UTF-8') as f:
-            rows = f.readlines()
-            for row in rows:
-                content, tag = row.split()
-                dictionary[content] = tag
-        return dictionary
 
     def removeWord(self):
         rows = sorted(set(index.row() for index in
@@ -218,11 +240,12 @@ class DictionaryEditorWidget(QDialog):
             self.model.data.pop(row)
         self.model.saveDict()
 
-    def addWord(self):
-        self.model.data.insert(0, ['...', '...'])
+    def addWord(self, content=None):
+        if content is not None:
+            self.model.data.insert(0, [content, '...'])
+        else:
+            self.model.data.insert(0, ['...', '...'])
         self.model.layoutChanged.emit()
 
     def getAllTags(self):
-         pyboTags = set(value for key, value in self.pyboDict.items())
-         userTags = set(value for key, value in self.getUserDict().items())
-         return pyboTags | userTags
+         return set(self.getDict().values())

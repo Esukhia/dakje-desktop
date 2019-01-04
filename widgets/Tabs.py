@@ -54,6 +54,10 @@ class LevelTab(QtWidgets.QWidget):
         self.vbox.addLayout(self.forms)
         self.vbox.addWidget(self.textBrowser)
 
+    @property
+    def editor(self):
+        return self.parent().parent().parent()
+
     def initGrids(self):
         self.grids = QtWidgets.QGridLayout()
 
@@ -86,18 +90,29 @@ class LevelTab(QtWidgets.QWidget):
         self.level3Button.setText('Level 3')
         self.level3ProgBar = ProgressBar(self, 0, '#b63226')
 
+        # Checkboxes
+        self.levelNoneCheckbox = QtWidgets.QCheckBox()
+        self.level1Checkbox = QtWidgets.QCheckBox()
+        self.level2Checkbox = QtWidgets.QCheckBox()
+        self.level3Checkbox = QtWidgets.QCheckBox()
+
+        for checkbox in (self.levelNoneCheckbox, self.level1Checkbox,
+                         self.level2Checkbox, self.level3Checkbox):
+            checkbox.clicked.connect(self.editor.refreshView)
+
         self.levelCoverages = [
-            [self.levelNoneButton, self.levelNoneProgBar],
-            [self.level1Button, self.level1ProgBar],
-            [self.level2Button, self.level2ProgBar],
-            [self.level3Button, self.level3ProgBar],
+            [self.levelNoneCheckbox, self.levelNoneButton, self.levelNoneProgBar],
+            [self.level1Checkbox, self.level1Button, self.level1ProgBar],
+            [self.level2Checkbox, self.level2Button, self.level2ProgBar],
+            [self.level3Checkbox, self.level3Button, self.level3ProgBar],
         ]
         self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 4)
+
         for i, levelCoverage in enumerate(self.levelCoverages):
             row = 3 + i
-            self.grids.addWidget(QtWidgets.QCheckBox(), row, 0, 1, 1)
-            self.grids.addWidget(levelCoverage[0], row, 1, 1, 1)
-            self.grids.addWidget(levelCoverage[1], row, 2, 1, 2)
+            self.grids.addWidget(levelCoverage[0], row, 0, 1, 1)
+            self.grids.addWidget(levelCoverage[1], row, 1, 1, 1)
+            self.grids.addWidget(levelCoverage[2], row, 2, 1, 2)
 
     def initForms(self):
         self.forms = QtWidgets.QFormLayout()
@@ -158,12 +173,19 @@ class EditorTab(QtWidgets.QWidget):
         self.errorList.addItem('Error4')
 
     def initCoverageGrids(self):
+        self.firstFreqLabel = QtWidgets.QLabel()
+        self.firstFreqProgBar = ProgressBar(self, 0, '#363d5c')
+        self.secondFreqLabel = QtWidgets.QLabel()
+        self.secondFreqProgBar = ProgressBar(self, 0, '#87a840')
+        self.thirdFreqLabel = QtWidgets.QLabel()
+        self.thirdFreqProgBar = ProgressBar(self, 0, '#ddc328')
+
         self.coverageGrids = QtWidgets.QGridLayout()
         self.coverageLabel = QtWidgets.QLabel('Coverages')
         self.coverages = [
-            [QtWidgets.QLabel('Noun'), ProgressBar(self, 35, '#363d5c')],
-            [QtWidgets.QLabel('Verb'), ProgressBar(self, 30, '#87a840')],
-            [QtWidgets.QLabel('Punc'), ProgressBar(self, 10, '#ddc328')]
+            [self.firstFreqLabel, self.firstFreqProgBar],
+            [self.secondFreqLabel, self.secondFreqProgBar],
+            [self.thirdFreqLabel, self.thirdFreqProgBar]
         ]
         self.coverageGrids.addWidget(self.coverageLabel, 0, 0, 1, 4)
         for i, coverage in enumerate(self.coverages):

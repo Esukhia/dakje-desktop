@@ -14,7 +14,8 @@ class FormatManager:
         2: '#ddc328',
         3: '#b63226',
         4: '#278da9',
-        5: '#363d5c'
+        # 5: '#363d5c',
+        None: '#363d5c'
     }
     LEVEL_FORMATS = {}  # generate by LEVEL_FORMAT_COLORS
 

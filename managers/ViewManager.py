@@ -40,7 +40,7 @@ class ViewManager:
         self.checkReadonly()
 
     def checkReadonly(self):
-        if self.view == self.PLAIN_TEXT_VIEW:
+        if self.view in (self.PLAIN_TEXT_VIEW, self.SPACE_VIEW):
             self.editor.textEdit.setReadOnly(False)
         else:
             self.editor.textEdit.setReadOnly(True)
