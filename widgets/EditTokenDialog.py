@@ -177,6 +177,9 @@ class EditTokenDialog(QtWidgets.QDialog):
         if self.mode == self.MODE_ADD_2 and self.secondToken:
             self.editor.bt.deactivate_word(
                 self.token.content + self.secondToken.content)
+            Dict.objects.get_or_create(
+                content=self.token.content + self.secondToken.content,
+                action=Dict.ACTION_DELETE)
 
         self.editor.bt.add(token.content)
 
