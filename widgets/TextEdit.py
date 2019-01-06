@@ -55,22 +55,24 @@ class TextEdit(QtWidgets.QTextEdit):
 
             if self.textCursor().hasSelection():
                 QtWidgets.QMessageBox.warning(
-                    self, 'Mode Error', 'Please dont edit text in space mode.',
+                    self, 'Mode Error',
+                    'Please dont edit text in space mode.'
+                    ' Users can only split/merge tokens in this mode',
                     buttons=QtWidgets.QMessageBox.Ok
                 )
                 return
 
             # split token
             if e.key() == QtCore.Qt.Key_Space:
-                position = self.textCursor().position()
-                index, token = self.editor.tokenManager.find(position - 1)
+                position = self.textCursor().position()  # before pressing
+                index, token = self.editor.tokenManager.find(position)
                 del self.editor.tokens[index]
 
                 tokenLeft = copy.deepcopy(token)
-                tokenLeft.content = token.content[:(position - 1) - token.start]
+                tokenLeft.content = token.content[:position - token.start]
 
                 tokenRight = copy.deepcopy(token)
-                tokenRight.content = token.content[(position - 1) - token.start:]
+                tokenRight.content = token.content[position - token.start:]
 
                 self.editor.editTokenDialog.setMode(EditTokenDialog.MODE_ADD_2)
                 self.editor.editTokenDialog.setAddingIndex(index)
@@ -80,9 +82,9 @@ class TextEdit(QtWidgets.QTextEdit):
 
             # merge tokens
             elif e.key() == QtCore.Qt.Key_Backspace:
-                position = self.textCursor().position()
-                indexLeft, tokenLeft = self.editor.tokenManager.find(position - 1)
-                indexRight, tokenRight = self.editor.tokenManager.find(position + 1)
+                position = self.textCursor().position()  # before pressing
+                indexLeft, tokenLeft = self.editor.tokenManager.find(position - 2)
+                indexRight, tokenRight = self.editor.tokenManager.find(position)
                 del self.editor.tokens[indexLeft:indexRight + 1]
 
                 newToken = copy.deepcopy(tokenLeft)
@@ -94,3 +96,14 @@ class TextEdit(QtWidgets.QTextEdit):
                 self.editor.editTokenDialog.show()
 
         super().keyPressEvent(e)
+
+    def setTokensSelection(self, tokenIndexStart, tokenIndexEnd):
+        tokens = self.editor.tokens
+        self.setSelection(tokens[tokenIndexStart].start,
+                          tokens[tokenIndexEnd].end)
+
+    def setSelection(self, start, end):
+        cursor = self.textCursor()
+        cursor.setPosition(start)
+        cursor.setPosition(end, QtGui.QTextCursor.KeepAnchor)
+        self.setTextCursor(cursor)

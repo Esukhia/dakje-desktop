@@ -17,6 +17,9 @@ class ViewManager:
     def view(self, value):
         self.editor.view = value
 
+    def isPlainTextView(self):
+        return True if self.view == self.PLAIN_TEXT_VIEW else False
+
     def isSpaceView(self):
         return True if self.view in (self.SPACE_VIEW, self.BOTH_VIEW) else False
 

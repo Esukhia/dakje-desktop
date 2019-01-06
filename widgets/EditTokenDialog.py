@@ -4,7 +4,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 from pybo import Token as PyboToken
 
-from storage.models import Rule
+from storage.models import Rule, Dict
 
 class CqlHBox(QtWidgets.QHBoxLayout):
     def __init__(self):
@@ -54,11 +54,6 @@ class EditTokenDialog(QtWidgets.QDialog):
     def initForm(self):
         self.fbox = QtWidgets.QFormLayout(self)
 
-        # Add To Dict
-        self.addToDictButton = QtWidgets.QPushButton('Add To Dict...')
-        self.addToDictButton.clicked.connect(self.addToDict)
-        self.fbox.addRow(self.addToDictButton)
-
         # Content
         self.contentLabel = QtWidgets.QLabel()
         self.fbox.addRow(self.contentLabel)
@@ -78,6 +73,8 @@ class EditTokenDialog(QtWidgets.QDialog):
 
         # Meaning
         self.meaningField = QtWidgets.QTextEdit()
+        self.meaningField.setFixedHeight(
+            self.meaningField.fontMetrics().lineSpacing() * 3)  # 3 rows
         self.fbox.addRow("Meaning", self.meaningField)
 
         # Rule
@@ -96,10 +93,6 @@ class EditTokenDialog(QtWidgets.QDialog):
         self.fbox.addRow(self.addRuleButton, self.confirmButton)
 
         self.setLayout(self.fbox)
-
-    def addToDict(self):
-        self.editor.actionManager.dictionaryAction.trigger()
-        self.editor.dictionaryDialog.addWord(content=self.token.content)
 
     def addRuleBox(self):
         newRuleBox = CqlHBox()
@@ -121,11 +114,6 @@ class EditTokenDialog(QtWidgets.QDialog):
 
         if token.meaning is not None:
             self.meaningField.setText(token.meaning)
-
-        if token.pos == 'OOV':
-            self.addToDictButton.setVisible(True)
-        else:
-            self.addToDictButton.setVisible(False)
 
         self.addRuleBox()
 
@@ -184,7 +172,18 @@ class EditTokenDialog(QtWidgets.QDialog):
         token.meaning = self.meaningField.toPlainText()
 
         self.editor.tokens.insert(self.addingIndex, token)
-        self.editor.dictionaryDialog.model.bt.add(token.content)
+
+        # deactivate the token which hasn't be split
+        if self.mode == self.MODE_ADD_2 and self.secondToken:
+            self.editor.bt.deactivate_word(
+                self.token.content + self.secondToken.content)
+
+        self.editor.bt.add(token.content)
+
+        dict = Dict.objects.get_or_create(content=token.content,
+                                          action=Dict.ACTION_ADD)[0]
+        dict.pos = token.pos
+        dict.save()
 
     def reject(self):
         for ruleBox in self.ruleBoxes:

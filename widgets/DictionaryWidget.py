@@ -13,22 +13,23 @@ from pybo import BasicTrie, PyBoTrie, Config
 from pybo import BoSyl
 from pathlib import Path
 
-from Configure import BASE_DIR
 from storage.models import Dict
 
 
 class TableModel(QAbstractTableModel):
-    def __init__(self, parent, data, header, addTrieFile, delTrieFile):
+    def __init__(self, parent, data, header):
         QAbstractTableModel.__init__(self, parent)
         self.parent = parent
         self.data = data
         self.header = header
 
-        self.bt = PyBoTrie(
-            BoSyl(), 'POS',
-            toadd_filenames=[Path(addTrieFile)],
-            todel_filenames=[Path(delTrieFile)],
-            config=Config(os.path.join(BASE_DIR, "config.yaml")))
+    @property
+    def editor(self):
+        return self.parent.parent
+
+    @property
+    def bt(self):
+        return self.editor.bt
 
     def rowCount(self, parent):
         return len(self.data)
@@ -116,11 +117,11 @@ class TableModel(QAbstractTableModel):
             Dict.objects.get_or_create(content=key, pos=value,
                                        action=Dict.ACTION_DELETE)
 
+        self.editor.refreshView()
+        self.editor.refreshCoverage()
+
 
 class DictionaryEditorWidget(QDialog):
-    TRIE_ADD_TEMP_FILE = os.path.join(BASE_DIR, 'TrieAddTempFile.txt')
-    TRIE_DEL_TEMP_FILE = os.path.join(BASE_DIR, 'TrieDelTempFile.txt')
-
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent
@@ -148,29 +149,17 @@ class DictionaryEditorWidget(QDialog):
 
     def setupTable(self):
         dict = self.getDict()
-
-        with open(self.TRIE_ADD_TEMP_FILE, 'w', encoding="utf-8") as f:
-            f.write('\n'.join(['{} {}'.format(d.content, d.pos) for d in
-                               Dict.objects.filter(action=Dict.ACTION_ADD)]))
-
-        with open(self.TRIE_DEL_TEMP_FILE, 'w', encoding="utf-8") as f:
-            f.write('\n'.join(['{} {}'.format(d.content, d.pos) for d in
-                               Dict.objects.filter(action=Dict.ACTION_DELETE)]))
-
         self.model = TableModel(
             parent=self,
             header=('Text', 'Tag'),
-            data=[[k, v] for k, v in dict.items()],
-            addTrieFile=self.TRIE_ADD_TEMP_FILE,
-            delTrieFile=self.TRIE_DEL_TEMP_FILE
+            data=[[k, v] for k, v in dict.items()]
         )
 
         # print(self.model.bt.has_word('ནང་ཆོས་'))
 
-        os.remove(self.TRIE_ADD_TEMP_FILE)
-        os.remove(self.TRIE_DEL_TEMP_FILE)
-
         self.proxyModel = QSortFilterProxyModel()
+        self.proxyModel.eventFilter = lambda: self.removeButton.setDisabled(True)
+
         self.proxyModel.setSourceModel(self.model)
 
         self.tableView = QTableView()
@@ -242,9 +231,9 @@ class DictionaryEditorWidget(QDialog):
 
     def addWord(self, content=None):
         if content is not None:
-            self.model.data.insert(0, [content, '...'])
+            self.model.data.insert(0, [content, ''])
         else:
-            self.model.data.insert(0, ['...', '...'])
+            self.model.data.insert(0, ['', ''])
         self.model.layoutChanged.emit()
 
     def getAllTags(self):

@@ -19,6 +19,13 @@ class FormatManager:
     }
     LEVEL_FORMATS = {}  # generate by LEVEL_FORMAT_COLORS
 
+    POS_FORMAT_COLORS = {
+        1: '#363d5c',
+        2: '#87a840',
+        3: '#ddc328'
+    }
+    POS_FORMATS = {}
+
     def __init__(self, editor):
         self.editor = editor
 
@@ -26,6 +33,11 @@ class FormatManager:
             format = QtGui.QTextCharFormat()
             format.setForeground(self.toQColor(color))
             self.LEVEL_FORMATS[level] = format
+
+        for level, color in self.POS_FORMAT_COLORS.items():
+            format = QtGui.QTextCharFormat()
+            format.setForeground(self.toQColor(color))
+            self.POS_FORMATS[level] = format
 
     def toQColor(self, hex):
         r, g, b = hex[1:3], hex[3:5], hex[5:7]

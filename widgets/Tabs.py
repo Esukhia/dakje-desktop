@@ -147,6 +147,10 @@ class EditorTab(QtWidgets.QWidget):
         self.vbox.addLayout(self.coverageGrids)
         self.vbox.addWidget(self.textBrowser)
 
+    @property
+    def editor(self):
+        return self.parent().parent().parent()
+
     def initErrorGrids(self):
         self.errorGrids = QtWidgets.QGridLayout()
 
@@ -173,27 +177,33 @@ class EditorTab(QtWidgets.QWidget):
         self.errorList.addItem('Error4')
 
     def initCoverageGrids(self):
+        self.firstFreqCheckbox = QtWidgets.QCheckBox()
         self.firstFreqLabel = QtWidgets.QLabel()
         self.firstFreqProgBar = ProgressBar(self, 0, '#363d5c')
+        self.secondFreqCheckbox = QtWidgets.QCheckBox()
         self.secondFreqLabel = QtWidgets.QLabel()
         self.secondFreqProgBar = ProgressBar(self, 0, '#87a840')
+        self.thirdFreqCheckbox = QtWidgets.QCheckBox()
         self.thirdFreqLabel = QtWidgets.QLabel()
         self.thirdFreqProgBar = ProgressBar(self, 0, '#ddc328')
+
+        for checkbox in (self.firstFreqCheckbox, self.secondFreqCheckbox,
+                         self.thirdFreqCheckbox):
+            checkbox.clicked.connect(self.editor.refreshView)
 
         self.coverageGrids = QtWidgets.QGridLayout()
         self.coverageLabel = QtWidgets.QLabel('Coverages')
         self.coverages = [
-            [self.firstFreqLabel, self.firstFreqProgBar],
-            [self.secondFreqLabel, self.secondFreqProgBar],
-            [self.thirdFreqLabel, self.thirdFreqProgBar]
+            [self.firstFreqCheckbox, self.firstFreqLabel, self.firstFreqProgBar],
+            [self.secondFreqCheckbox, self.secondFreqLabel, self.secondFreqProgBar],
+            [self.thirdFreqCheckbox, self.thirdFreqLabel, self.thirdFreqProgBar]
         ]
         self.coverageGrids.addWidget(self.coverageLabel, 0, 0, 1, 4)
         for i, coverage in enumerate(self.coverages):
             row = i + 1
-            checkbox = QtWidgets.QCheckBox()
-            self.coverageGrids.addWidget(checkbox, row, 0, 1, 1)
-            self.coverageGrids.addWidget(coverage[0], row, 1, 1, 1)
-            self.coverageGrids.addWidget(coverage[1], row, 2, 1, 2)
+            self.coverageGrids.addWidget(coverage[0], row, 0, 1, 1)
+            self.coverageGrids.addWidget(coverage[1], row, 1, 1, 1)
+            self.coverageGrids.addWidget(coverage[2], row, 2, 1, 2)
 
     def initTextBrowser(self):
         self.textBrowser = QtWidgets.QTextBrowser()

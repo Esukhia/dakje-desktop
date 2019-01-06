@@ -8,15 +8,28 @@ class Highlighter(QtGui.QSyntaxHighlighter):
     def highlightBlock(self, p_str):
         currentBlock = self.currentBlock()
 
-        highlightedLevels = self.editor.getHighlightedLevels()
-
         # the positions here are relative to the current block
-        # TODO: Temporally Highlight All Words
-        for token in self.editor.tokens:
-            if token.level not in highlightedLevels:
-                continue
+        # FIXME: Temporally Highlight All Words
 
-            self.setFormat(
-                token.start - currentBlock.position(), token.length,
-                self.editor.formatManager.LEVEL_FORMATS[token.level]
-            )
+        if self.editor.isLevelMode():
+            highlightedLevels = self.editor.getHighlightedLevels()
+            for token in self.editor.tokens:
+                if token.level not in highlightedLevels:
+                    continue
+
+                self.setFormat(
+                    token.start - currentBlock.position(), token.length,
+                    self.editor.formatManager.LEVEL_FORMATS[token.level]
+                )
+
+        else:  # editor mode
+            highlightedPoses = self.editor.getHighlightedPoses()
+            for token in self.editor.tokens:
+                if token.pos not in highlightedPoses:
+                    continue
+
+                self.setFormat(
+                    token.start - currentBlock.position(), token.length,
+                    self.editor.formatManager.POS_FORMATS[
+                        self.editor.getPosRank(token.pos)]
+                )

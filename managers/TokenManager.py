@@ -1,11 +1,13 @@
-import json
-import copy
+import os
 
 import pybo
 
+from pathlib import Path
+
 from widgets import Matchers
-from storage.models import Rule
+from storage.models import Rule, Dict
 from .ViewManager import ViewManager
+from Configure import BASE_DIR
 
 class Token:
     def __init__(self, token, id=None):
@@ -33,16 +35,36 @@ class Token:
 
 
 class TokenManager:
+    TRIE_ADD_TEMP_FILE = os.path.join(BASE_DIR, 'TrieAddTempFile.txt')
+    TRIE_DEL_TEMP_FILE = os.path.join(BASE_DIR, 'TrieDelTempFile.txt')
+
     def __init__(self, editor):
         self.editor = editor
         self.lang = "bo"
         self.mode = "default"
         self.tagger = None
         self.matcher = Matchers.SimpleRuleMatcher()
-        self.tokenizer = None
 
-        if not self.tokenizer:
-            self.tokenizer = pybo.BoTokenizer('POS')
+        with open(self.TRIE_ADD_TEMP_FILE, 'w', encoding="utf-8") as f:
+            f.write('\n'.join(['{} {}'.format(d.content, d.pos) for d in
+                               Dict.objects.filter(
+                                   action=Dict.ACTION_ADD)]))
+
+        with open(self.TRIE_DEL_TEMP_FILE, 'w', encoding="utf-8") as f:
+            f.write('\n'.join(['{} {}'.format(d.content, d.pos) for d in
+                               Dict.objects.filter(
+                                   action=Dict.ACTION_DELETE)]))
+
+        self.tokenizer = pybo.BoTokenizer(
+            'POS',
+            toadd_filenames=[Path(self.TRIE_ADD_TEMP_FILE)],
+            todel_filenames=[Path(self.TRIE_DEL_TEMP_FILE)]
+        )
+
+        os.remove(self.TRIE_ADD_TEMP_FILE)
+        os.remove(self.TRIE_DEL_TEMP_FILE)
+
+        # print(self.tokenizer.tok.trie.has_word("abc"))
 
     @property
     def view(self):

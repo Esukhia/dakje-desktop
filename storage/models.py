@@ -33,5 +33,5 @@ class Dict(models.Model):
     ACTION_DELETE = 2
 
     content = models.CharField(max_length=255)
-    pos = models.CharField(max_length=255)
+    pos = models.CharField(max_length=255, null=True)
     action = models.IntegerField()

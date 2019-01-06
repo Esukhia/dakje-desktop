@@ -4,7 +4,8 @@ import pybo
 
 
 class BaseRuleMatcher:
-    ...
+    def match(self, tokens, rules):
+        raise NotImplementedError()
 
 
 class SimpleRuleMatcher(BaseRuleMatcher):

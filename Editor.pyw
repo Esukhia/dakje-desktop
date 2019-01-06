@@ -14,6 +14,7 @@ from pybo import CQLMatcher
 from widgets import (MenuBar, ToolBar, CentralWidget, EditTokenDialog,
                      Highlighter, DictionaryEditorWidget)
 from managers import ActionManager, TokenManager, ViewManager, FormatManager
+from storage.models import Rule, Dict
 
 
 class ExceptionHandler(QtCore.QObject):
@@ -41,11 +42,13 @@ class Editor(QtWidgets.QMainWindow):
         self.initUI()
         self.bindEvents()
         self.setWindowTitle("Tibetan Editor")
-        self.setWindowIcon(QtGui.QIcon(os.path.join('icons', 'icon.jpg')))
+        self.setWindowIcon(QtGui.QIcon('icons/icon.jpg'))
         self.setWindowState(QtCore.Qt.WindowMaximized)
 
         self.textEdit.setPlainText = self.ignoreCursorPositionChanged(
             self.textEdit.setPlainText)
+        self.textEdit.setSelection = self.ignoreCursorPositionChanged(
+            self.textEdit.setSelection)
 
     def ignoreEvent(self, func, signal, event):
         def _func(*arg, **kwargs):
@@ -117,24 +120,38 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.level3Button.clicked.connect(
             partial(self.importLevelList, level=3))
 
+    def closeEvent(self, *args, **kwargs):
+        import pickle
+        with self.bt.pickled_file.open('wb') as f:
+            pickle.dump(self.bt.head, f, pickle.HIGHEST_PROTOCOL)
+
+        super().closeEvent(*args, **kwargs)
+
+
     # Tool Bar Actions #
 
     def toggleSpaceView(self):
-        self.segment()
+        if self.viewManager.isPlainTextView():
+            self.segment()
         self.viewManager.toggleSpaceView()
         self.refreshView()
 
     def toggleTagView(self):
-        self.segment()
+        if self.viewManager.isPlainTextView():
+            self.segment()
         self.viewManager.toggleTagView()
         self.refreshView()
 
     def segment(self):
-        if self.tokens:
-            return
         text = self.centralWidget.textEdit.toPlainText()
         tokens = self.tokenManager.segment(text)
-        self.tokens.extend(tokens)
+        self.tokens = tokens
+        self.refreshView()
+        self.refreshCoverage()
+
+    @property
+    def bt(self):
+        return self.tokenManager.tokenizer.tok.trie
 
     # TextEdit #
 
@@ -149,6 +166,12 @@ class Editor(QtWidgets.QMainWindow):
     @property
     def editorTab(self):
         return self.centralWidget.tabWidget.editorTab
+
+    def isLevelMode(self):
+        return (self.centralWidget.tabWidget.currentIndex() == 0)
+
+    def isEditorMode(self):
+        return (self.centralWidget.tabWidget.currentIndex() == 1)
 
     # TextEdit Actions #
 
@@ -177,9 +200,18 @@ class Editor(QtWidgets.QMainWindow):
         if (self.viewManager.isTagView() and
                 not self.editTokenDialog.isVisible()):
             token = self.tokenManager.find(position)[1]
-            self.editTokenDialog.setMode(EditTokenDialog.MODE_UPDATE)
-            self.editTokenDialog.setToken(token)
-            self.editTokenDialog.show()
+
+            if token.pos == "OOV":
+                self.actionManager.dictionaryAction.trigger()
+                self.dictionaryDialog.addWord(content=token.content)
+            else:
+                self.editTokenDialog.setMode(EditTokenDialog.MODE_UPDATE)
+                self.editTokenDialog.setToken(token)
+                self.editTokenDialog.show()
+
+        if self.viewManager.isPlainTextView():
+            if self.textEdit.toPlainText().endswith('་'):
+                self.segment()
 
     # Level List #
 
@@ -194,6 +226,17 @@ class Editor(QtWidgets.QMainWindow):
         for token in self.tokens:
             if token.contentWithoutTsek in words:
                 token.level = level
+
+                import json
+                cql = '[content="{}"]'.format(token.content)
+                data = { "level": level }
+                Rule.objects.get_or_create(
+                    cql=cql,
+                    actionCql=cql,
+                    action=json.dumps(data),
+                    type=Rule.TYPE_UPDATE,
+                    order=1
+                )
 
         self.refreshView()
         self.refreshCoverage()
@@ -241,17 +284,20 @@ class Editor(QtWidgets.QMainWindow):
 
         posFreq = posCounter.most_common()
 
-        self.editorTab.firstFreqLabel.setText(posFreq[0][0])
-        self.editorTab.firstFreqProgBar.setValue(
-            posFreq[0][1] / tokenNum * 100.0)
+        if len(posFreq) >= 1:
+            self.editorTab.firstFreqLabel.setText(posFreq[0][0])
+            self.editorTab.firstFreqProgBar.setValue(
+                posFreq[0][1] / tokenNum * 100.0)
 
-        self.editorTab.secondFreqLabel.setText(posFreq[1][0])
-        self.editorTab.secondFreqProgBar.setValue(
-            posFreq[1][1] / tokenNum * 100.0)
+        if len(posFreq) >= 2:
+            self.editorTab.secondFreqLabel.setText(posFreq[1][0])
+            self.editorTab.secondFreqProgBar.setValue(
+                posFreq[1][1] / tokenNum * 100.0)
 
-        self.editorTab.thirdFreqLabel.setText(posFreq[2][0])
-        self.editorTab.thirdFreqProgBar.setValue(
-            posFreq[2][1] / tokenNum * 100.0)
+        if len(posFreq) >= 3:
+            self.editorTab.thirdFreqLabel.setText(posFreq[2][0])
+            self.editorTab.thirdFreqProgBar.setValue(
+                posFreq[2][1] / tokenNum * 100.0)
 
     def getHighlightedLevels(self):
         result = []
@@ -265,7 +311,25 @@ class Editor(QtWidgets.QMainWindow):
             result.append(3)
         return result
 
+    def getHighlightedPoses(self):
+        result = []
+        if self.editorTab.firstFreqCheckbox.isChecked():
+            result.append(self.editorTab.firstFreqLabel.text())
+        if self.editorTab.secondFreqCheckbox.isChecked():
+            result.append(self.editorTab.secondFreqLabel.text())
+        if self.editorTab.thirdFreqCheckbox.isChecked():
+            result.append(self.editorTab.thirdFreqLabel.text())
+        return result
 
+    def getPosRank(self, pos):
+        if self.editorTab.firstFreqLabel.text() == pos:
+            return 1
+        elif self.editorTab.secondFreqLabel.text() == pos:
+            return 2
+        elif self.editorTab.thirdFreqLabel.text() == pos:
+            return 3
+        else:
+            return None
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
