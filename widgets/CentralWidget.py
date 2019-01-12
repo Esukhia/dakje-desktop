@@ -52,7 +52,20 @@ class FindWidget(QtWidgets.QWidget):
         # Find Form
         self.findInput = QtWidgets.QLineEdit()
         self.findBtn = QtWidgets.QPushButton('Find')
-        self.forms.addRow(self.findInput, self.findBtn)
+
+        self.cqlQueryGenerator = CqlQueryGenerator(self.findInput)
+        self.cqlQueryGeneratorBtn = QtWidgets.QPushButton()
+        self.cqlQueryGeneratorBtn.setFlat(True)
+        self.cqlQueryGeneratorBtn.setIcon(QtGui.QIcon('icons/CQL.png'))
+        self.cqlQueryGeneratorBtn.setIconSize(QtCore.QSize(30, 30))
+        self.cqlQueryGeneratorBtn.clicked.connect(
+            lambda: self.cqlQueryGenerator.show())
+
+        self.findhbox = QtWidgets.QHBoxLayout()
+        self.findhbox.addWidget(self.findInput)
+        self.findhbox.addWidget(self.cqlQueryGeneratorBtn)
+        self.findhbox.addWidget(self.findBtn)
+        self.forms.addRow(self.findhbox)
 
         # Find Mode Choices
         self.mode = self.MODE_SIMPLE
@@ -60,16 +73,9 @@ class FindWidget(QtWidgets.QWidget):
         self.simpleRadio.setChecked(True)
         self.cqlRadio = QtWidgets.QRadioButton('CQL')
 
-        self.cqlQueryGenerator = CqlQueryGenerator(self.findInput)
-        self.cqlQueryGeneratorBtn = QtWidgets.QPushButton('Generator')
-        self.cqlQueryGeneratorBtn.clicked.connect(
-            lambda: self.cqlQueryGenerator.show())
-
         self.modeChoiceshbox = QtWidgets.QHBoxLayout()
         self.modeChoiceshbox.addWidget(self.simpleRadio)
         self.modeChoiceshbox.addWidget(self.cqlRadio)
-        self.modeChoiceshbox.addWidget(self.cqlQueryGeneratorBtn)
-
         self.forms.addRow(self.modeChoiceshbox)
 
         # Replace Form
@@ -80,7 +86,9 @@ class FindWidget(QtWidgets.QWidget):
         self.forms.addRow(None, self.replaceAllBtn)
 
         # Connected
-        self.findBtn.clicked.connect(self.submit)
+        self.findBtn.clicked.connect(self._find)
+        self.replaceBtn.clicked.connect(self.replace)
+        self.replaceAllBtn.clicked.connect(self.replaceAll)
 
     def initResult(self):
         # Results
@@ -89,7 +97,7 @@ class FindWidget(QtWidgets.QWidget):
 
         self.resultList.itemClicked.connect(self.itemClicked)
 
-    def submit(self):
+    def _find(self):
         self.resultList.clear()
 
         if self.simpleRadio.isChecked():
@@ -146,6 +154,32 @@ class FindWidget(QtWidgets.QWidget):
         if row < self.resultList.count():
             self.resultList.setCurrentRow(row)
             self.itemClicked(self.resultList.item(row))
+
+    def replace(self):
+        if self.editor.viewManager.isPlainTextView():
+            cursor = self.textEdit.textCursor()
+            if cursor.hasSelection():
+                cursor.insertText(self.replaceInput.text())
+                self.editor.segment()
+                self._find()
+        else:
+            QtWidgets.QMessageBox.warning(
+                self, 'Mode Error',
+                'Please replace text in plain text mode.',
+                buttons=QtWidgets.QMessageBox.Ok
+            )
+
+    def replaceAll(self):
+        if self.editor.viewManager.isPlainTextView():
+            for _ in range(self.resultList.count()):
+                self.clickItem(0)
+                self.replace()
+        else:
+            QtWidgets.QMessageBox.warning(
+                self, 'Mode Error',
+                'Please replace text in plain text mode.',
+                buttons=QtWidgets.QMessageBox.Ok
+            )
 
 
 class TabWidget(QtWidgets.QTabWidget):

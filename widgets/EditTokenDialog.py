@@ -5,6 +5,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from pybo import Token as PyboToken
 
 from storage.models import Rule, Dict
+from .CQLWidget import CqlQueryGenerator
+
 
 class CqlHBox(QtWidgets.QHBoxLayout):
     def __init__(self):
@@ -13,6 +15,15 @@ class CqlHBox(QtWidgets.QHBoxLayout):
         # previous
         self.previousCql = QtWidgets.QLineEdit()
         self.addWidget(self.previousCql)
+
+        # generator
+        self.cqlQueryGenerator = CqlQueryGenerator(self.previousCql)
+        self.cqlQueryGeneratorBtn = QtWidgets.QPushButton()
+        self.cqlQueryGeneratorBtn.setFlat(True)
+        self.cqlQueryGeneratorBtn.setIcon(QtGui.QIcon('icons/CQL.png'))
+        self.cqlQueryGeneratorBtn.setIconSize(QtCore.QSize(30, 30))
+        self.cqlQueryGeneratorBtn.clicked.connect(lambda: self.cqlQueryGenerator.show())
+        self.addWidget(self.cqlQueryGeneratorBtn)
 
         self.tokenCqlLabel = QtWidgets.QLabel()
         self.attrCql = QtWidgets.QLineEdit()
@@ -24,7 +35,17 @@ class CqlHBox(QtWidgets.QHBoxLayout):
         self.nextCql = QtWidgets.QLineEdit()
         self.addWidget(self.nextCql)
 
+        # generator
+        self.cqlQueryGenerator2 = CqlQueryGenerator(self.nextCql)
+        self.cqlQueryGeneratorBtn2 = QtWidgets.QPushButton()
+        self.cqlQueryGeneratorBtn2.setFlat(True)
+        self.cqlQueryGeneratorBtn2.setIcon(QtGui.QIcon('icons/CQL.png'))
+        self.cqlQueryGeneratorBtn2.setIconSize(QtCore.QSize(30, 30))
+        self.cqlQueryGeneratorBtn2.clicked.connect(lambda: self.cqlQueryGenerator2.show())
+        self.addWidget(self.cqlQueryGeneratorBtn2)
+
     def setToken(self, token):
+        self.content = token.content
         self.tokenCqlLabel.setText('[content="{}"'.format(token.content))
 
     def getCql(self):
