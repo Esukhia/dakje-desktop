@@ -1,3 +1,4 @@
+import os
 import sys
 
 from functools import partial
@@ -9,6 +10,7 @@ from PyQt5.QtWidgets import (
     QWidget, QTextEdit, QCompleter, QComboBox, QPushButton, QMainWindow,
     QLabel, QLineEdit, QFormLayout, QHBoxLayout, QVBoxLayout, QDialog
 )
+from storage.settings import BASE_DIR
 
 class RemoveButton(QPushButton):
     def __init__(self, parent=None):
