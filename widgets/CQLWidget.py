@@ -15,7 +15,7 @@ class RemoveButton(QPushButton):
         super().__init__(parent)
         self.setFlat(True)
         self.setIconSize(QSize(20, 20))
-        self.setIcon(QIcon('icons/delete.png'))
+        self.setIcon(QIcon(os.path.join(BASE_DIR, "icons", "delete.png")))
         self.setFixedSize(20, 20)
 
 class ComboBoxFactory:

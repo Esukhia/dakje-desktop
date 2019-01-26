@@ -9,11 +9,8 @@ from PyQt5.QtWidgets import (
     QDialog, QHeaderView, QTableView, QMessageBox
 )
 
-from pybo import BasicTrie, PyBoTrie, Config
-from pybo import BoSyl
-from pathlib import Path
-
-from storage.models import Dict
+from storage.models import Token
+from storage.settings import BASE_DIR
 
 
 class TableModel(QAbstractTableModel):
@@ -102,23 +99,18 @@ class TableModel(QAbstractTableModel):
                     if pos == value:
                         # totally same with pybo
                         continue
-                try:
-                    # if record exists, cover it
-                    dict = Dict.objects.get(content=key)
-                    dict.pos = value
-                    dict.save()
 
-                except Dict.DoesNotExist:
-                    # create new
-                    Dict.objects.create(content=key, pos=value,
-                                        action=Dict.ACTION_ADD)
+                # if record exists, cover it or create new
+                token = Token.objects.get_or_create(
+                    content=key, pos=value, type=Token.TYPE_UPDATE)[0]
+                token.pos = value
+                token.save()
 
         for key, value in pyboDict.items():
-            Dict.objects.get_or_create(content=key, pos=value,
-                                       action=Dict.ACTION_DELETE)
+            Token.objects.get_or_create(content=key, pos=value,
+                                        type=Token.TYPE_REMOVE)
 
         self.editor.refreshView()
-        self.editor.refreshCoverage()
 
 
 class DictionaryEditorWidget(QDialog):
@@ -139,11 +131,11 @@ class DictionaryEditorWidget(QDialog):
         mergedDict = self.pyboDict.copy()
         # mergedDict = {'ཉམ་ཐག་པ': 'VERB'}
 
-        for dict in Dict.objects.all():
-            if dict.action == Dict.ACTION_ADD:
-                mergedDict[dict.content] = dict.pos
+        for token in Token.objects.all():
+            if token.type == Token.TYPE_UPDATE:
+                mergedDict[token.content] = token.pos
             else:  # Dict.ACTION_DELETE
-                del mergedDict[dict.content]
+                del mergedDict[token.content]
 
         return mergedDict
 
@@ -170,8 +162,8 @@ class DictionaryEditorWidget(QDialog):
 
     def initUI(self):
         self.searchLabel = QLabel()
-        self.searchLabel.setPixmap(
-            QIcon('files/searching').pixmap(QSize(30, 30)))
+        self.searchLabel.setPixmap(QIcon(os.path.join(
+            BASE_DIR, 'icons', 'searching.png')).pixmap(QSize(20, 20)))
 
         self.searchField = QLineEdit()
         self.searchField.textChanged.connect(self.search)
@@ -182,13 +174,14 @@ class DictionaryEditorWidget(QDialog):
 
         self.addButton = QPushButton()
         self.addButton.setFlat(True)
-        self.addButton.setIcon(QIcon('icons/add.png'))
+        self.addButton.setIcon(QIcon(os.path.join(
+            BASE_DIR, 'icons', 'add.png')))
         self.addButton.setIconSize(QSize(30, 30))
         self.addButton.clicked.connect(self.addWord)
 
         self.removeButton = QPushButton()
         self.removeButton.setFlat(True)
-        self.removeButton.setIcon(QIcon('icons/delete.png'))
+        self.removeButton.setIcon(QIcon(os.path.join(BASE_DIR, "icons", "delete.png")))
         self.removeButton.setIconSize(QSize(30, 30))
         self.removeButton.clicked.connect(self.removeWord)
 

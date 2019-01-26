@@ -1,11 +1,11 @@
 #!/usr/bin/env python
+import os
+
 import sys
 
-import Configure
-
-Configure.configure()
 
 if __name__ == "__main__":
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "storage.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError:

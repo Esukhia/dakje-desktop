@@ -1,10 +1,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+import os
 import pybo
 
 from .Tabs import LevelTab, EditorTab
 from .TextEdit import TextEdit
 from .CQLWidget import CqlQueryGenerator
+from storage.settings import BASE_DIR
 
 class CentralWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -56,10 +58,12 @@ class FindWidget(QtWidgets.QWidget):
         self.cqlQueryGenerator = CqlQueryGenerator(self.findInput)
         self.cqlQueryGeneratorBtn = QtWidgets.QPushButton()
         self.cqlQueryGeneratorBtn.setFlat(True)
-        self.cqlQueryGeneratorBtn.setIcon(QtGui.QIcon('icons/CQL.png'))
-        self.cqlQueryGeneratorBtn.setIconSize(QtCore.QSize(30, 30))
+        self.cqlQueryGeneratorBtn.setIcon(QtGui.QIcon(os.path.join(
+            BASE_DIR, 'icons', 'CQL.png')))
+        self.cqlQueryGeneratorBtn.setIconSize(QtCore.QSize(16, 16))
         self.cqlQueryGeneratorBtn.clicked.connect(
             lambda: self.cqlQueryGenerator.show())
+        self.cqlQueryGeneratorBtn.setVisible(False)
 
         self.findhbox = QtWidgets.QHBoxLayout()
         self.findhbox.addWidget(self.findInput)
@@ -89,6 +93,8 @@ class FindWidget(QtWidgets.QWidget):
         self.findBtn.clicked.connect(self._find)
         self.replaceBtn.clicked.connect(self.replace)
         self.replaceAllBtn.clicked.connect(self.replaceAll)
+        self.simpleRadio.clicked.connect(self.radioChanged)
+        self.cqlRadio.clicked.connect(self.radioChanged)
 
     def initResult(self):
         # Results
@@ -96,6 +102,12 @@ class FindWidget(QtWidgets.QWidget):
         self.resultList = QtWidgets.QListWidget(self)
 
         self.resultList.itemClicked.connect(self.itemClicked)
+
+    def radioChanged(self):
+        if self.cqlRadio.isChecked():
+            self.cqlQueryGeneratorBtn.setVisible(True)
+        else:
+            self.cqlQueryGeneratorBtn.setVisible(False)
 
     def _find(self):
         self.resultList.clear()
@@ -191,3 +203,16 @@ class TabWidget(QtWidgets.QTabWidget):
 
         self.addTab(self.levelTab, 'Level Mode')
         self.addTab(self.editorTab, 'Editor Mode')
+
+        self.currentChanged.connect(self.tabChanged)
+
+    @property
+    def editor(self):
+        return self.parent().parent()
+
+    def tabChanged(self):
+        if self.currentIndex() == 0:
+            self.editor.mode = 'Level Mode'
+        else:
+            self.editor.mode = 'Editor Mode'
+        self.editor.showStatus()

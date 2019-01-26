@@ -1,4 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from storage.models import Format
 
 # class Format(QtGui.QTextFormat):
 #     def __init__(self):
@@ -9,15 +10,14 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 #         return QtGui.QColor(int(r, 16), int(g, 16), int(b, 16))
 
 class FormatManager:
-    LEVEL_FORMAT_COLORS = {
-        1: '#87a840',
-        2: '#ddc328',
-        3: '#b63226',
-        4: '#278da9',
-        # 5: '#363d5c',
-        None: '#363d5c'
-    }
-    LEVEL_FORMATS = {}  # generate by LEVEL_FORMAT_COLORS
+    LEVEL_FORMAT_COLORS = dict()
+    LEVEL_FORMATS = dict()  # generate by LEVEL_FORMAT_COLORS
+
+    for format in Format.objects.all():
+        if format.level == 0:
+            LEVEL_FORMAT_COLORS[None] = format.color
+        else:
+            LEVEL_FORMAT_COLORS[format.level] = format.color
 
     POS_FORMAT_COLORS = {
         1: '#363d5c',

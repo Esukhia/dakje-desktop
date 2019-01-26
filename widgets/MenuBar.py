@@ -5,9 +5,9 @@ class MenuBar(QtWidgets.QMenuBar):
         super().__init__(parent)
         self.actionManager = actionManager
 
-        self.menuFile = QtWidgets.QMenu('File')
-        self.menuEdit = QtWidgets.QMenu('Edit')
-        self.menuHelp = QtWidgets.QMenu('Help')
+        self.menuFile = QtWidgets.QMenu('&File')
+        self.menuEdit = QtWidgets.QMenu('&Edit')
+        self.menuHelp = QtWidgets.QMenu('&Help')
 
         self.addMenu(self.menuFile)
         for action in actionManager.getMenuBarActions(actionManager.MENU_FILE):

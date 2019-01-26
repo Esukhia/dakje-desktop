@@ -1,22 +1,46 @@
+# django setup
 import os
+import logging
+import time
+import multiprocessing
+
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "storage.settings")
+django.setup()
+
+# editor
 import sys
 
-from functools import partial
+from functools import partial, wraps
 from collections import Counter
-
-import Configure
-
-Configure.configure()
-
 from PyQt5 import QtCore, QtWidgets, QtGui
-from pybo import CQLMatcher
 
 from widgets import (MenuBar, ToolBar, CentralWidget, EditTokenDialog,
                      Highlighter, DictionaryEditorWidget)
 from managers import ActionManager, TokenManager, ViewManager, FormatManager
-from storage.models import Rule, Dict
+from storage.models import Token
+from storage.settings import BASE_DIR
 
+# Logger
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)s %(levelname)-8s %(message)s',
+                    datefmt='%Y-%m-%d %H:%M:%S')
+logger = logging.getLogger(__name__)
 
+# Timed decorator
+def timed(func):
+    """This decorator prints the execution time for the decorated function."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        logger.debug("{} ran in {}s".format(
+            func.__name__, round(end - start, 5)))
+        return result
+    return wrapper
+
+# Exception
 class ExceptionHandler(QtCore.QObject):
     errorSignal = QtCore.pyqtSignal()
 
@@ -35,6 +59,7 @@ sys.excepthook = exceptionHandler.handler
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
 
+    @timed
     def __init__(self, parent=None):
         super().__init__(parent)
         self.initProperties()
@@ -42,13 +67,13 @@ class Editor(QtWidgets.QMainWindow):
         self.initUI()
         self.bindEvents()
         self.setWindowTitle("Tibetan Editor")
-        self.setWindowIcon(QtGui.QIcon('icons/icon.jpg'))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(BASE_DIR, "icons", "icon.jpg")))
         self.setWindowState(QtCore.Qt.WindowMaximized)
 
-        self.textEdit.setPlainText = self.ignoreCursorPositionChanged(
-            self.textEdit.setPlainText)
-        self.textEdit.setSelection = self.ignoreCursorPositionChanged(
-            self.textEdit.setSelection)
+        self.textEdit.setPlainText = self.ignoreTextChanged(
+            self.ignoreCursorPositionChanged(self.textEdit.setPlainText))
+        self.textEdit.setSelection = self.ignoreTextChanged(
+            self.ignoreCursorPositionChanged(self.textEdit.setSelection))
 
     def ignoreEvent(self, func, signal, event):
         def _func(*arg, **kwargs):
@@ -62,10 +87,15 @@ class Editor(QtWidgets.QMainWindow):
                                 self.textEdit.cursorPositionChanged,
                                 self.cursorPositionChanged)
 
+    def ignoreTextChanged(self, func):
+        return self.ignoreEvent(func,
+                                self.textEdit.textChanged,
+                                self.textChanged)
+
     def initProperties(self):
         self.tokens = []
         self.formats = []
-        self.mode = None  # LEVEL_MODE, EDITOR_MODE
+        self.mode = 'Level Mode'  # LEVEL_MODE, EDITOR_MODE
         self.view = None  # PLAIN_TEXT_VIEW, SPACE_VIEW...
         self.filename = None
 
@@ -103,10 +133,14 @@ class Editor(QtWidgets.QMainWindow):
 
     def bindEvents(self):
         self.bindCursorPositionChanged()
+        self.bindTextChanged()
         self.bindLevelButtons()
 
     def bindCursorPositionChanged(self):
         self.textEdit.cursorPositionChanged.connect(self.cursorPositionChanged)
+
+    def bindTextChanged(self):
+        self.textEdit.textChanged.connect(self.textChanged)
 
     def bindLevelButtons(self):
         self.levelTab.level1Button.clicked.connect(
@@ -129,7 +163,6 @@ class Editor(QtWidgets.QMainWindow):
 
 
     # Tool Bar Actions #
-
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
             self.segment()
@@ -147,17 +180,25 @@ class Editor(QtWidgets.QMainWindow):
         tokens = self.tokenManager.segment(text)
         self.tokens = tokens
         self.refreshView()
-        self.refreshCoverage()
+
+    def resegment(self):
+        text = ''.join([token.content for token in self.tokens])
+        tokens = self.tokenManager.segment(text)
+        self.tokens = tokens
+        self.refreshView()
 
     @property
     def bt(self):
         return self.tokenManager.tokenizer.tok.trie
 
     # TextEdit #
-
     @property
     def textEdit(self):
         return self.centralWidget.textEdit
+
+    @property
+    def findWidget(self):
+        return self.centralWidget.findWidget
 
     @property
     def levelTab(self):
@@ -174,14 +215,12 @@ class Editor(QtWidgets.QMainWindow):
         return (self.centralWidget.tabWidget.currentIndex() == 1)
 
     # TextEdit Actions #
-
     def newFile(self):
         self.textEdit.newFile()
 
     def openFile(self):
         self.textEdit.openFile()
         self.segment()
-        self.refreshView()
 
     def saveFile(self):
         self.filename = self.textEdit.saveFile()
@@ -193,9 +232,9 @@ class Editor(QtWidgets.QMainWindow):
         self.textEdit.redo()
 
     # TextEdit Events #
-
     def cursorPositionChanged(self):
-        position = self.textEdit.textCursor().position()
+        cursor = self.textEdit.textCursor()
+        position = cursor.position()
 
         if (self.viewManager.isTagView() and
                 not self.editTokenDialog.isVisible()):
@@ -209,12 +248,17 @@ class Editor(QtWidgets.QMainWindow):
                 self.editTokenDialog.setToken(token)
                 self.editTokenDialog.show()
 
+        # refresh status bar
+        self.statusBar.showMessage('Ln {}, Col {}'.format(
+            cursor.blockNumber() + 1, cursor.columnNumber() + 1))
+
+    def textChanged(self):
         if self.viewManager.isPlainTextView():
-            if self.textEdit.toPlainText().endswith('་'):
+            text = self.textEdit.toPlainText()
+            if text.endswith('་') or text.endswith(' '):
                 self.segment()
 
     # Level List #
-
     def importLevelList(self, level):
         filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self)
 
@@ -223,23 +267,13 @@ class Editor(QtWidgets.QMainWindow):
                      for word in [line.rstrip('\r\n')
                                   for line in f.readlines()]]
 
-        for token in self.tokens:
-            if token.contentWithoutTsek in words:
-                token.level = level
-
-                import json
-                cql = '[content="{}"]'.format(token.content)
-                data = { "level": level }
-                Rule.objects.get_or_create(
-                    cql=cql,
-                    actionCql=cql,
-                    action=json.dumps(data),
-                    type=Rule.TYPE_UPDATE,
-                    order=1
-                )
+        for word in words:
+            token = Token.objects.get_or_create(
+                content=word, type=Token.TYPE_UPDATE)[0]
+            token.level = level
+            token.save()
 
         self.refreshView()
-        self.refreshCoverage()
 
     def importRuleList(self, level):
         filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self)
@@ -250,16 +284,29 @@ class Editor(QtWidgets.QMainWindow):
         self.matcher.match(self.tokens, rules)
 
         self.refreshView()
-        self.refreshCoverage()
 
     # Refresh #
-
     def refreshView(self):
+        self.tokenManager.applyDict()
         self.tokenManager.matchRules()
+
+        # keep cursor
+        textCursor = self.textEdit.textCursor()
+        current = self.tokenManager.find(textCursor.position())
+
+        if current is not None:
+            currentToken = current[1]
+            distance = textCursor.position() - currentToken.start
+
         text = self.tokenManager.getString()
         self.textEdit.setPlainText(text)
-        self.refreshCoverage()
 
+        if current is not None:
+            textCursor.setPosition(currentToken.start + distance)
+            self.ignoreCursorPositionChanged(
+                self.textEdit.setTextCursor)(textCursor)
+
+        self.refreshCoverage()
 
     def refreshCoverage(self):
         tokenNum = len(self.tokens)
@@ -331,19 +378,32 @@ class Editor(QtWidgets.QMainWindow):
         else:
             return None
 
-if __name__ == '__main__':
+    def showStatus(self):
+        self.statusBar.showMessage(
+            '{}/ {}'.format(self.mode, self.viewManager.getStatusDisplay()))
+
+
+def runserver():
+    import django
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "storage.settings")
+    django.setup()
+
+    from django.core.management import call_command
+    call_command('runserver', '--noreload')
+
+
+def main():
+    multiprocessing.Process(target=runserver, daemon=True).start()
+
     app = QtWidgets.QApplication(sys.argv)
     window = Editor()
     window.show()
-
-    from django.core.management import call_command
-
-    import multiprocessing
-
-    # multiprocessing.Process(target=call_command, args=('runserver',)).start()
 
     try:
         sys.exit(app.exec_())
     except:
         print("exiting")
         sys.exit(1)
+
+if __name__ == '__main__':
+    main()

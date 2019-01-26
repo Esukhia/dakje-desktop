@@ -1,10 +1,31 @@
+import time
+import logging
+from functools import wraps
 from PyQt5 import QtCore, QtGui, QtWidgets
+
+
+logger = logging.getLogger(__name__)
+
+# Timed decorator
+def timed(func):
+    """This decorator prints the execution time for the decorated function."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        end = time.time()
+        logger.debug("{} ran in {}s".format(
+            func.__name__, round(end - start, 5)))
+        return result
+    return wrapper
+
 
 class Highlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, parent, editor):
         super().__init__(parent)
         self.editor = editor
 
+    # @timed
     def highlightBlock(self, p_str):
         currentBlock = self.currentBlock()
 

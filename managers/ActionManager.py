@@ -1,4 +1,10 @@
+import os
+import webbrowser
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
+from storage.settings import BASE_DIR
+
 
 class ActionManager:
     MENU_FILE = 1
@@ -8,9 +14,11 @@ class ActionManager:
     def __init__(self, editor):
         self.editor = editor
 
-    def createAction(self, name, icon,
+    def createAction(self, name, icon, checkable=False,
                      shortcut=None, statusTip=None, triggered=None):
-        action = QtWidgets.QAction(QtGui.QIcon(icon), name, self.editor)
+        iconPath = os.path.join(BASE_DIR, 'icons', icon)
+        action = QtWidgets.QAction(QtGui.QIcon(iconPath), name, self.editor)
+        action.setCheckable(checkable)
         if shortcut is not None:
             action.setShortcut(shortcut)
         if statusTip is not None:
@@ -21,53 +29,61 @@ class ActionManager:
 
     def createActions(self):
         self.newFileAction = self.createAction(
-            '&New...', 'icons/new.png',
+            '&New...', 'new.png',
             shortcut=QtGui.QKeySequence.New,
             statusTip='Create a new file',
             triggered=self.editor.newFile
         )
 
         self.openFileAction = self.createAction(
-            '&Open...', 'icons/open.png',
+            '&Open...', 'open.png',
             shortcut=QtGui.QKeySequence.Open,
             statusTip='Open a text file',
             triggered=self.editor.openFile
         )
 
         self.saveFileAction = self.createAction(
-            '&Save...', 'icons/save.png',
+            '&Save...', 'save.png',
             shortcut=QtGui.QKeySequence.Save,
             statusTip='Save the current document',
             triggered=self.editor.saveFile
         )
 
         self.undoAction = self.createAction(
-            '&Undo', 'icons/undo.png',
+            '&Undo', 'undo.png',
             shortcut=QtGui.QKeySequence.Undo,
             statusTip='Undo the last editing action',
             triggered=self.editor.undo
         )
 
         self.redoAction = self.createAction(
-            '&Redo', 'icons/redo.png',
+            '&Redo', 'redo.png',
             shortcut=QtGui.QKeySequence.Redo,
             statusTip='Redo the last editing action',
             triggered=self.editor.segment
         )
 
         self.tagViewAction = self.createAction(
-            '&Toggle Tag View', 'icons/tag.png',
+            '&Toggle Tag View', 'tag.png',
+            checkable=True,
             triggered=self.editor.toggleTagView
         )
 
         self.spaceViewAction = self.createAction(
-            '&Toggle Space View', 'icons/space.png',
+            '&Toggle Space View', 'space.png',
+            checkable=True,
             triggered=self.editor.toggleSpaceView
         )
 
         self.dictionaryAction = self.createAction(
-            '&Open Dictionary', 'icons/dictionary.png',
+            '&Open Dictionary', 'dictionary.png',
             triggered=lambda: self.editor.dictionaryDialog.show()
+        )
+
+        self.openAdminAction = self.createAction(
+            '&Open Admin', 'settings.png',
+            triggered=lambda: webbrowser.open(
+                'http://127.0.0.1:8000/admin')
         )
 
     def getToolBarActions(self):
@@ -75,7 +91,7 @@ class ActionManager:
             [self.newFileAction, self.openFileAction, self.saveFileAction],
             [self.undoAction, self.redoAction],
             [self.spaceViewAction, self.tagViewAction],
-            [self.dictionaryAction]
+            [self.dictionaryAction, self.openAdminAction]
         ]
 
     def getMenuBarActions(self, menu):

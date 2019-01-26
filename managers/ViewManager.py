@@ -33,6 +33,8 @@ class ViewManager:
             self.view += 1
 
         self.checkReadonly()
+        self.checkReplaceOK()
+        self.editor.showStatus()
 
     def toggleTagView(self):
         if self.isTagView():
@@ -41,9 +43,30 @@ class ViewManager:
             self.view += 2
 
         self.checkReadonly()
+        self.checkReplaceOK()
+        self.editor.showStatus()
 
     def checkReadonly(self):
         if self.view in (self.PLAIN_TEXT_VIEW, self.SPACE_VIEW):
             self.editor.textEdit.setReadOnly(False)
         else:
             self.editor.textEdit.setReadOnly(True)
+
+    def checkReplaceOK(self):
+        if self.view == self.PLAIN_TEXT_VIEW:
+            self.editor.findWidget.replaceBtn.setDisabled(False)
+            self.editor.findWidget.replaceAllBtn.setDisabled(False)
+        else:
+            self.editor.findWidget.replaceBtn.setDisabled(True)
+            self.editor.findWidget.replaceAllBtn.setDisabled(True)
+
+    def getStatusDisplay(self):
+        if self.view == self.PLAIN_TEXT_VIEW:
+            msg = 'Plain Text View'
+        elif self.view == self.SPACE_VIEW:
+            msg = 'Space View'
+        elif self.view == self.TAG_VIEW:
+            msg = 'Tag View'
+        else:
+            msg = 'Space/Tag View'
+        return msg
