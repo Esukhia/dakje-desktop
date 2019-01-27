@@ -72,7 +72,7 @@ class LevelTab(QtWidgets.QWidget):
 
         self.levelNoneButton = QtWidgets.QPushButton()
         self.levelNoneButton.setFlat(True)
-        self.levelNoneButton.setText('Level 0')
+        self.levelNoneButton.setText('Non-level')
         self.levelNoneProgBar = ProgressBar(self, 0, '#363d5c')
 
         self.level1Button = QtWidgets.QPushButton()

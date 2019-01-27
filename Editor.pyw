@@ -303,9 +303,11 @@ class Editor(QtWidgets.QMainWindow):
 
         if current is not None:
             textCursor.setPosition(currentToken.start + distance)
-            self.ignoreCursorPositionChanged(
-                self.textEdit.setTextCursor)(textCursor)
+        else:
+            textCursor.setPosition(len(self.textEdit.toPlainText()))
 
+        self.ignoreCursorPositionChanged(
+            self.textEdit.setTextCursor)(textCursor)
         self.refreshCoverage()
 
     def refreshCoverage(self):
