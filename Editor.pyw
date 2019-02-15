@@ -14,6 +14,7 @@ import sys
 from functools import partial, wraps
 from collections import Counter
 from PyQt5 import QtCore, QtWidgets, QtGui
+from django.db import transaction
 
 from widgets import (MenuBar, ToolBar, CentralWidget, EditTokenDialog,
                      Highlighter, DictionaryEditorWidget)
@@ -267,11 +268,12 @@ class Editor(QtWidgets.QMainWindow):
                      for word in [line.rstrip('\r\n')
                                   for line in f.readlines()]]
 
-        for word in words:
-            token = Token.objects.get_or_create(
-                content=word, type=Token.TYPE_UPDATE)[0]
-            token.level = level
-            token.save()
+        with transaction.atomic():
+            for word in words:
+                token = Token.objects.get_or_create(
+                    content=word, type=Token.TYPE_UPDATE)[0]
+                token.level = level
+                token.save()
 
         self.refreshView()
 
