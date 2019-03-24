@@ -8,7 +8,7 @@ from widgets import Matchers
 from storage.models import Rule
 from storage.models import Token as TokenModel
 from .ViewManager import ViewManager
-from storage.settings import BASE_DIR
+from web.settings import BASE_DIR
 
 
 import time
@@ -135,7 +135,19 @@ class TokenManager:
     def find(self, position):
         for i, token in enumerate(self.tokens):
             if position in range(token.start, token.end):
-                return (i, token)
+                return i, token
+
+    def findByRange(self, startPosition, endPosition):
+        startIndex, endIndex = None, None
+        for i, token in enumerate(self.tokens):
+            if startPosition is None:
+                if startPosition in range(token.start, token.end + 1):
+                    startIndex = i
+                    endIndex = i
+            elif endPosition in range(token.start, token.end + 1):
+                endIndex = i
+        return startIndex, endIndex
+
 
     @timed
     def matchRules(self):

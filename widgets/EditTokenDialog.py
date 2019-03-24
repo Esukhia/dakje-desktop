@@ -7,7 +7,7 @@ from pybo import Token as PyboToken
 
 from storage.models import Rule
 from storage.models import Token as TokenModel
-from storage.settings import BASE_DIR
+from web.settings import BASE_DIR
 from .CQLWidget import CqlQueryGenerator
 
 

@@ -6,7 +6,7 @@ import pybo
 from .Tabs import LevelTab, EditorTab
 from .TextEdit import TextEdit
 from .CQLWidget import CqlQueryGenerator
-from storage.settings import BASE_DIR
+from web.settings import BASE_DIR
 
 class CentralWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
@@ -106,6 +106,7 @@ class FindWidget(QtWidgets.QWidget):
     def radioChanged(self):
         if self.cqlRadio.isChecked():
             self.cqlQueryGeneratorBtn.setVisible(True)
+            self.findInput.repaint()
         else:
             self.cqlQueryGeneratorBtn.setVisible(False)
 

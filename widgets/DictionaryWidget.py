@@ -1,7 +1,5 @@
 import os
 
-from collections import OrderedDict
-
 from PyQt5.QtCore import Qt, QSize, QSortFilterProxyModel, QAbstractTableModel
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
@@ -10,7 +8,7 @@ from PyQt5.QtWidgets import (
 )
 
 from storage.models import Token
-from storage.settings import BASE_DIR
+from web.settings import BASE_DIR
 
 
 class TableModel(QAbstractTableModel):

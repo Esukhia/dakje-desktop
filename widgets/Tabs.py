@@ -73,22 +73,26 @@ class LevelTab(QtWidgets.QWidget):
         self.levelNoneButton = QtWidgets.QPushButton()
         self.levelNoneButton.setFlat(True)
         self.levelNoneButton.setText('Non-level')
-        self.levelNoneProgBar = ProgressBar(self, 0, '#363d5c')
+        self.levelNoneProgBar = ProgressBar(
+            self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[None])
 
         self.level1Button = QtWidgets.QPushButton()
         self.level1Button.setFlat(True)
         self.level1Button.setText('Level 1')
-        self.level1ProgBar = ProgressBar(self, 0, '#87a840')
+        self.level1ProgBar = ProgressBar(
+            self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[1])
 
         self.level2Button = QtWidgets.QPushButton()
         self.level2Button.setFlat(True)
         self.level2Button.setText('Level 2')
-        self.level2ProgBar = ProgressBar(self, 0, '#ddc328')
+        self.level2ProgBar = ProgressBar(
+            self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[2])
 
         self.level3Button = QtWidgets.QPushButton()
         self.level3Button.setFlat(True)
         self.level3Button.setText('Level 3')
-        self.level3ProgBar = ProgressBar(self, 0, '#b63226')
+        self.level3ProgBar = ProgressBar(
+            self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[3])
 
         # Checkboxes
         self.levelNoneCheckbox = QtWidgets.QCheckBox()

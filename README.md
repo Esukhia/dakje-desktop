@@ -18,3 +18,6 @@
 ## Known Issues
 - Haven't tested for big text
 - Dictionary dialog's deleting function will cause a bug when filtering is on.
+
+# Demo
+![](tests/demo.gif)

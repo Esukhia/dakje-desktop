@@ -1,9 +1,9 @@
 import os
 import webbrowser
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtGui, QtWidgets
 
-from storage.settings import BASE_DIR
+from web.settings import BASE_DIR
 
 
 class ActionManager:

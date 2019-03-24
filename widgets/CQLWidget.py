@@ -1,16 +1,14 @@
 import os
 import sys
 
-from functools import partial
-
-from PyQt5.QtCore import Qt, QStringListModel, QSize
-from PyQt5.QtGui import QTextCursor, QPalette, QIcon
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication,
-    QWidget, QTextEdit, QCompleter, QComboBox, QPushButton, QMainWindow,
-    QLabel, QLineEdit, QFormLayout, QHBoxLayout, QVBoxLayout, QDialog
+    QWidget, QComboBox, QPushButton, QMainWindow,
+    QLabel, QLineEdit, QFormLayout, QHBoxLayout, QDialog
 )
-from storage.settings import BASE_DIR
+from web.settings import BASE_DIR
 
 class RemoveButton(QPushButton):
     def __init__(self, parent=None):
@@ -168,7 +166,7 @@ class Token:
 
 class CqlQueryGenerator(QDialog):
     def __init__(self, lineEdit, parent=None):
-        super().__init__(parent)
+        super().__init__(parent, Qt.WindowStaysOnTopHint)
         self.lineEdit = lineEdit
         self.tokens = []
         self.resize(450, 600)

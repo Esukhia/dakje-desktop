@@ -5,7 +5,7 @@ import time
 import multiprocessing
 
 import django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "storage.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
 django.setup()
 
 # editor
@@ -16,11 +16,11 @@ from collections import Counter
 from PyQt5 import QtCore, QtWidgets, QtGui
 from django.db import transaction
 
-from widgets import (MenuBar, ToolBar, CentralWidget, EditTokenDialog,
-                     Highlighter, DictionaryEditorWidget)
+from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
+                     EditTokenDialog, Highlighter, DictionaryEditorWidget)
 from managers import ActionManager, TokenManager, ViewManager, FormatManager
 from storage.models import Token
-from storage.settings import BASE_DIR
+from web.settings import BASE_DIR
 
 # Logger
 logging.basicConfig(level=logging.DEBUG,
@@ -118,10 +118,8 @@ class Editor(QtWidgets.QMainWindow):
         self.toolBar = ToolBar(self.actionManager, parent=self)
         self.addToolBar(self.toolBar)
 
-        self.statusBar = QtWidgets.QStatusBar(parent=self)
+        self.statusBar = StatusBar(parent=self)
         self.setStatusBar(self.statusBar)
-        self.statusBar.setStyleSheet('background-color: #EAEAEA')
-        self.statusBar.showMessage('Welcome...', 3000)
 
         self.centralWidget = CentralWidget(self)
         self.setCentralWidget(self.centralWidget)
@@ -176,10 +174,28 @@ class Editor(QtWidgets.QMainWindow):
         self.viewManager.toggleTagView()
         self.refreshView()
 
-    def segment(self):
-        text = self.centralWidget.textEdit.toPlainText()
-        tokens = self.tokenManager.segment(text)
-        self.tokens = tokens
+    def segment(self, byBlock=False):
+        if byBlock:
+            block = self.textEdit.textCursor().block()
+
+            # if one block, just segment
+            if block.blockNumber() == 0:
+                self.segment()
+                return
+
+            text = '\n' + block.text()
+            tokens = self.tokenManager.segment(text)
+            startIndex, endIndex = self.tokenManager.findByRange(
+                block.position(), block.position() + len(text))
+
+            if startIndex is None:
+                self.tokens.extend(tokens)
+            else:
+                self.tokens[startIndex: endIndex + 1] = tokens
+        else:
+            text = self.centralWidget.textEdit.toPlainText()
+            tokens = self.tokenManager.segment(text)
+            self.tokens = tokens
         self.refreshView()
 
     def resegment(self):
@@ -249,15 +265,14 @@ class Editor(QtWidgets.QMainWindow):
                 self.editTokenDialog.setToken(token)
                 self.editTokenDialog.show()
 
-        # refresh status bar
-        self.statusBar.showMessage('Ln {}, Col {}'.format(
-            cursor.blockNumber() + 1, cursor.columnNumber() + 1))
+        self.showStatus(ln=cursor.blockNumber() + 1,
+                        col=cursor.columnNumber() + 1)
 
     def textChanged(self):
         if self.viewManager.isPlainTextView():
             text = self.textEdit.toPlainText()
-            if text.endswith('་') or text.endswith(' '):
-                self.segment()
+            if text.endswith('་') or text.endswith('།') or text.endswith(' '):
+                self.segment(byBlock=True)
 
     # Level List #
     def importLevelList(self, level):
@@ -382,14 +397,17 @@ class Editor(QtWidgets.QMainWindow):
         else:
             return None
 
-    def showStatus(self):
-        self.statusBar.showMessage(
-            '{}/ {}'.format(self.mode, self.viewManager.getStatusDisplay()))
+    def showStatus(self, ln=None, col=None):
+        self.statusBar.modeLabel.setText(self.mode)
+        self.statusBar.viewLabel.setText(self.viewManager.getStatusDisplay())
 
+        if ln and col:
+            self.statusBar.lineLabel.setText(
+                'Ln {}, Col {}'.format(ln, col))
 
 def runserver():
     import django
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "storage.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
     django.setup()
 
     from django.core.management import call_command
