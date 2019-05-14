@@ -1,0 +1,1068 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>886</width>
+    <height>744</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Tibetan Editor</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="documentMode">
+   <bool>false</bool>
+  </property>
+  <property name="tabShape">
+   <enum>QTabWidget::Rounded</enum>
+  </property>
+  <property name="dockOptions">
+   <set>QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
+  </property>
+  <property name="unifiedTitleAndToolBarOnMac">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,2,1">
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="4" column="0">
+             <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <item>
+               <widget class="QRadioButton" name="radioButton_2">
+                <property name="text">
+                 <string>Simple</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radioButton">
+                <property name="text">
+                 <string>CQL</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="6" column="0">
+             <widget class="QLineEdit" name="lineEdit_2"/>
+            </item>
+            <item row="6" column="2">
+             <widget class="QPushButton" name="pushButton_3">
+              <property name="text">
+               <string>Replace</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLineEdit" name="lineEdit"/>
+            </item>
+            <item row="2" column="2">
+             <widget class="QPushButton" name="pushButton">
+              <property name="text">
+               <string>Find</string>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="2">
+             <widget class="QPushButton" name="pushButton_4">
+              <property name="text">
+               <string>Replace all</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Output</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QListWidget" name="listWidget">
+            <item>
+             <property name="text">
+              <string>Match_1</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Match_2</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Match_3</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>Match_4</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="plainTextEdit"/>
+      </item>
+      <item>
+       <widget class="QTabWidget" name="tabWidget">
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <widget class="QWidget" name="tab">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <attribute name="title">
+          <string>Level Mode</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_4" stretch="2,0,0,3">
+            <item>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="6" column="0">
+               <widget class="QCheckBox" name="checkBox_6">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QCheckBox" name="checkBox_5">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QCheckBox" name="checkBox_3">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QCheckBox" name="checkBox_4">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="1">
+               <widget class="QLabel" name="label_3">
+                <property name="text">
+                 <string>Level2</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLabel" name="label_2">
+                <property name="text">
+                 <string>Level1</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="3">
+               <widget class="QLabel" name="label_7">
+                <property name="text">
+                 <string>60%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="1">
+               <widget class="QLabel" name="label_4">
+                <property name="text">
+                 <string>Level3</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="3">
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>25%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="3">
+               <widget class="QLabel" name="label_9">
+                <property name="text">
+                 <string>5%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLabel" name="label_5">
+                <property name="text">
+                 <string>None Level</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="3">
+               <widget class="QLabel" name="label_8">
+                <property name="text">
+                 <string>10%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>75%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QProgressBar" name="progressBar_4">
+                <property name="styleSheet">
+                 <string notr="true">QProgressBar::chunk {background-color: #363d5c}</string>
+                </property>
+                <property name="value">
+                 <number>25</number>
+                </property>
+                <property name="textVisible">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="textDirection">
+                 <enum>QProgressBar::TopToBottom</enum>
+                </property>
+                <property name="format">
+                 <string>%p%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="2">
+               <widget class="QProgressBar" name="progressBar">
+                <property name="styleSheet">
+                 <string notr="true">QProgressBar::chunk {background-color: #87a840}</string>
+                </property>
+                <property name="value">
+                 <number>60</number>
+                </property>
+                <property name="textVisible">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="textDirection">
+                 <enum>QProgressBar::TopToBottom</enum>
+                </property>
+                <property name="format">
+                 <string>%p%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2">
+               <widget class="QProgressBar" name="progressBar_2">
+                <property name="styleSheet">
+                 <string notr="true">QProgressBar::chunk {background-color: #ddc328}</string>
+                </property>
+                <property name="value">
+                 <number>10</number>
+                </property>
+                <property name="textVisible">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="textDirection">
+                 <enum>QProgressBar::TopToBottom</enum>
+                </property>
+                <property name="format">
+                 <string>%p%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="2">
+               <widget class="QProgressBar" name="progressBar_3">
+                <property name="styleSheet">
+                 <string notr="true">QProgressBar::chunk {background-color: #b63226}</string>
+                </property>
+                <property name="value">
+                 <number>5</number>
+                </property>
+                <property name="textVisible">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="textDirection">
+                 <enum>QProgressBar::TopToBottom</enum>
+                </property>
+                <property name="format">
+                 <string>%p%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" colspan="2">
+               <widget class="QLabel" name="label_6">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">font-weight: 900;</string>
+                </property>
+                <property name="text">
+                 <string>Token Coverage</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="2">
+               <widget class="QLabel" name="label_22">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">font-weight: 900;</string>
+                </property>
+                <property name="text">
+                 <string>Level Coverage</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" colspan="3">
+               <widget class="QProgressBar" name="progressBar_5">
+                <property name="styleSheet">
+                 <string notr="true">QProgressBar::chunk {background-color: #278da9}</string>
+                </property>
+                <property name="value">
+                 <number>75</number>
+                </property>
+                <property name="textVisible">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="textDirection">
+                 <enum>QProgressBar::TopToBottom</enum>
+                </property>
+                <property name="format">
+                 <string>%p%</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_7" stretch="0,1">
+              <item>
+               <layout class="QFormLayout" name="formLayout">
+                <property name="sizeConstraint">
+                 <enum>QLayout::SetDefaultConstraint</enum>
+                </property>
+                <property name="labelAlignment">
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+                <property name="formAlignment">
+                 <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+                </property>
+                <item row="1" column="0">
+                 <widget class="QCheckBox" name="statisticCheckBox_2"/>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLabel" name="statisticLabel_2">
+                  <property name="text">
+                   <string>Word Types</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QCheckBox" name="statisticCheckBox_3"/>
+                </item>
+                <item row="2" column="1">
+                 <widget class="QLabel" name="statisticLabel_3">
+                  <property name="text">
+                   <string>Word Groups (Families)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QCheckBox" name="statisticCheckBox_4"/>
+                </item>
+                <item row="3" column="1">
+                 <widget class="QLabel" name="statisticLabel_4">
+                  <property name="text">
+                   <string>Include coplete frequency list</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0" colspan="2">
+                 <widget class="QLabel" name="statisticLabel">
+                  <property name="styleSheet">
+                   <string notr="true">font-weight: 900;</string>
+                  </property>
+                  <property name="text">
+                   <string>Statistics</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QTextBrowser" name="textBrowser">
+                <property name="html">
+                 <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'PMingLiU'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Statistics&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;LEVEL FILE ...&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Table of ranges: Types&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Types  No. of Files&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;71       1&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Table of ranges: Groups&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Groups  No. of Files&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;42         1&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+        <widget class="QWidget" name="tab_2">
+         <attribute name="title">
+          <string>Editor Mode</string>
+         </attribute>
+         <layout class="QVBoxLayout" name="verticalLayout_6">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,2,0,0,1,1">
+            <item>
+             <layout class="QGridLayout" name="gridLayout_5" rowstretch="1,3" columnstretch="1,1,1,1">
+              <property name="sizeConstraint">
+               <enum>QLayout::SetDefaultConstraint</enum>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <property name="spacing">
+               <number>4</number>
+              </property>
+              <item row="0" column="1">
+               <widget class="QLabel" name="label_17">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">font-weight: 900;</string>
+                </property>
+                <property name="text">
+                 <string>Clarity</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="label_13">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">font-weight: 900;</string>
+                </property>
+                <property name="text">
+                 <string>Concision</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="2">
+               <widget class="QPushButton" name="pushButton_6">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="baseSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">border: 3px solid darkgreen; font: 75 14pt &quot;Fira Code Medium&quot;;</string>
+                </property>
+                <property name="text">
+                 <string>3</string>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>10</width>
+                  <height>10</height>
+                 </size>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QLabel" name="label_18">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">font-weight: 900;</string>
+                </property>
+                <property name="text">
+                 <string>Logic</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="3">
+               <widget class="QPushButton" name="pushButton_10">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">border: 3px solid dimgrey; font: 75 14pt &quot;Fira Code Medium&quot;;</string>
+                </property>
+                <property name="text">
+                 <string>6</string>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>10</width>
+                  <height>10</height>
+                 </size>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QLabel" name="label_21">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">font-weight: 900;</string>
+                </property>
+                <property name="text">
+                 <string>Grammar</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QPushButton" name="pushButton_8">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">border: 3px solid darkblue; font: 75 14pt &quot;Fira Code Medium&quot;;</string>
+                </property>
+                <property name="text">
+                 <string>5</string>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>10</width>
+                  <height>10</height>
+                 </size>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QPushButton" name="pushButton_9">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="autoFillBackground">
+                 <bool>false</bool>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">border: 3px solid darkred;
+font: 75 14pt &quot;Fira Code Medium&quot;;</string>
+                </property>
+                <property name="text">
+                 <string>3</string>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>10</width>
+                  <height>10</height>
+                 </size>
+                </property>
+                <property name="flat">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QListWidget" name="listWidget_2">
+              <item>
+               <property name="text">
+                <string>Error_1</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Error_2</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Error_3</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Error_4</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="Line" name="line_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QGridLayout" name="gridLayout_4">
+              <item row="3" column="0">
+               <widget class="QCheckBox" name="checkBox_9">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="3">
+               <widget class="QProgressBar" name="progressBar_7">
+                <property name="styleSheet">
+                 <string notr="true">QProgressBar::chunk {background-color: #363d5c}</string>
+                </property>
+                <property name="value">
+                 <number>25</number>
+                </property>
+                <property name="textVisible">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="textDirection">
+                 <enum>QProgressBar::TopToBottom</enum>
+                </property>
+                <property name="format">
+                 <string>%p%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>NOUN</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QCheckBox" name="checkBox_8">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3">
+               <widget class="QProgressBar" name="progressBar_8">
+                <property name="styleSheet">
+                 <string notr="true">QProgressBar::chunk {background-color: #278da9}</string>
+                </property>
+                <property name="value">
+                 <number>75</number>
+                </property>
+                <property name="textVisible">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="textDirection">
+                 <enum>QProgressBar::TopToBottom</enum>
+                </property>
+                <property name="format">
+                 <string>%p%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="4">
+               <widget class="QLabel" name="label_14">
+                <property name="text">
+                 <string>60%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="3">
+               <widget class="QProgressBar" name="progressBar_9">
+                <property name="styleSheet">
+                 <string notr="true">QProgressBar::chunk {background-color: #87a840}</string>
+                </property>
+                <property name="value">
+                 <number>60</number>
+                </property>
+                <property name="textVisible">
+                 <bool>false</bool>
+                </property>
+                <property name="invertedAppearance">
+                 <bool>false</bool>
+                </property>
+                <property name="textDirection">
+                 <enum>QProgressBar::TopToBottom</enum>
+                </property>
+                <property name="format">
+                 <string>%p%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="4">
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>75%</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLabel" name="label_15">
+                <property name="text">
+                 <string>PUNC</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="1">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>VERB</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QCheckBox" name="checkBox_7">
+                <property name="text">
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="4">
+               <widget class="QLabel" name="label_20">
+                <property name="text">
+                 <string>25%</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QTextBrowser" name="textBrowser_2">
+              <property name="html">
+               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'PMingLiU'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Statistics&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;0 words&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;0 sentences&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;0 words per sentences&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>886</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="action_Undo"/>
+    <addaction name="action_Redo"/>
+   </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="action_New"/>
+    <addaction name="action_Open"/>
+    <addaction name="action_Save"/>
+    <addaction name="separator"/>
+    <addaction name="actionImport_Profile"/>
+    <addaction name="actionExport_Profile"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout_Qt"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>true</bool>
+   </attribute>
+   <addaction name="action_New"/>
+   <addaction name="action_Open"/>
+   <addaction name="action_Save"/>
+   <addaction name="separator"/>
+   <addaction name="action_Undo"/>
+   <addaction name="action_Redo"/>
+   <addaction name="separator"/>
+   <addaction name="action_Space_mode"/>
+   <addaction name="action_Tag_Mode"/>
+   <addaction name="separator"/>
+  </widget>
+  <action name="action_New">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/new.png</normaloff>icons/new.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;New</string>
+   </property>
+  </action>
+  <action name="action_Open">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/open.png</normaloff>icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open</string>
+   </property>
+  </action>
+  <action name="action_Save">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/save.png</normaloff>icons/save.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+  </action>
+  <action name="action_Undo">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/undo.png</normaloff>icons/undo.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Undo</string>
+   </property>
+  </action>
+  <action name="action_Redo">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/redo.png</normaloff>icons/redo.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Redo</string>
+   </property>
+  </action>
+  <action name="action_Space_mode">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/space.png</normaloff>icons/space.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Space Mode</string>
+   </property>
+  </action>
+  <action name="action_Tag_Mode">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/tag.png</normaloff>icons/tag.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Tag Mode</string>
+   </property>
+  </action>
+  <action name="actionImport_Profile">
+   <property name="text">
+    <string>Import Profile</string>
+   </property>
+  </action>
+  <action name="actionExport_Profile">
+   <property name="text">
+    <string>Export Profile</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionAbout_Qt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

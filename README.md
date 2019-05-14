@@ -23,22 +23,31 @@ Features comming soon:
 
 ## Release note
 
-- Version 0.10
+- version 0.12 (2018.6.5)
+
+    * Add Dictionary Editor
+
+- Version 0.11
     
-    * Sovle the issues #8 ~ #16 (2017/1/17),  
+    * Change "pytib" library with "pybo"
+      (https://github.com/Esukhia/pybo)
+
+- Version 0.10 (2018.1.17)
+    
+    * Solve the issues #8 ~ #16  
     * Change the UI & fix minor bugs 
 
 
-- Version 0.9.1 (2017/1/15)
+- Version 0.9.1 (2018.1.15)
 
     * Merge the pull request (drupchen/cleanup)
     * Clean the folders
 
-- Version: 0.9 (2017/1/14)
+- Version: 0.9 (2018.1.14)
 
     * Fix Issue 4, the editor will highlight the word object now.
 
-- Version: 0.8 (2017/1/2)
+- Version: 0.8 (2018.1.2)
     
     * Merge the fork https://github.com/Esukhia/TibEdit/tree/add-support-for-affixed-POS ,the main change is to use the Tokenization (formerly segmentation) and ProcessingPipeline to handle with segmentation and words tagging.
     * Details:
@@ -58,7 +67,7 @@ Features comming soon:
         - added spaces around non-tib punctuation is solved
         - revert _ to spaces before displaying in the editor.
 
-- Version: 0.7.1 (2017/12/13)
+- Version: 0.7.1 (2017.12.13)
 
     * Fix the error occurs when adding new sentences at the end of the article after segmenting
     * Fix the error occurs when segmenting a new blank line
@@ -100,3 +109,35 @@ Features comming soon:
 	* Words Counting
 	* Highlighter Optimized
 	* Optional Display by Spaces or Tags
+
+
+## How to Make an Executable File
+
+### MacOS
+1. Install "pyinstaller", using `pip install pyinstaller.`
+2. Open `Editor.spec` file, edit the two lines as shown below.
+   ``` python
+   # path to pybo resources in site-packages folder
+   a.datas += Tree('C:/Users/Kevin/Miniconda3/envs/editor/lib/site-packages/pybo/resources', prefix='pybo/resources')
+   
+   # path to files folder in the root folder
+   a.datas += Tree('C:/Users/Kevin/Desktop/TibetanEditor/Source/tibetaneditor/files', prefix='files')
+   ```
+3. Use `pyinstaller Editor.spce` in the terminal, and it will create two folders named `build` and `dist`.
+
+4. In the `dist` folder, there will be a Unix Executable file named `Editor`, which users can easily run by double clicking.
+
+
+## Settings
+
+The editor will create settings files (e.g. default.profile) in the below path.
+
+### In MacOS
+```
+~/Library/Application Support/Tibetan Editor
+```
+
+### In Windows
+```
+C:\Users\<User>\AppData\Local\Tibetan Editor
+```

@@ -44,7 +44,6 @@ class TextFormat(QTextCharFormat):
             r, g, b = hex[1:3], hex[3:5], hex[5:7]
             self.setColor(QColor(int(r, 16), int(g, 16), int(b, 16)))
 
-
     def setupWordList(self, listPath, lines=None):
         self.wordList = []
 
@@ -57,9 +56,9 @@ class TextFormat(QTextCharFormat):
         for line in lines:
             word = line.rstrip('\r\n')
             if word:
-                # add a tsek where missing
-                if not word.endswith('་'):
-                    word += '་'
+                # remove a tsek
+                if word.endswith('་'):
+                    word = word[:-1]
                 self.wordList.append(word)
 
     def setupRegexList(self, regexPath, lines=None):
@@ -77,7 +76,6 @@ class TextFormat(QTextCharFormat):
                 self.msg.setText("The rule file should be UTF-8 encoding.")
                 self.msg.show()
                 return False
-
 
         for i, line in enumerate(lines):
             regex = line.rstrip('\r\n')
@@ -121,11 +119,11 @@ class TextFormatManager:
 
     def insert(self, textFormat):
         self._formats.append(textFormat)
-        self.parent.tabWidget.addTextFormat(textFormat)
+        self.parent.profileWidget.addTextFormat(textFormat)
         self.parent.counterWidget.addTextFormat(textFormat)
 
     def remove(self, textFormat):
-        self.parent.tabWidget.removeTextFormat(textFormat)
+        self.parent.profileWidget.removeTextFormat(textFormat)
         self.parent.counterWidget.removeTextFormat(textFormat)
 
         for index, f in enumerate(reversed(self._formats)):
@@ -138,7 +136,7 @@ class TextFormatManager:
 
     def clear(self):
         for textFormat in self._formats:
-            self.parent.tabWidget.removeTextFormat(textFormat)
+            self.parent.profileWidget.removeTextFormat(textFormat)
             self.parent.counterWidget.removeTextFormat(textFormat)
         self._formats = []
 

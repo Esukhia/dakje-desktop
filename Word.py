@@ -1,31 +1,26 @@
 # -*- coding: utf-8 -*-
 from typing import List, Set
 
-from RDRPOSTagger import Tagger, models
-from pybo.pybo import Tokenizer as tokenizer
-from pybo.pybo import PyBoTrie, BoSyl
-from NLPtokenizer import Tokenizer
-from NLPpipeline import Pipeline
+import pybo
 
+class Word():
+    def __init__(self, content=None, token=None):
+        if token:
+            self.content = token.content
+            self.partOfSpeech = token.pos
+            self.token = token
+        elif content:
+            self.content = content
+            self.partOfSpeech = ''
+        else:
+            raise TypeError(
+                'content and token can not be both NoneType')
 
-class Word:
-    def __init__(self, token):
-        # from pybo Token object
-        self.content = None        # substring of the raw input string
-        self.char_groups = None    # a group attributed to every character. from BoStringUtils
-        self.chunk_type = None     # attributed by BoTokenizer.Tokenizer
-        self.chunk_markers = None  # convert the int in chunk_type into something readable
-        self.syls = None           # indices of syl chars to find cleaned syllables from self.content
-        self.start = None          # start index of the word in the raw input string
-        self.tag = None            # tag attributed by BoTokenizer.Tokenizer (more than UD tag)
-        self.partOfSpeech = None   # POS attributed by BoTokenizer.Tokenizer (raw UD POS tag)
-        self.__import_token(token)
-
-        # specific to Word object
         self.tagIsOn = False
         self.level = 0
         self.taggedModePosition = 0
         self.plainTextModePosition = 0
+        self.start = 0
         self.highlighted = {}
 
     def __import_token(self, token):
@@ -81,33 +76,24 @@ class WordManager:
         self.tagger = None
         self.tokenizer = None
         self._words = []
+        
+        if not self.tokenizer:
+            self.tokenizer = pybo.BoTokenizer('POS')
 
     def getPartOfSpeeches(self) -> Set[str]:
-        partOfSpeeches = set()
-        with open(models['{}_{}'.format(self.lang, self.mode)][1],
-                  encoding='utf-8') as f:
-            for line in f.readlines():
-                partOfSpeeches.add(line.split()[-1])
-        return partOfSpeeches
+        # TODO: Dont hard-coding
+        return {'ADJ', 'ADP', 'NUM', 'ADV', 'NOUN', 'INTJ', 'PART', 'PRON',
+                'DET', 'AUX', 'PUNCT', 'SCONJ', 'PROPN', 'OTHER', 'X', 'VERB'}
 
     def segment(self, sentence: str) -> List[Word]:
-        if not self.tokenizer:
-            trie = PyBoTrie(BoSyl(), 'POS')
-            tok = tokenizer(trie)
-            self.tokenizer = tok  # only instanciate when required
-        return [Word(token) for token in Tokenizer(self.tokenizer).process(sentence)]
-
-    def tag(self, words: List[Word]) -> None:
-        if not self.tagger or self.lang != self.tagger.language or self.mode != self.tagger.mode:
-            # only instanciate when required
-            self.tagger = Tagger(language=self.lang, mode=self.mode)
-        return Pipeline(self.tagger, words).applyPipeline()
+        tokens = self.tokenizer.tokenize(sentence)
+        return [Word(token=token) for token in tokens]  # same as "words"
 
     def getWords(self, start=None, end=None):
-        if not start and not end:
+        if start is None and end is None:
             return self._words
 
-        elif start and not end:
+        elif start is not None and end is None:
             # 大於等於 start
             index = None
             for i, word in enumerate(self._words):
@@ -115,7 +101,7 @@ class WordManager:
                     index = i
                     break
 
-            if not index:
+            if index is None:
                 return []
             else:
                 return self._words[index:]
@@ -129,6 +115,10 @@ class WordManager:
                 if word.end >= end:
                     break
             return words
+
+    def getWordsByIndex(self, start=None):
+        if start:
+            return self._words[start:]
 
     def getPartOfSpeechWord(self, position):
         # position 介於 start, end 之間(不包含)，用在 changeTag
@@ -146,6 +136,13 @@ class WordManager:
         for i, word in enumerate(self._words):
             if word.start <= position < word.end:
                 return word
+
+    def getWordByModeEnd(self, position):
+        for i, word in enumerate(self._words):
+            if word.start <= position <= word.modeEnd:
+                return word
+        else:
+            return self._words[-1]
 
     def removeWord(self, position):
         # position 介於 start, end 之間(不包含)，用在 插入字元在字中間
@@ -198,12 +195,16 @@ class WordManager:
 
         else:
             for i, word in enumerate(self._words):
-                if i == len(self._words) - 1:
-                    if not self._words[i].end == textLen:
+                if i == 0:  # first
+                    if self._words[i].start != 0:
+                        noSegBlocks.append([0, self._words[i].start, 0])
+
+                if i == len(self._words) - 1:  # last
+                    if self._words[i].end != textLen:
                         noSegBlocks.append(
                             (self._words[i].end, textLen, i + 1))
                 else:
-                    if not self._words[i].end == self._words[i + 1].start:
+                    if self._words[i].end != self._words[i + 1].start:
                         noSegBlocks.append(
                             (self._words[i].end,
                              self._words[i + 1].start, i + 1))
@@ -229,5 +230,4 @@ class WordManager:
 
         newWordStrings = text[start: end].split()
         newWords = [Word(s) for s in newWordStrings]
-        self.tag(newWords)
         self.insertWordsByIndex([(newWords, index)])
