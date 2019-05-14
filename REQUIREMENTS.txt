@@ -1,3 +1,8 @@
-PyQt5
-
-pybo
+appdirs==1.4.3
+certifi==2018.8.24
+Django==1.11
+pybo==0.2.21
+PyQt5==5.11.3
+PyQt5-sip==4.19.13
+PyYAML==3.13
+pyknow==1.7.0

@@ -1,21 +1,21 @@
+import os
 import sys
 
-from functools import partial
-
-from PyQt5.QtCore import Qt, QStringListModel, QSize
-from PyQt5.QtGui import QTextCursor, QPalette, QIcon
+from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (
     QApplication,
-    QWidget, QTextEdit, QCompleter, QComboBox, QPushButton, QMainWindow,
-    QLabel, QLineEdit, QFormLayout, QHBoxLayout, QVBoxLayout, QDialog
+    QWidget, QComboBox, QPushButton, QMainWindow,
+    QLabel, QLineEdit, QFormLayout, QHBoxLayout, QDialog
 )
+from web.settings import BASE_DIR
 
 class RemoveButton(QPushButton):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setFlat(True)
         self.setIconSize(QSize(20, 20))
-        self.setIcon(QIcon('files/delete.png'))
+        self.setIcon(QIcon(os.path.join(BASE_DIR, "icons", "delete.png")))
         self.setFixedSize(20, 20)
 
 class ComboBoxFactory:
@@ -164,9 +164,9 @@ class Token:
         return token.format(conditions)
 
 
-class CQLQueryGenerator(QDialog):
+class CqlQueryGenerator(QDialog):
     def __init__(self, lineEdit, parent=None):
-        super().__init__(parent)
+        super().__init__(parent, Qt.WindowStaysOnTopHint)
         self.lineEdit = lineEdit
         self.tokens = []
         self.resize(450, 600)
@@ -219,6 +219,6 @@ class CQLQueryGenerator(QDialog):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = QMainWindow()
-    window.setCentralWidget(CQLQueryGenerator())
+    window.setCentralWidget(CqlQueryGenerator())
     window.show()
     app.exec()
