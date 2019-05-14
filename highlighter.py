@@ -57,14 +57,17 @@ class Highlighter(QSyntaxHighlighter):
             str(currentBlock.blockNumber())] = 0
         self.mainWindow.textFormatManager.getPartOfSpeechFormat().counterDict[
             str(currentBlock.blockNumber())] = 0
-
         
         start = currentBlock.position()
         end = start + currentBlock.length()
         wordsToHighlight = self.mainWindow.wordManager.getWords(start, end)
 
         for word in wordsToHighlight:
-            textFormat = wordFormatDict.get(word.content, defaultFormat)
+            textFormat = wordFormatDict.get(
+                word.content[:-1]
+                if word.content.endswith('་') else word.content,
+                defaultFormat
+            )
 
             self.setFormat(word.start - start, word.length, textFormat)
 
