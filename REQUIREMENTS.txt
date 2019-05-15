@@ -1,5 +1,4 @@
 appdirs==1.4.3
-certifi==2018.8.24
 Django==1.11
 pybo==0.2.21
 PyQt5==5.11.3
