@@ -423,7 +423,7 @@ def runserver():
 
 
 def main():
-    #multiprocessing.Process(target=runserver, daemon=True).start()
+    multiprocessing.Process(target=runserver, daemon=True).start()
 
     app = QtWidgets.QApplication(sys.argv)
     window = Editor()
