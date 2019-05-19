@@ -198,8 +198,6 @@ class Editor(QtWidgets.QMainWindow):
             self.tokens = tokens
         self.refreshView()
 
-        # print([t.content for t in self.tokens])
-
     def resegment(self):
         text = ''.join([token.content for token in self.tokens])
         tokens = self.tokenManager.segment(text)
@@ -273,10 +271,14 @@ class Editor(QtWidgets.QMainWindow):
     def textChanged(self):
         if self.viewManager.isPlainTextView():
             text = self.textEdit.toPlainText()
+
             if any([text.endswith(w) for w in self.SEGMENT_WORDS]):
-                self.segment(byBlock=True)
+                self.segment()
+                # self.segment(byBlock=True)
+
             elif text.endswith('\n'):
-                self.segment(byBlock=True, breakLine=True)
+                self.segment()
+                # self.segment(byBlock=True, breakLine=True)
 
     # Level List #
     def importLevelList(self, level):
@@ -330,6 +332,8 @@ class Editor(QtWidgets.QMainWindow):
         self.ignoreCursorPositionChanged(
             self.textEdit.setTextCursor)(textCursor)
         self.refreshCoverage()
+
+        print([t.content for t in self.tokens])
 
     def refreshCoverage(self):
         tokenNum = len(self.tokens)
@@ -419,7 +423,7 @@ def runserver():
 
 
 def main():
-    multiprocessing.Process(target=runserver, daemon=True).start()
+    #multiprocessing.Process(target=runserver, daemon=True).start()
 
     app = QtWidgets.QApplication(sys.argv)
     window = Editor()
