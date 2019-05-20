@@ -40,6 +40,7 @@ class Token:
         self.pos = token.pos
         self.lemma = token.lemma
 
+        self.blockIndex = None
         self.start = token.start
         self.end = self.start + len(token.content)
         self.string = None
@@ -113,12 +114,17 @@ class TokenManager:
 
     def getString(self):
         def _join(tokens, toStr, sep):
+            blockIndex = 0
             result = ''
             for i, token in enumerate(tokens):
+                token.blockIndex = blockIndex
                 token.start = len(result)
                 result += (toStr(token) + sep if i != len(tokens) - 1
                            else toStr(token))
                 token.end = len(result)
+
+                if token.content.endswith('\n'):
+                    blockIndex += 1
             return result
 
         if self.view == ViewManager.PLAIN_TEXT_VIEW:
@@ -137,17 +143,16 @@ class TokenManager:
             if position in range(token.start, token.end):
                 return i, token
 
-    def findByRange(self, startPosition, endPosition):
+    def findByBlockIndex(self, blockIndex):
         startIndex, endIndex = None, None
         for i, token in enumerate(self.tokens):
-            if startPosition is None:
-                if startPosition in range(token.start, token.end + 1):
+            if startIndex is None:
+                if token.blockIndex == blockIndex:
                     startIndex = i
                     endIndex = i
-            elif endPosition in range(token.start, token.end + 1):
+            elif token.blockIndex == blockIndex:
                 endIndex = i
         return startIndex, endIndex
-
 
     @timed
     def matchRules(self):

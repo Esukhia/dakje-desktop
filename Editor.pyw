@@ -60,6 +60,7 @@ sys.excepthook = exceptionHandler.handler
 
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
+    SEGMENT_WORDS = ['་', '།', ' ']
 
     @timed
     def __init__(self, parent=None):
@@ -175,19 +176,18 @@ class Editor(QtWidgets.QMainWindow):
         self.viewManager.toggleTagView()
         self.refreshView()
 
-    def segment(self, byBlock=False):
+    def segment(self, byBlock=False, breakLine=False):
         if byBlock:
             block = self.textEdit.textCursor().block()
+            text = block.text()
 
-            # if one block, just segment
-            if block.blockNumber() == 0:
-                self.segment()
-                return
+            if breakLine:
+                block = block.previous()
+                text = block.text() + '\n'
 
-            text = '\n' + block.text()
             tokens = self.tokenManager.segment(text)
-            startIndex, endIndex = self.tokenManager.findByRange(
-                block.position(), block.position() + len(text))
+            startIndex, endIndex = self.tokenManager.findByBlockIndex(
+                block.blockNumber())
 
             if startIndex is None:
                 self.tokens.extend(tokens)
@@ -272,8 +272,14 @@ class Editor(QtWidgets.QMainWindow):
     def textChanged(self):
         if self.viewManager.isPlainTextView():
             text = self.textEdit.toPlainText()
-            if text.endswith('་') or text.endswith('།') or text.endswith(' '):
-                self.segment(byBlock=True)
+
+            if any([text.endswith(w) for w in self.SEGMENT_WORDS]):
+                self.segment()
+                # self.segment(byBlock=True)
+
+            elif text.endswith('\n'):
+                self.segment()
+                # self.segment(byBlock=True, breakLine=True)
 
     # Level List #
     def importLevelList(self, level):
@@ -327,6 +333,8 @@ class Editor(QtWidgets.QMainWindow):
         self.ignoreCursorPositionChanged(
             self.textEdit.setTextCursor)(textCursor)
         self.refreshCoverage()
+
+        print([t.content for t in self.tokens])
 
     def refreshCoverage(self):
         tokenNum = len(self.tokens)
