@@ -333,7 +333,7 @@ class Editor(QtWidgets.QMainWindow):
             self.textEdit.setTextCursor)(textCursor)
         self.refreshCoverage()
 
-        print([t.content for t in self.tokens])
+        #print([t.content for t in self.tokens])
 
     def refreshCoverage(self):
         tokenNum = len(self.tokens)
