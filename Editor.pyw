@@ -17,7 +17,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from django.db import transaction
 
 from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
-                     EditTokenDialog, Highlighter, DictionaryEditorWidget)
+                     EditTokenDialog, Highlighter, DictionaryEditorWidget,FontPickerWidget)
+
 from managers import ActionManager, TokenManager, ViewManager, FormatManager
 from storage.models import Token
 from web.settings import BASE_DIR
@@ -64,7 +65,7 @@ class Editor(QtWidgets.QMainWindow):
 
     @timed
     def __init__(self, parent=None):
-        super().__init__(parent)
+        super().__init__(parent)git config --global credential.helper wincred
         self.initProperties()
         self.initManagers()
         self.initUI()
@@ -104,6 +105,7 @@ class Editor(QtWidgets.QMainWindow):
 
         self.editTokenDialog = EditTokenDialog(self)
         self.dictionaryDialog = DictionaryEditorWidget(self)
+        self.fontPickerDialog = FontPickerWidget(self)
 
     def initManagers(self):
         self.actionManager = ActionManager(self)
@@ -123,7 +125,7 @@ class Editor(QtWidgets.QMainWindow):
         self.statusBar = StatusBar(parent=self)
         self.setStatusBar(self.statusBar)
 
-        self.centralWidget = CentralWidget(self)
+        self.centralWidget = CentralWidget(self)         
         self.setCentralWidget(self.centralWidget)
 
         self.highlighter = Highlighter(self.textEdit.document(), self)
@@ -175,6 +177,34 @@ class Editor(QtWidgets.QMainWindow):
             self.segment()
         self.viewManager.toggleTagView()
         self.refreshView()
+    
+    # def fontPicker(self):
+    #     vbox = QtWidgets.QVBoxLayout()
+
+    #     btn = QtWidgets.QPushButton('Fonts', self)
+    #     btn.setSizePolicy(QtWidgets.QSizePolicy.Fixed,
+    #         QtWidgets.QSizePolicy.Fixed)
+        
+    #     btn.move(20, 20)
+
+    #     vbox.addWidget(btn)
+
+    #     btn.clicked.connect(self.showDialog)
+        
+    #     self.lbl = QtWidgets.QLabel('Tenzin Dolma Gyalpo', self)
+    #     self.lbl.move(130, 20)
+
+    #     vbox.addWidget(self.lbl)
+    #     self.setLayout(vbox)          
+
+       
+        
+        
+    # def showDialog(self):
+
+    #     font, ok = QtWidgets.QFontDialog.getFont()
+    #     if ok:
+    #         self.lbl.setFont(font)
 
     def segment(self, byBlock=False, breakLine=False):
         if byBlock:
@@ -207,7 +237,7 @@ class Editor(QtWidgets.QMainWindow):
 
     @property
     def bt(self):
-        return self.tokenManager.tokenizer.tok.trie
+        return self.tokenManager.tokenizer.tok.trie     
 
     # TextEdit #
     @property
