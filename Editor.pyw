@@ -17,7 +17,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from django.db import transaction
 
 from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
-                     EditTokenDialog, Highlighter, DictionaryEditorWidget,FontPickerWidget)
+                     EditTokenDialog, Highlighter, DictionaryEditorWidget,App)
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager
 from storage.models import Token
@@ -65,7 +65,7 @@ class Editor(QtWidgets.QMainWindow):
 
     @timed
     def __init__(self, parent=None):
-        super().__init__(parent)git config --global credential.helper wincred
+        super().__init__(parent)
         self.initProperties()
         self.initManagers()
         self.initUI()
@@ -105,7 +105,7 @@ class Editor(QtWidgets.QMainWindow):
 
         self.editTokenDialog = EditTokenDialog(self)
         self.dictionaryDialog = DictionaryEditorWidget(self)
-        self.fontPickerDialog = FontPickerWidget(self)
+
 
     def initManagers(self):
         self.actionManager = ActionManager(self)
@@ -132,7 +132,7 @@ class Editor(QtWidgets.QMainWindow):
 
         self.setStyleSheet('QMainWindow{background-color: white}')
         self.textEdit.setStyleSheet(
-            'border: none; font-size: 20px; margin: 10px;')
+            'border: none; margin: 10px;')
 
     def bindEvents(self):
         self.bindCursorPositionChanged()
@@ -158,6 +158,7 @@ class Editor(QtWidgets.QMainWindow):
             partial(self.importLevelList, level=3))
 
     def closeEvent(self, *args, **kwargs):
+        
         import pickle
         with self.bt.pickled_file.open('wb') as f:
             pickle.dump(self.bt.head, f, pickle.HIGHEST_PROTOCOL)
@@ -166,6 +167,12 @@ class Editor(QtWidgets.QMainWindow):
 
 
     # Tool Bar Actions #
+    def fontPickerDialog(self):
+        font, ok = QtWidgets.QFontDialog.getFont(self.textEdit.font(), self)
+        if ok:
+            self.textEdit.setFont(font)
+            print("Display Fonts", font)
+
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
             self.segment()
@@ -177,34 +184,7 @@ class Editor(QtWidgets.QMainWindow):
             self.segment()
         self.viewManager.toggleTagView()
         self.refreshView()
-    
-    # def fontPicker(self):
-    #     vbox = QtWidgets.QVBoxLayout()
 
-    #     btn = QtWidgets.QPushButton('Fonts', self)
-    #     btn.setSizePolicy(QtWidgets.QSizePolicy.Fixed,
-    #         QtWidgets.QSizePolicy.Fixed)
-        
-    #     btn.move(20, 20)
-
-    #     vbox.addWidget(btn)
-
-    #     btn.clicked.connect(self.showDialog)
-        
-    #     self.lbl = QtWidgets.QLabel('Tenzin Dolma Gyalpo', self)
-    #     self.lbl.move(130, 20)
-
-    #     vbox.addWidget(self.lbl)
-    #     self.setLayout(vbox)          
-
-       
-        
-        
-    # def showDialog(self):
-
-    #     font, ok = QtWidgets.QFontDialog.getFont()
-    #     if ok:
-    #         self.lbl.setFont(font)
 
     def segment(self, byBlock=False, breakLine=False):
         if byBlock:
@@ -278,6 +258,9 @@ class Editor(QtWidgets.QMainWindow):
 
     def redo(self):
         self.textEdit.redo()
+
+
+         
 
     # TextEdit Events #
     def cursorPositionChanged(self):
@@ -451,7 +434,6 @@ def runserver():
 
     from django.core.management import call_command
     call_command('runserver', '--noreload')
-
 
 def main():
     multiprocessing.Process(target=runserver, daemon=True).start()

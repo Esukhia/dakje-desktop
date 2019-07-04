@@ -5,7 +5,6 @@ from PyQt5 import QtGui, QtWidgets
 
 from web.settings import BASE_DIR
 
-
 class ActionManager:
     MENU_FILE = 1
     MENU_EDIT = 2
@@ -82,8 +81,9 @@ class ActionManager:
 
         self.fontPicker = self.createAction(
             '&Pick Font', 'font.png',
-            triggered=lambda: self.editor.fontPickerDialog.show()
+            triggered=self.editor.fontPickerDialog
         )
+  
 
         self.openAdminAction = self.createAction(
             '&Open Admin', 'settings.png',
