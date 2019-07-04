@@ -17,7 +17,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from django.db import transaction
 
 from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
-                     EditTokenDialog, Highlighter, DictionaryEditorWidget,App)
+                     EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager
 from storage.models import Token
