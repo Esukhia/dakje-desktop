@@ -18,6 +18,7 @@ from django.db import transaction
 
 from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
                      EditTokenDialog, Highlighter, DictionaryEditorWidget)
+
 from managers import ActionManager, TokenManager, ViewManager, FormatManager
 from storage.models import Token
 from web.settings import BASE_DIR
@@ -105,6 +106,7 @@ class Editor(QtWidgets.QMainWindow):
         self.editTokenDialog = EditTokenDialog(self)
         self.dictionaryDialog = DictionaryEditorWidget(self)
 
+
     def initManagers(self):
         self.actionManager = ActionManager(self)
         self.tokenManager = TokenManager(self)
@@ -123,14 +125,14 @@ class Editor(QtWidgets.QMainWindow):
         self.statusBar = StatusBar(parent=self)
         self.setStatusBar(self.statusBar)
 
-        self.centralWidget = CentralWidget(self)
+        self.centralWidget = CentralWidget(self)         
         self.setCentralWidget(self.centralWidget)
 
         self.highlighter = Highlighter(self.textEdit.document(), self)
 
         self.setStyleSheet('QMainWindow{background-color: white}')
         self.textEdit.setStyleSheet(
-            'border: none; font-size: 20px; margin: 10px;')
+            'border: none; margin: 10px;')
 
     def bindEvents(self):
         self.bindCursorPositionChanged()
@@ -156,6 +158,7 @@ class Editor(QtWidgets.QMainWindow):
             partial(self.importLevelList, level=3))
 
     def closeEvent(self, *args, **kwargs):
+        
         import pickle
         with self.bt.pickled_file.open('wb') as f:
             pickle.dump(self.bt.head, f, pickle.HIGHEST_PROTOCOL)
@@ -164,6 +167,12 @@ class Editor(QtWidgets.QMainWindow):
 
 
     # Tool Bar Actions #
+    def fontPickerDialog(self):
+        font, ok = QtWidgets.QFontDialog.getFont(self.textEdit.font(), self)
+        if ok:
+            self.textEdit.setFont(font)
+            print("Display Fonts", font)
+
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
             self.segment()
@@ -175,6 +184,7 @@ class Editor(QtWidgets.QMainWindow):
             self.segment()
         self.viewManager.toggleTagView()
         self.refreshView()
+
 
     def segment(self, byBlock=False, breakLine=False):
         if byBlock:
@@ -207,7 +217,7 @@ class Editor(QtWidgets.QMainWindow):
 
     @property
     def bt(self):
-        return self.tokenManager.tokenizer.tok.trie
+        return self.tokenManager.tokenizer.tok.trie     
 
     # TextEdit #
     @property
@@ -248,6 +258,9 @@ class Editor(QtWidgets.QMainWindow):
 
     def redo(self):
         self.textEdit.redo()
+
+
+         
 
     # TextEdit Events #
     def cursorPositionChanged(self):
@@ -421,7 +434,6 @@ def runserver():
 
     from django.core.management import call_command
     call_command('runserver', '--noreload')
-
 
 def main():
     multiprocessing.Process(target=runserver, daemon=True).start()

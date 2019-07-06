@@ -5,7 +5,6 @@ from PyQt5 import QtGui, QtWidgets
 
 from web.settings import BASE_DIR
 
-
 class ActionManager:
     MENU_FILE = 1
     MENU_EDIT = 2
@@ -80,6 +79,12 @@ class ActionManager:
             triggered=lambda: self.editor.dictionaryDialog.show()
         )
 
+        self.fontPicker = self.createAction(
+            '&Pick Font', 'font.png',
+            triggered=self.editor.fontPickerDialog
+        )
+  
+
         self.openAdminAction = self.createAction(
             '&Open Admin', 'settings.png',
             triggered=lambda: webbrowser.open(
@@ -91,7 +96,7 @@ class ActionManager:
             [self.newFileAction, self.openFileAction, self.saveFileAction],
             [self.undoAction, self.redoAction],
             [self.spaceViewAction, self.tagViewAction],
-            [self.dictionaryAction, self.openAdminAction]
+            [self.fontPicker, self.dictionaryAction, self.openAdminAction]
         ]
 
     def getMenuBarActions(self, menu):
@@ -107,6 +112,7 @@ class ActionManager:
                 self.redoAction,
                 self.spaceViewAction,
                 self.tagViewAction,
+                self.fontPicker,
                 self.dictionaryAction
             ]
         elif self.MENU_HELP == menu:
