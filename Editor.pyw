@@ -70,7 +70,7 @@ class Editor(QtWidgets.QMainWindow):
         self.initManagers()
         self.initUI()
         self.bindEvents()
-        self.setWindowTitle("Tibetan Editor")
+        self.setWindowTitle("དག་བྱེད།")
         self.setWindowIcon(QtGui.QIcon(os.path.join(BASE_DIR, "icons", "icon.jpg")))
         self.setWindowState(QtCore.Qt.WindowMaximized)
 
@@ -347,7 +347,8 @@ class Editor(QtWidgets.QMainWindow):
             self.textEdit.setTextCursor)(textCursor)
         self.refreshCoverage()
 
-        #print([t.content for t in self.tokens])
+        # print([t.content for t in self.tokens])
+        self.statusBar.showMessage('  ' + ' '.join([t.content for t in self.tokens[-19:]]))
 
     def refreshCoverage(self):
         tokenNum = len(self.tokens)
