@@ -132,7 +132,13 @@ class Editor(QtWidgets.QMainWindow):
 
         self.setStyleSheet('QMainWindow{background-color: white}')
         self.textEdit.setStyleSheet(
-            'border: none; margin: 10px;')
+            'border: none; margin: 10px')
+
+        #default font and font size 
+        font = QtGui.QFont()
+        font.setFamily("Microsoft Himalaya")
+        font.setPointSize(12)
+        self.textEdit.setFont(font)
 
     def bindEvents(self):
         self.bindCursorPositionChanged()
@@ -167,9 +173,12 @@ class Editor(QtWidgets.QMainWindow):
 
 
     # Tool Bar Actions #
+
+    #user can choose their font
     def fontPickerDialog(self):
         font, ok = QtWidgets.QFontDialog.getFont(self.textEdit.font(), self)
         if ok:
+            #set the text in the widget to the choosen font 
             self.textEdit.setFont(font)
             print("Display Fonts", font)
 
