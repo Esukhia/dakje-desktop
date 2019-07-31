@@ -235,7 +235,7 @@ class Editor(QtWidgets.QMainWindow):
 
     @property
     def findWidget(self):
-        return self.centralWidget.findWidget
+        return self.centralWidget.leftTabWidget.findTab
 
     @property
     def levelTab(self):
