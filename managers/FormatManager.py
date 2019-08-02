@@ -14,15 +14,17 @@ class FormatManager:
     LEVEL_FORMATS = dict()  # generate by LEVEL_FORMAT_COLORS
 
     for format in Format.objects.all():
-        if format.level == 0:
+        if format.level == 0:        
             LEVEL_FORMAT_COLORS[None] = format.color
         else:
             LEVEL_FORMAT_COLORS[format.level] = format.color
+        print('format.color', format.color)
 
     POS_FORMAT_COLORS = {
         1: '#363d5c',
         2: '#87a840',
-        3: '#ddc328'
+        3: '#ddc328',
+       
     }
     POS_FORMATS = {}
 
@@ -41,4 +43,4 @@ class FormatManager:
 
     def toQColor(self, hex):
         r, g, b = hex[1:3], hex[3:5], hex[5:7]
-        return QtGui.QColor(int(r, 16), int(g, 16), int(b, 16))
+        return QtGui.QColor(int(r, 15), int(g, 16), int(b, 16))

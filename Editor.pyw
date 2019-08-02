@@ -150,19 +150,19 @@ class Editor(QtWidgets.QMainWindow):
 
     def bindTextChanged(self):
         self.textEdit.textChanged.connect(self.textChanged)
-
+    
     def bindLevelButtons(self):
         self.levelTab.level1Button.clicked.connect(
             # partial(self.importRuleList, level=1)
             partial(self.importLevelList, level=1)
-        )
+        )      
 
         self.levelTab.level2Button.clicked.connect(
             partial(self.importLevelList, level=2))
 
         self.levelTab.level3Button.clicked.connect(
             partial(self.importLevelList, level=3))
-
+    
     def closeEvent(self, *args, **kwargs):
         
         import pickle
@@ -306,7 +306,9 @@ class Editor(QtWidgets.QMainWindow):
     # Level List #
     def importLevelList(self, level):
         filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self)
-
+        splitFilePath = filePath.split('/')
+        self.fileName = splitFilePath[len(splitFilePath) - 1]
+        self.levelTab.level1Button.setText(self.fileName)
         with open(filePath, encoding='utf-8') as f:
             words = [word[:-1] if word.endswith('་') else word
                      for word in [line.rstrip('\r\n')
