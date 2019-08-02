@@ -307,8 +307,12 @@ class Editor(QtWidgets.QMainWindow):
     def importLevelList(self, level):
         filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self)
         splitFilePath = filePath.split('/')
-        self.fileName = splitFilePath[len(splitFilePath) - 1]
-        self.levelTab.level1Button.setText(self.fileName)
+        
+        if '' in splitFilePath[:1]:
+            return
+        else:
+            self.fileName = splitFilePath[len(splitFilePath) - 1]
+            self.levelTab.level1Button.setText(self.fileName)
         with open(filePath, encoding='utf-8') as f:
             words = [word[:-1] if word.endswith('་') else word
                      for word in [line.rstrip('\r\n')
