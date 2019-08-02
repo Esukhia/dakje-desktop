@@ -76,9 +76,10 @@ class LevelTab(QtWidgets.QWidget):
         # Level Coverage
         self.levelCoverageLabel = QtWidgets.QLabel('Level Coverage')
         self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 2)
-        """
+        
         self.addBtn = QtWidgets.QPushButton('+')
         self.grids.addWidget(self.addBtn, 2,2,1,2)
+        """
         self.addBtn.clicked.connect(self.addLevel)
         
         self.addLevel()
