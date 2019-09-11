@@ -34,10 +34,11 @@ Statistics
 
 class ProgressBar(QtWidgets.QProgressBar):
     def __init__(self, parent=None, value=None, color=None):
+        
         super().__init__(parent)
 
         self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVertical_Mask)
-
+        print("Value: ", value)
         if value is not None:
             self.setValue(value)
 
@@ -140,14 +141,21 @@ class LevelTab(QtWidgets.QWidget):
 
         self.statisticsLabel = QtWidgets.QLabel('Statistics')
         self.forms.addRow(self.statisticsLabel)
-        # self.count = self.editor.wordCount()
-        # print("word count: ", self.count)
-        self.forms.addRow(QtWidgets.QCheckBox(),
-                          QtWidgets.QLabel('Word Count'))
-        self.forms.addRow(QtWidgets.QCheckBox(),
-                          QtWidgets.QLabel('Word Groups (Families)'))
-        self.forms.addRow(QtWidgets.QCheckBox(),
-                          QtWidgets.QLabel('Include Complete Frequency List'))
+        self.editor.refreshCoverage
+        
+        self.wordCountLabel = QtWidgets.QLabel('0')
+        self.senCountLabel = QtWidgets.QLabel('0')
+        self.typeCountLabel = QtWidgets.QLabel('0')
+        self.maxWordLabel = QtWidgets.QLabel('0')
+
+        self.forms.addRow("Word Count: ",
+                          self.wordCountLabel)
+        self.forms.addRow("Type Count: ",
+                          self.typeCountLabel)
+        self.forms.addRow("Sentence Count: ",
+                          self.senCountLabel)
+        self.forms.addRow("Max words in a Sentence count: ",
+                          self.maxWordLabel)
 
     def initTextBrowser(self):
         self.textBrowser = QtWidgets.QTextBrowser()

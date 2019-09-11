@@ -98,7 +98,7 @@ class Editor(QtWidgets.QMainWindow):
                                 self.textChanged)
 
     def initProperties(self):
-        self.cleanTokens = [] #without the end of line and tseg 
+
         self.tokens = []
         self.formats = []
         self.mode = 'Level Mode'  # LEVEL_MODE, EDITOR_MODE
@@ -372,16 +372,29 @@ class Editor(QtWidgets.QMainWindow):
         # print([t.content for t in self.tokens])
         self.statusBar.showMessage('  ' + ' '.join([t.content for t in self.tokens[-19:]]))
 
+  
+
+
+
+
     def refreshCoverage(self):
-        # To Do: don't count new line and punctuation in tokenNum
+        # To Do: don't count new line and punctuation in word Count (Done)
 
         tokenNum = len(self.tokens)
+
+        #to do: bug fix - 
+        # if we press enter twice sentence count reinitializes
+        # you need to press on enter for it to recognize that the text editor is empty 
+        # it considers བོད and བོད་ different - the difference is the tseg (not sure if that is a bug) 
 
         #Statistics - analyze the content in the text editor 
         wordCount = 0
         sentenceCount = 0
         typeCount = 0
+        max = 0
         counts = dict()
+        sentenceWordCount = [] #list of words in sentences 
+        wordSentence = 0
 
         #parse through the list and not count the newline 
         #for now every newline is considered a completion of one sentence 
@@ -389,15 +402,24 @@ class Editor(QtWidgets.QMainWindow):
             print("token content: ", token.content)
             if token.content != "\n":
                 wordCount += 1
+                wordSentence += 1
                 if token.content in counts:
                     continue
                 else:
                     counts[token.content] = 1
                     typeCount += 1
             else:
-                sentenceCount += 1
+                if wordCount == 0:
+                    continue
 
-        
+                sentenceCount += 1
+                sentenceWordCount.append(wordSentence)
+                if max < sentenceWordCount[sentenceCount - 1]:
+                    max = sentenceWordCount[sentenceCount - 1]
+                wordSentence = 0
+                
+            
+        print("maximum words in a sentence: ", max)
         print("word count: ", wordCount)
         print("type count: ", typeCount)
         print("sentence count: ", sentenceCount)
@@ -406,6 +428,11 @@ class Editor(QtWidgets.QMainWindow):
         frequency = Counter([
             token.content for token in self.tokens])
         print("Frequency: ", frequency)
+        
+        self.levelTab.wordCountLabel.setText(str(wordCount))
+        self.levelTab.typeCountLabel.setText(str(typeCount))
+        self.levelTab.senCountLabel.setText(str(sentenceCount))
+        self.levelTab.maxWordLabel.setText(str(max))
 
         levelCounter = Counter([
             token.level for token in self.tokens])
@@ -415,7 +442,8 @@ class Editor(QtWidgets.QMainWindow):
                 return 0
             else:
                 return levelCounter[key] / tokenNum * 100.0
-
+        
+        #updating the progress bar 
         self.levelTab.tokenCoverageProgBar.setValue(100 - getLevelProp(None))
         self.levelTab.levelNoneProgBar.setValue(getLevelProp(None))
         self.levelTab.level1ProgBar.setValue(getLevelProp(1))
