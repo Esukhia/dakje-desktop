@@ -382,13 +382,16 @@ class Editor(QtWidgets.QMainWindow):
         # it considers བོད and བོད་ different - the difference is the tseg (not sure if that is a bug) 
 
         #Statistics - analyze the content in the text editor 
-        wordCount = 0
-        sentenceCount = 0
-        typeCount = 0
-        max = 0
-        counts = dict()
-        sentenceWordCount = [] #list of words in sentences 
-        wordSentence = 0
+        
+        wordCount = 0 # number of words written
+        sentenceCount = 0 # number of sentence written - each new line is considered one sentnece 
+        typeCount = 0 # number of words used 
+        max = 0 # maximum number of words in a sentence - longest sentence
+        counts = dict() 
+        sentenceWordCount = [] #records the number of words in each sentence
+        wordSentence = 0 # words in a sentence 
+        verbsPerSen = 0 # verbs in a sentence
+        verbSentence = [] #records the number of verbs in each sentence 
 
         #parse through the list and not count the newline 
         #for now every newline is considered a completion of one sentence 
@@ -398,6 +401,8 @@ class Editor(QtWidgets.QMainWindow):
             if token.content != "\n":
                 wordCount += 1
                 wordSentence += 1
+                if token.pos == "VERB":
+                    verbsPerSen += 1
                 if token.content in counts:
                     continue
                 else:
@@ -406,12 +411,13 @@ class Editor(QtWidgets.QMainWindow):
             else:
                 if wordCount == 0:
                     continue
-
+                verbSentence.append(verbsPerSen)
                 sentenceCount += 1
                 sentenceWordCount.append(wordSentence)
                 if max < sentenceWordCount[sentenceCount - 1]:
                     max = sentenceWordCount[sentenceCount - 1]
                 wordSentence = 0
+                verbsPerSen = 0
                 
             
         # print("maximum words in a sentence: ", max)
@@ -424,6 +430,7 @@ class Editor(QtWidgets.QMainWindow):
             token.content for token in self.tokens])
         print("Frequency: ", frequency)
         
+
         #Updating the Statistics 
         self.levelTab.wordCountLabel.setText(str(wordCount))
         self.levelTab.typeCountLabel.setText(str(typeCount))
