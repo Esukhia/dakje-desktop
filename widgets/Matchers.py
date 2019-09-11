@@ -60,11 +60,11 @@ class SimpleRuleMatcher(BaseRuleMatcher):
                 tokens[index] = actionToken
 
 
-import pyknow
+import experta
 
-from pyknow import KnowledgeEngine, Fact
-from pyknow import Rule as PyKnowRule
-from pyknow.matchers.rete.check import FeatureCheck
+from experta import KnowledgeEngine, Fact
+from experta import Rule as expertaRule
+from experta.matchers.rete.check import FeatureCheck
 
 from storage.models import Rule
 
@@ -81,7 +81,7 @@ class CqlEngine(KnowledgeEngine):
     def get_rules(self):
         rules = []
         for cql, action in self.actions.items():
-            rule = PyKnowRule(CQL(cql))
+            rule = expertaRule(CQL(cql))
             rule._wrapped = action
             rules.append(rule)
         return rules
@@ -95,9 +95,9 @@ def featureCheckCall(self, data, is_fact=True):
     else:
         return False
 
-pyknow.matchers.rete.check.FeatureCheck.__call__ = featureCheckCall
+experta.matchers.rete.check.FeatureCheck.__call__ = featureCheckCall
 
-class PyKnowRuleMatcher():
+class expertaRuleMatcher():
     def match(self, tokens, rules):
         actions = dict()
 

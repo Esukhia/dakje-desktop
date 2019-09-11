@@ -72,7 +72,7 @@ class TokenManager:
         self.lang = "bo"
         self.mode = "default"
         self.tagger = None
-        self.matcher = Matchers.PyKnowRuleMatcher()
+        self.matcher = Matchers.expertaRuleMatcher()
 
         with open(self.TRIE_ADD_TEMP_FILE, 'w', encoding="utf-8") as f:
             f.write('\n'.join([

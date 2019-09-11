@@ -4,4 +4,4 @@ pybo==0.2.21
 PyQt5==5.11.3
 PyQt5-sip==4.19.13
 PyYAML==3.13
-pyknow==1.7.0
+experta

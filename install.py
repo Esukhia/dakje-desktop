@@ -211,30 +211,30 @@ def do_dependency_checks():
 
 
     ##########################################################
-    # pyknow
+    # experta
     ##########################################################
     try:
-        import pyknow
+        import experta
     except ImportError as msg:
         installed = pip_install(
-            "pyknow==1.7.0", "pyknow could not be detected.\nError: {0}".format(msg)
+            "experta", "experta could not be detected.\nError: {0}".format(msg)
         )
 
         if installed:
             # try to import it again
             try:
-                import pyknow
+                import experta
             except ImportError as msg:
-                print("Sorry, please install pyknow.")
+                print("Sorry, please install experta.")
                 print("Error: {0}".format(msg))
                 exit(1)
         else:
-            print("Sorry, please install pyknow.")
+            print("Sorry, please install experta.")
             print("Error: {0}".format(msg))
             exit(1)
-    print("Found pyknow")
+    print("Found experta")
 
-    # not checking pyknow version
+    # not checking experta version
 
     ##########################################################
     # Django
