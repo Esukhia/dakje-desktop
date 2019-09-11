@@ -137,8 +137,11 @@ class LevelTab(QtWidgets.QWidget):
 
     def initForms(self):
         self.forms = QtWidgets.QFormLayout()
+        self.statisticsLabel = QtWidgets.QLabel('Statistics:')
 
-        self.statisticsLabel = QtWidgets.QLabel('Statistics')
+        #bold statistics 
+        self.statisticsLabel.setFont(QtGui.QFont("Times",10,weight=QtGui.QFont.Bold))
+
         self.forms.addRow(self.statisticsLabel)
         self.editor.refreshCoverage
         
@@ -330,7 +333,7 @@ class FindTab(QtWidgets.QWidget):
             self.cqlQueryGeneratorBtn.setVisible(False)
 
     def _find(self):
-        self.resultList.clear()
+        self.resultList.sr()
 
         if self.simpleRadio.isChecked():
             self.mode = self.MODE_SIMPLE
