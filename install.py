@@ -155,34 +155,6 @@ def do_dependency_checks():
     # not checking appdirs version
 
     ##########################################################
-    # Django
-    ##########################################################
-    try:
-        import Django
-    except ImportError as msg:
-        installed = pip_install(
-            "Django>=1.11,<2", "Django could not be detected.\nError: {0}".format(msg)
-        )
-
-        if installed:
-            # try to import it again
-            try:
-                import Django
-            except ImportError as msg:
-                print("Sorry, please install Django.")
-                print("Error: {0}".format(msg))
-                exit(1)
-        else:
-            print("Sorry, please install Django.")
-            print("Error: {0}".format(msg))
-            exit(1)
-    print("Found Django")
-
-    # not checking Django version
-
-    # not checking appdirs version
-
-    ##########################################################
     # pybo
     ##########################################################
     try:
@@ -213,8 +185,9 @@ def do_dependency_checks():
     # PyYAML
     ##########################################################
     try:
-        import PyYAML
+        import yaml
     except ImportError as msg:
+        print(msg)
         installed = pip_install(
             "PyYAML==3.13", "PyYAML could not be detected.\nError: {0}".format(msg)
         )
@@ -222,7 +195,7 @@ def do_dependency_checks():
         if installed:
             # try to import it again
             try:
-                import PyYAML
+                import yaml
             except ImportError as msg:
                 print("Sorry, please install PyYAML.")
                 print("Error: {0}".format(msg))
@@ -263,15 +236,36 @@ def do_dependency_checks():
 
     # not checking pyknow version
 
+    ##########################################################
+    # Django
+    ##########################################################
+    try:
+        import django
+    except ImportError as msg:
+        installed = pip_install(
+            "Django>=1.11,<2", "Django could not be detected.\nError: {0}".format(msg)
+        )
+
+        if installed:
+            # try to import it again
+            try:
+                import django
+            except ImportError as msg:
+                print("Sorry, please install Django.")
+                print("Error: {0}".format(msg))
+                exit(1)
+        else:
+            print("Sorry, please install Django.")
+            print("Error: {0}".format(msg))
+            exit(1)
+    print("Found Django")
+
+    # not checking Django version
+
+
     print()
     print("All set!")
 
-
-
-
-
-    print()
-    print("All set!")
 
 
 if __name__ == "__main__":
