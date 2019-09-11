@@ -146,11 +146,11 @@ class EditTokenDialog(QtWidgets.QDialog):
         self.levelField = QtWidgets.QLineEdit()
         self.fbox.addRow("Level", self.levelField)
 
-        # Meaning
+        # meaning
         self.meaningField = QtWidgets.QTextEdit()
         self.meaningField.setFixedHeight(
             self.meaningField.fontMetrics().lineSpacing() * 3)  # 3 rows
-        self.fbox.addRow("Meaning", self.meaningField)
+        self.fbox.addRow("meaning", self.meaningField)
 
         # Rule
         # Add Rule Button & Confirm

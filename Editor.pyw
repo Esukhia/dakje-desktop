@@ -19,7 +19,7 @@ from django.db import transaction
 from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
                      EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
-from managers import ActionManager, TokenManager, ViewManager, FormatManager
+from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token 
 from storage.models import Token
 from web.settings import BASE_DIR
 
@@ -73,6 +73,7 @@ class Editor(QtWidgets.QMainWindow):
         self.setWindowTitle("དག་བྱེད།")
         self.setWindowIcon(QtGui.QIcon(os.path.join(BASE_DIR, "icons", "icon.jpg")))
         self.setWindowState(QtCore.Qt.WindowMaximized)
+        # self.wordcount = 0
 
         self.textEdit.setPlainText = self.ignoreTextChanged(
             self.ignoreCursorPositionChanged(self.textEdit.setPlainText))
@@ -97,6 +98,7 @@ class Editor(QtWidgets.QMainWindow):
                                 self.textChanged)
 
     def initProperties(self):
+        self.cleanTokens = [] #without the end of line and tseg 
         self.tokens = []
         self.formats = []
         self.mode = 'Level Mode'  # LEVEL_MODE, EDITOR_MODE
@@ -110,6 +112,7 @@ class Editor(QtWidgets.QMainWindow):
     def initManagers(self):
         self.actionManager = ActionManager(self)
         self.tokenManager = TokenManager(self)
+        self.tokenList = Token(self)
         self.viewManager = ViewManager(self)
         self.formatManager = FormatManager(self)
 
@@ -154,14 +157,14 @@ class Editor(QtWidgets.QMainWindow):
     def bindLevelButtons(self):
         self.levelTab.level1Button.clicked.connect(
             # partial(self.importRuleList, level=1)
-            partial(self.importLevelList, level=1)
+            partial(self.importLevelList, level=1, levelNum = self.levelTab.level1Button)
         )      
 
         self.levelTab.level2Button.clicked.connect(
-            partial(self.importLevelList, level=2))
+            partial(self.importLevelList, level=2, levelNum = self.levelTab.level2Button))
 
         self.levelTab.level3Button.clicked.connect(
-            partial(self.importLevelList, level=3))
+            partial(self.importLevelList, level=3, levelNum = self.levelTab.level3Button))
     
     def closeEvent(self, *args, **kwargs):
         
@@ -210,14 +213,16 @@ class Editor(QtWidgets.QMainWindow):
 
             if startIndex is None:
                 self.tokens.extend(tokens)
+                
             else:
-                self.tokens[startIndex: endIndex + 1] = tokens
+                dself.tokens[startIndex: endIndex + 1] = tokens
         else:
             text = self.centralWidget.textEdit.toPlainText()
             tokens = self.tokenManager.segment(text)
             self.tokens = tokens
+            # print("tokens: ", self.tokenList.content)
         self.refreshView()
-
+        
     def resegment(self):
         text = ''.join([token.content for token in self.tokens])
         tokens = self.tokenManager.segment(text)
@@ -301,18 +306,20 @@ class Editor(QtWidgets.QMainWindow):
 
             elif text.endswith('\n'):
                 self.segment()
+                # to do: block mode: bug - if we delete content and try to rewrite new 
+                # content it copies the already saved content. 
                 # self.segment(byBlock=True, breakLine=True)
 
     # Level List #
-    def importLevelList(self, level):
+    def importLevelList(self, level, levelNum):
         filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self)
         splitFilePath = filePath.split('/')
         
         if '' in splitFilePath[:1]:
             return
         else:
-            self.fileName = splitFilePath[len(splitFilePath) - 1]
-            self.levelTab.level1Button.setText(self.fileName)
+            self.fileName = splitFilePath[len(splitFilePath) - 1]        
+            levelNum.setText(self.fileName)
         with open(filePath, encoding='utf-8') as f:
             words = [word[:-1] if word.endswith('་') else word
                      for word in [line.rstrip('\r\n')
@@ -366,11 +373,43 @@ class Editor(QtWidgets.QMainWindow):
         self.statusBar.showMessage('  ' + ' '.join([t.content for t in self.tokens[-19:]]))
 
     def refreshCoverage(self):
+        # To Do: don't count new line and punctuation in tokenNum
+
         tokenNum = len(self.tokens)
+
+        #Statistics - analyze the content in the text editor 
+        wordCount = 0
+        sentenceCount = 0
+        typeCount = 0
+        counts = dict()
+
+        #parse through the list and not count the newline 
+        #for now every newline is considered a completion of one sentence 
+        for token in self.tokens:
+            print("token content: ", token.content)
+            if token.content != "\n":
+                wordCount += 1
+                if token.content in counts:
+                    continue
+                else:
+                    counts[token.content] = 1
+                    typeCount += 1
+            else:
+                sentenceCount += 1
+
+        
+        print("word count: ", wordCount)
+        print("type count: ", typeCount)
+        print("sentence count: ", sentenceCount)
+
+        #frequency - the number of times a token is repeated 
+        frequency = Counter([
+            token.content for token in self.tokens])
+        print("Frequency: ", frequency)
 
         levelCounter = Counter([
             token.level for token in self.tokens])
-
+ 
         def getLevelProp(key):
             if tokenNum == 0:
                 return 0

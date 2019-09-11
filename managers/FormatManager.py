@@ -12,13 +12,17 @@ from storage.models import Format
 class FormatManager:
     LEVEL_FORMAT_COLORS = dict()
     LEVEL_FORMATS = dict()  # generate by LEVEL_FORMAT_COLORS
-
     for format in Format.objects.all():
         if format.level == 0:        
             LEVEL_FORMAT_COLORS[None] = format.color
         else:
             LEVEL_FORMAT_COLORS[format.level] = format.color
+        if Format.objects.filter(color='#87a840'):
+            format.color = "#000000"
+            format.save()
+
         print('format.color', format.color)
+        print('format.level', format.level)
 
     POS_FORMAT_COLORS = {
         1: '#363d5c',

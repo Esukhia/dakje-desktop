@@ -37,7 +37,7 @@ class ProgressBar(QtWidgets.QProgressBar):
         super().__init__(parent)
 
         self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVertical_Mask)
-        
+
         if value is not None:
             self.setValue(value)
 
@@ -76,17 +76,17 @@ class LevelTab(QtWidgets.QWidget):
         # Level Coverage
         self.levelCoverageLabel = QtWidgets.QLabel('Level Coverage')
         self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 2)
-        
+
         self.addBtn = QtWidgets.QPushButton('+')
         self.grids.addWidget(self.addBtn, 2,2,1,2)
         """
         self.addBtn.clicked.connect(self.addLevel)
-        
+
         self.addLevel()
 
     def addLevel(self):
-        
-        add a + button in the grid 
+
+        add a + button in the grid
         """
         self.levelNoneButton = QtWidgets.QPushButton()
         self.levelNoneButton.setFlat(True)
@@ -133,15 +133,17 @@ class LevelTab(QtWidgets.QWidget):
             self.grids.addWidget(levelCoverage[0], row, 0, 1, 1)
             self.grids.addWidget(levelCoverage[1], row, 1, 1, 1)
             self.grids.addWidget(levelCoverage[2], row, 2, 1, 2)
-        
-        
+
+
     def initForms(self):
         self.forms = QtWidgets.QFormLayout()
 
         self.statisticsLabel = QtWidgets.QLabel('Statistics')
         self.forms.addRow(self.statisticsLabel)
+        # self.count = self.editor.wordCount()
+        # print("word count: ", self.count)
         self.forms.addRow(QtWidgets.QCheckBox(),
-                          QtWidgets.QLabel('Word Types'))
+                          QtWidgets.QLabel('Word Count'))
         self.forms.addRow(QtWidgets.QCheckBox(),
                           QtWidgets.QLabel('Word Groups (Families)'))
         self.forms.addRow(QtWidgets.QCheckBox(),
@@ -253,6 +255,7 @@ class FindTab(QtWidgets.QWidget):
     @property
     def textEdit(self):
         return self.editor.textEdit
+
 
     def initForms(self):
         self.forms = QtWidgets.QFormLayout()
