@@ -38,7 +38,6 @@ class ProgressBar(QtWidgets.QProgressBar):
         super().__init__(parent)
 
         self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVertical_Mask)
-        print("Value: ", value)
         if value is not None:
             self.setValue(value)
 
@@ -147,6 +146,7 @@ class LevelTab(QtWidgets.QWidget):
         self.senCountLabel = QtWidgets.QLabel('0')
         self.typeCountLabel = QtWidgets.QLabel('0')
         self.maxWordLabel = QtWidgets.QLabel('0')
+        # self.freqLabel = QtWidgets.QLabel('0')
 
         self.forms.addRow("Word Count: ",
                           self.wordCountLabel)
@@ -156,6 +156,8 @@ class LevelTab(QtWidgets.QWidget):
                           self.senCountLabel)
         self.forms.addRow("Max words in a Sentence count: ",
                           self.maxWordLabel)
+
+        # self.forms.addRow("frequency: ", self.freqLabel)
 
     def initTextBrowser(self):
         self.textBrowser = QtWidgets.QTextBrowser()

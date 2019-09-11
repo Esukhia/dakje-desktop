@@ -183,7 +183,7 @@ class Editor(QtWidgets.QMainWindow):
         if ok:
             #set the text in the widget to the choosen font 
             self.textEdit.setFont(font)
-            print("Display Fonts", font)
+            
 
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
@@ -220,7 +220,7 @@ class Editor(QtWidgets.QMainWindow):
             text = self.centralWidget.textEdit.toPlainText()
             tokens = self.tokenManager.segment(text)
             self.tokens = tokens
-            # print("tokens: ", self.tokenList.content)
+            
         self.refreshView()
         
     def resegment(self):
@@ -374,14 +374,8 @@ class Editor(QtWidgets.QMainWindow):
 
   
 
-
-
-
-    def refreshCoverage(self):
-        # To Do: don't count new line and punctuation in word Count (Done)
-
-        tokenNum = len(self.tokens)
-
+    def statistics(self):
+        
         #to do: bug fix - 
         # if we press enter twice sentence count reinitializes
         # you need to press on enter for it to recognize that the text editor is empty 
@@ -399,7 +393,8 @@ class Editor(QtWidgets.QMainWindow):
         #parse through the list and not count the newline 
         #for now every newline is considered a completion of one sentence 
         for token in self.tokens:
-            print("token content: ", token.content)
+            if token.content == "།":
+                continue
             if token.content != "\n":
                 wordCount += 1
                 wordSentence += 1
@@ -419,20 +414,29 @@ class Editor(QtWidgets.QMainWindow):
                 wordSentence = 0
                 
             
-        print("maximum words in a sentence: ", max)
-        print("word count: ", wordCount)
-        print("type count: ", typeCount)
-        print("sentence count: ", sentenceCount)
+        # print("maximum words in a sentence: ", max)
+        # print("word count: ", wordCount)
+        # print("type count: ", typeCount)
+        # print("sentence count: ", sentenceCount)
 
         #frequency - the number of times a token is repeated 
         frequency = Counter([
             token.content for token in self.tokens])
         print("Frequency: ", frequency)
         
+        #Updating the Statistics 
         self.levelTab.wordCountLabel.setText(str(wordCount))
         self.levelTab.typeCountLabel.setText(str(typeCount))
         self.levelTab.senCountLabel.setText(str(sentenceCount))
         self.levelTab.maxWordLabel.setText(str(max))
+        
+
+    def refreshCoverage(self):
+        # To Do: don't count new line and punctuation in word Count (Done)
+        #the progress bars take into consideration new line as a token 
+
+        tokenNum = len(self.tokens)
+        self.statistics()
 
         levelCounter = Counter([
             token.level for token in self.tokens])
