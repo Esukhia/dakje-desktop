@@ -1,3 +1,4 @@
+pip
 appdirs==1.4.3
 Django>=1.11,<2
 pybo==0.2.21
