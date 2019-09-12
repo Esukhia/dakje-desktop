@@ -1,4 +1,10 @@
+import os
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
+from .CQLWidget import CqlQueryGenerator
+
+from web.settings import BASE_DIR
 
 LEVEL_MODE_EXAMPLE_STRING = '''
 Statistics
@@ -28,10 +34,10 @@ Statistics
 
 class ProgressBar(QtWidgets.QProgressBar):
     def __init__(self, parent=None, value=None, color=None):
+        
         super().__init__(parent)
 
         self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVertical_Mask)
-
         if value is not None:
             self.setValue(value)
 
@@ -69,7 +75,19 @@ class LevelTab(QtWidgets.QWidget):
 
         # Level Coverage
         self.levelCoverageLabel = QtWidgets.QLabel('Level Coverage')
+        self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 2)
 
+        self.addBtn = QtWidgets.QPushButton('+')
+        self.grids.addWidget(self.addBtn, 2,2,1,2)
+        """
+        self.addBtn.clicked.connect(self.addLevel)
+
+        self.addLevel()
+
+    def addLevel(self):
+
+        add a + button in the grid
+        """
         self.levelNoneButton = QtWidgets.QPushButton()
         self.levelNoneButton.setFlat(True)
         self.levelNoneButton.setText('Non-level')
@@ -110,25 +128,39 @@ class LevelTab(QtWidgets.QWidget):
             [self.level2Checkbox, self.level2Button, self.level2ProgBar],
             [self.level3Checkbox, self.level3Button, self.level3ProgBar],
         ]
-        self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 4)
-
         for i, levelCoverage in enumerate(self.levelCoverages):
             row = 3 + i
             self.grids.addWidget(levelCoverage[0], row, 0, 1, 1)
             self.grids.addWidget(levelCoverage[1], row, 1, 1, 1)
             self.grids.addWidget(levelCoverage[2], row, 2, 1, 2)
 
+
     def initForms(self):
         self.forms = QtWidgets.QFormLayout()
+        self.statisticsLabel = QtWidgets.QLabel('Statistics:')
 
-        self.statisticsLabel = QtWidgets.QLabel('Statistics')
+        #bold statistics 
+        self.statisticsLabel.setFont(QtGui.QFont("Times",10,weight=QtGui.QFont.Bold))
+
         self.forms.addRow(self.statisticsLabel)
-        self.forms.addRow(QtWidgets.QCheckBox(),
-                          QtWidgets.QLabel('Word Types'))
-        self.forms.addRow(QtWidgets.QCheckBox(),
-                          QtWidgets.QLabel('Word Groups (Families)'))
-        self.forms.addRow(QtWidgets.QCheckBox(),
-                          QtWidgets.QLabel('Include Complete Frequency List'))
+        self.editor.refreshCoverage
+        
+        self.wordCountLabel = QtWidgets.QLabel('0')
+        self.senCountLabel = QtWidgets.QLabel('0')
+        self.typeCountLabel = QtWidgets.QLabel('0')
+        self.maxWordLabel = QtWidgets.QLabel('0')
+        # self.freqLabel = QtWidgets.QLabel('0')
+
+        self.forms.addRow("Word Count: ",
+                          self.wordCountLabel)
+        self.forms.addRow("Type Count: ",
+                          self.typeCountLabel)
+        self.forms.addRow("Sentence Count: ",
+                          self.senCountLabel)
+        self.forms.addRow("Max words in a Sentence count: ",
+                          self.maxWordLabel)
+
+        # self.forms.addRow("frequency: ", self.freqLabel)
 
     def initTextBrowser(self):
         self.textBrowser = QtWidgets.QTextBrowser()
@@ -212,3 +244,183 @@ class EditorTab(QtWidgets.QWidget):
     def initTextBrowser(self):
         self.textBrowser = QtWidgets.QTextBrowser()
         self.textBrowser.setText(EDITOR_MODE_EXAMPLE_STRING)
+
+
+class FindTab(QtWidgets.QWidget):
+    MODE_SIMPLE = 1
+    MODE_CQL = 2
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.initForms()
+        self.initResult()
+
+        self.vbox = QtWidgets.QVBoxLayout(self)
+        self.vbox.addLayout(self.forms)
+        self.vbox.addSpacing(50)
+        self.vbox.addWidget(self.resultLabel)
+        self.vbox.addWidget(self.resultList)
+
+    @property
+    def editor(self):
+        return self.parent().parent().parent().parent()
+
+    @property
+    def textEdit(self):
+        return self.editor.textEdit
+
+
+    def initForms(self):
+        self.forms = QtWidgets.QFormLayout()
+
+        # Find Form
+        self.findInput = QtWidgets.QLineEdit()
+        self.findBtn = QtWidgets.QPushButton('Find')
+
+        self.cqlQueryGenerator = CqlQueryGenerator(self.findInput)
+        self.cqlQueryGeneratorBtn = QtWidgets.QPushButton()
+        self.cqlQueryGeneratorBtn.setFlat(True)
+        self.cqlQueryGeneratorBtn.setIcon(QtGui.QIcon(os.path.join(
+            BASE_DIR, 'icons', 'CQL.png')))
+        self.cqlQueryGeneratorBtn.setIconSize(QtCore.QSize(16, 16))
+        self.cqlQueryGeneratorBtn.clicked.connect(
+            lambda: self.cqlQueryGenerator.show())
+        self.cqlQueryGeneratorBtn.setVisible(False)
+
+        self.findhbox = QtWidgets.QHBoxLayout()
+        self.findhbox.addWidget(self.findInput)
+        self.findhbox.addWidget(self.cqlQueryGeneratorBtn)
+        self.findhbox.addWidget(self.findBtn)
+        self.forms.addRow(self.findhbox)
+
+        # Find Mode Choices
+        self.mode = self.MODE_SIMPLE
+        self.simpleRadio = QtWidgets.QRadioButton('Simple')
+        self.simpleRadio.setChecked(True)
+        self.cqlRadio = QtWidgets.QRadioButton('CQL')
+
+        self.modeChoiceshbox = QtWidgets.QHBoxLayout()
+        self.modeChoiceshbox.addWidget(self.simpleRadio)
+        self.modeChoiceshbox.addWidget(self.cqlRadio)
+        self.forms.addRow(self.modeChoiceshbox)
+
+        # Replace Form
+        self.replaceInput = QtWidgets.QLineEdit()
+        self.replaceBtn = QtWidgets.QPushButton('Replace')
+        self.replaceAllBtn = QtWidgets.QPushButton('ReplaceAll')
+        self.forms.addRow(self.replaceInput, self.replaceBtn)
+        self.forms.addRow(None, self.replaceAllBtn)
+
+        # Connected
+        self.findBtn.clicked.connect(self._find)
+        self.replaceBtn.clicked.connect(self.replace)
+        self.replaceAllBtn.clicked.connect(self.replaceAll)
+        self.simpleRadio.clicked.connect(self.radioChanged)
+        self.cqlRadio.clicked.connect(self.radioChanged)
+
+    def initResult(self):
+        # Results
+        self.resultLabel = QtWidgets.QLabel('Result')
+        self.resultList = QtWidgets.QListWidget(self)
+
+        self.resultList.itemClicked.connect(self.itemClicked)
+
+    def radioChanged(self):
+        if self.cqlRadio.isChecked():
+            self.cqlQueryGeneratorBtn.setVisible(True)
+            self.findInput.repaint()
+        else:
+            self.cqlQueryGeneratorBtn.setVisible(False)
+
+    def _find(self):
+        self.resultList.sr()
+
+        if self.simpleRadio.isChecked():
+            self.mode = self.MODE_SIMPLE
+            self.findText()
+        else:  # cqlRadio
+            self.mode = self.MODE_CQL
+            self.findCqlTokens()
+
+        # click first
+        self.clickItem(0)
+
+    def findCqlTokens(self):
+        query = self.findInput.text()
+        matcher = pybo.CQLMatcher(query)
+        tokens = self.editor.tokens
+
+        slices = matcher.match([t.pyboToken for t in tokens])
+
+        for slice in slices:
+            item = QtWidgets.QListWidgetItem()
+            item.slice = list(slice)
+            item.setText(' '.join(
+                [w.content for w in tokens[slice[0]:slice[1]+1]]))
+            self.resultList.addItem(item)
+
+        self.resultLabel.setText(str(len(slices)) + " Matches")
+
+    def findText(self):
+        query = self.findInput.text()
+        matchNum = 0
+
+        cursor = self.textEdit.textCursor()
+        cursor.setPosition(0)
+        self.textEdit.setTextCursor(cursor)
+
+        while self.textEdit.find(query):
+            cursor = self.textEdit.textCursor()
+            item = QtWidgets.QListWidgetItem()
+            item.slice = [cursor.selectionStart(), cursor.selectionEnd()]
+            item.setText(cursor.selectedText())
+            self.resultList.addItem(item)
+            matchNum += 1
+
+        self.resultLabel.setText(str(matchNum) + " Matches")
+
+    def itemClicked(self, item):
+        if self.mode == self.MODE_SIMPLE:
+            self.textEdit.setSelection(item.slice[0], item.slice[1])
+        else:
+            self.textEdit.setTokensSelection(item.slice[0], item.slice[1])
+
+    def clickItem(self, row):
+        if row < self.resultList.count():
+            self.resultList.setCurrentRow(row)
+            self.itemClicked(self.resultList.item(row))
+
+    def replace(self):
+        if self.editor.viewManager.isPlainTextView():
+            cursor = self.textEdit.textCursor()
+            if cursor.hasSelection():
+                cursor.insertText(self.replaceInput.text())
+                self.editor.segment()
+                self._find()
+        else:
+            QtWidgets.QMessageBox.warning(
+                self, 'Mode Error',
+                'Please replace text in plain text mode.',
+                buttons=QtWidgets.QMessageBox.Ok
+            )
+
+    def replaceAll(self):
+        if self.editor.viewManager.isPlainTextView():
+            for _ in range(self.resultList.count()):
+                self.clickItem(0)
+                self.replace()
+        else:
+            QtWidgets.QMessageBox.warning(
+                self, 'Mode Error',
+                'Please replace text in plain text mode.',
+                buttons=QtWidgets.QMessageBox.Ok
+            )
+
+
+class CorpusAnalysisTab(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.initUI()
+
+    def initUI(self):
+        self.forms = QtWidgets.QFormLayout()

@@ -33,12 +33,14 @@ def timed(func):
 
 class Token:
     def __init__(self, token, id=None):
+
         self.id = id  # have no id before save to database
 
         self.pyboToken = token
         self.content = token.content
         self.pos = token.pos
         self.lemma = token.lemma
+        
 
         self.blockIndex = None
         self.start = token.start
