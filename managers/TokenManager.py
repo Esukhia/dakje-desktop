@@ -1,6 +1,7 @@
 import os
 
 import pybo
+# import botok
 
 from pathlib import Path
 
@@ -36,7 +37,7 @@ class Token:
         self.id = id  # have no id before save to database
 
         self.pyboToken = token
-        self.content = token.content
+        self.content = token.text
         self.pos = token.pos
         self.lemma = token.lemma
 
@@ -88,6 +89,14 @@ class TokenManager:
                     type=TokenModel.TYPE_REMOVE) if d.pos is not None
             ]))
 
+        # This should be using botok instead:
+        # self.tokenizer = botok.WordTokenizer(
+        #   'POS',
+        #   tok_modifs = self.TRIE_ADD_TEMP_FILE
+        ### note: the directory should contain at least two subfolders:
+        # lexica_bo: a dir containing files with words, a word per line
+        # lexica_skrt: same, but for sanskrit entries
+        # deactivate: same, but for the entries to deactivate from the trie
         self.tokenizer = pybo.BoTokenizer(
             'POS',
             toadd_filenames=[Path(self.TRIE_ADD_TEMP_FILE)],
