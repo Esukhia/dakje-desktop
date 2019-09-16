@@ -3,6 +3,7 @@ import os
 
 SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
 
+# update this to the dakje folder
 BASE_DIR = os.path.dirname(SETTINGS_DIR)
 
 

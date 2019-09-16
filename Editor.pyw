@@ -61,7 +61,7 @@ sys.excepthook = exceptionHandler.handler
 
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
-    SEGMENT_WORDS = ['་', '།', ' ']
+    SEGMENT_WORDS = ['་', '།']
 
     @timed
     def __init__(self, parent=None):

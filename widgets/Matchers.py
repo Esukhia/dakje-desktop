@@ -2,7 +2,7 @@ import json
 import logging
 import time
 
-import pybo
+import botok
 
 from functools import wraps
 
@@ -34,7 +34,7 @@ class SimpleRuleMatcher(BaseRuleMatcher):
             @timed
             def f():
                 # find the pattern to be updated
-                matcher = pybo.CQLMatcher(rule.cql)
+                matcher = botok.CQLMatcher(rule.cql)
                 slices = matcher.match([t.pyboToken for t in tokens])
                 return slices
 
@@ -42,7 +42,7 @@ class SimpleRuleMatcher(BaseRuleMatcher):
 
             for slice in slices:
                 # find index for the token to be updated
-                matcher = pybo.CQLMatcher(rule.actionCql)
+                matcher = botok.CQLMatcher(rule.actionCql)
                 pattern = tokens[slice[0]:slice[1] + 1]
 
                 sliceInPattern = matcher.match(
@@ -87,7 +87,7 @@ class CqlEngine(KnowledgeEngine):
         return rules
 
 def featureCheckCall(self, data, is_fact=True):
-    matcher = pybo.CQLMatcher(self.expected.value)
+    matcher = botok.CQLMatcher(self.expected.value)
     tokens = data[0]
     slices = matcher.match([t.pyboToken for t in tokens])
     if len(slices) > 0:
@@ -103,13 +103,13 @@ class expertaRuleMatcher():
 
         for rule in rules:
             def actionFunc(self):
-                matcher = pybo.CQLMatcher(rule.cql)
+                matcher = botok.CQLMatcher(rule.cql)
                 slices = matcher.match([t.pyboToken for t in tokens])
                 newTokens = self.facts[1][0]
 
                 for slice in slices:
                     # find index for the token to be updated
-                    matcher = pybo.CQLMatcher(rule.actionCql)
+                    matcher = botok.CQLMatcher(rule.actionCql)
                     pattern = tokens[slice[0]:slice[1] + 1]
                     sliceInPattern = matcher.match(
                         [t.pyboToken for t in pattern])[0]

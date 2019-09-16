@@ -3,7 +3,7 @@ import json
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-from pybo import Token as PyboToken
+from botok import Token as PyboToken
 
 from storage.models import Rule
 from storage.models import Token as TokenModel
