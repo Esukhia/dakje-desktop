@@ -379,7 +379,8 @@ class Editor(QtWidgets.QMainWindow):
         #to do: bug fix - 
         # if we press enter twice sentence count reinitializes
         # you need to press on enter for it to recognize that the text editor is empty 
-        # it considers བོད and བོད་ different - the difference is the tseg (not sure if that is a bug) 
+        # it considers བོད and བོད་ different - the difference is the tseg (not sure if that is a bug)
+        # It always counts the first enter  
 
         #Statistics - analyze the content in the text editor 
         
