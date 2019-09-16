@@ -1,4 +1,4 @@
-from pybo import BoTokenizer
+from botok import WordTokenizer
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 

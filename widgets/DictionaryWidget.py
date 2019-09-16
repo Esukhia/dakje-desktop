@@ -201,8 +201,8 @@ class DictionaryEditorWidget(QDialog):
 
     def initPyboDict(self):
         import pkg_resources
-        resourcePkg = 'pybo'
-        resourcePath = '/'.join(('resources', 'trie', 'Tibetan.DICT'))
+        resourcePkg = 'botok'
+        resourcePath = '/'.join(('resources', 'lexica_bo', 'Tibetan.DICT'))
         reader = pkg_resources.resource_stream(resourcePkg, resourcePath)
         file = reader.read()
 

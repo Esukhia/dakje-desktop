@@ -2,7 +2,7 @@ import json
 import logging
 import time
 
-import pybo
+import botok
 
 from functools import wraps
 
@@ -34,7 +34,7 @@ class SimpleRuleMatcher(BaseRuleMatcher):
             @timed
             def f():
                 # find the pattern to be updated
-                matcher = pybo.CQLMatcher(rule.cql)
+                matcher = botok.CQLMatcher(rule.cql)
                 slices = matcher.match([t.pyboToken for t in tokens])
                 return slices
 
@@ -42,7 +42,7 @@ class SimpleRuleMatcher(BaseRuleMatcher):
 
             for slice in slices:
                 # find index for the token to be updated
-                matcher = pybo.CQLMatcher(rule.actionCql)
+                matcher = botok.CQLMatcher(rule.actionCql)
                 pattern = tokens[slice[0]:slice[1] + 1]
 
                 sliceInPattern = matcher.match(
@@ -60,11 +60,11 @@ class SimpleRuleMatcher(BaseRuleMatcher):
                 tokens[index] = actionToken
 
 
-import pyknow
+import experta
 
-from pyknow import KnowledgeEngine, Fact
-from pyknow import Rule as PyKnowRule
-from pyknow.matchers.rete.check import FeatureCheck
+from experta import KnowledgeEngine, Fact
+from experta import Rule as expertaRule
+from experta.matchers.rete.check import FeatureCheck
 
 from storage.models import Rule
 
@@ -81,13 +81,13 @@ class CqlEngine(KnowledgeEngine):
     def get_rules(self):
         rules = []
         for cql, action in self.actions.items():
-            rule = PyKnowRule(CQL(cql))
+            rule = expertaRule(CQL(cql))
             rule._wrapped = action
             rules.append(rule)
         return rules
 
 def featureCheckCall(self, data, is_fact=True):
-    matcher = pybo.CQLMatcher(self.expected.value)
+    matcher = botok.CQLMatcher(self.expected.value)
     tokens = data[0]
     slices = matcher.match([t.pyboToken for t in tokens])
     if len(slices) > 0:
@@ -95,21 +95,21 @@ def featureCheckCall(self, data, is_fact=True):
     else:
         return False
 
-pyknow.matchers.rete.check.FeatureCheck.__call__ = featureCheckCall
+experta.matchers.rete.check.FeatureCheck.__call__ = featureCheckCall
 
-class PyKnowRuleMatcher():
+class expertaRuleMatcher():
     def match(self, tokens, rules):
         actions = dict()
 
         for rule in rules:
             def actionFunc(self):
-                matcher = pybo.CQLMatcher(rule.cql)
+                matcher = botok.CQLMatcher(rule.cql)
                 slices = matcher.match([t.pyboToken for t in tokens])
                 newTokens = self.facts[1][0]
 
                 for slice in slices:
                     # find index for the token to be updated
-                    matcher = pybo.CQLMatcher(rule.actionCql)
+                    matcher = botok.CQLMatcher(rule.actionCql)
                     pattern = tokens[slice[0]:slice[1] + 1]
                     sliceInPattern = matcher.match(
                         [t.pyboToken for t in pattern])[0]

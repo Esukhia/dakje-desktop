@@ -1,7 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import os
-import pybo
+import botok
 
 from .Tabs import LevelTab, EditorTab, FindTab, CorpusAnalysisTab
 from .TextEdit import TextEdit

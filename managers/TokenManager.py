@@ -1,6 +1,7 @@
 import os
 
-import pybo
+# import pybo
+import botok
 
 from pathlib import Path
 
@@ -37,14 +38,14 @@ class Token:
         self.id = id  # have no id before save to database
 
         self.pyboToken = token
-        self.content = token.content
+        self.content = token.text
         self.pos = token.pos
         self.lemma = token.lemma
         
 
         self.blockIndex = None
         self.start = token.start
-        self.end = self.start + len(token.content)
+        self.end = self.start + len(self.content)
         self.string = None
 
         self.level = None
@@ -66,15 +67,27 @@ class Token:
 
 
 class TokenManager:
-    TRIE_ADD_TEMP_FILE = os.path.join(BASE_DIR, 'TrieAddTempFile.txt')
-    TRIE_DEL_TEMP_FILE = os.path.join(BASE_DIR, 'TrieDelTempFile.txt')
+    TRIE_MODIF_DIR = os.path.join(BASE_DIR, 'sources', 'dictionaries')
+    if not os.path.exists(TRIE_MODIF_DIR):
+        os.makedirs(TRIE_MODIF_DIR)
+
+    TRIE_ADD_DIR = os.path.join(TRIE_MODIF_DIR, 'lexica_bo')
+    if not os.path.exists(TRIE_ADD_DIR):
+        os.makedirs(TRIE_ADD_DIR)
+
+    TRIE_DEL_DIR = os.path.join(TRIE_MODIF_DIR, 'deactivate')
+    if not os.path.exists(TRIE_DEL_DIR):
+        os.makedirs(TRIE_DEL_DIR)
+
+    TRIE_ADD_TEMP_FILE = os.path.join(TRIE_ADD_DIR, 'TrieAddTempFile.txt')
+    TRIE_DEL_TEMP_FILE = os.path.join(TRIE_DEL_DIR, 'TrieDelTempFile.txt')
 
     def __init__(self, editor):
         self.editor = editor
         self.lang = "bo"
         self.mode = "default"
         self.tagger = None
-        self.matcher = Matchers.PyKnowRuleMatcher()
+        self.matcher = Matchers.expertaRuleMatcher()
 
         with open(self.TRIE_ADD_TEMP_FILE, 'w', encoding="utf-8") as f:
             f.write('\n'.join([
@@ -90,10 +103,17 @@ class TokenManager:
                     type=TokenModel.TYPE_REMOVE) if d.pos is not None
             ]))
 
-        self.tokenizer = pybo.BoTokenizer(
+        # This should be using botok instead:
+        # self.tokenizer = botok.WordTokenizer(
+        #   'POS',
+        #   tok_modifs = self.TRIE_ADD_TEMP_FILE)
+        ### note: the directory should contain at least two subfolders:
+        # lexica_bo: a dir containing files with words, a word per line
+        # lexica_skrt: same, but for sanskrit entries
+        # deactivate: same, but for the entries to deactivate from the trie
+        self.tokenizer = botok.WordTokenizer(
             'POS',
-            toadd_filenames=[Path(self.TRIE_ADD_TEMP_FILE)],
-            todel_filenames=[Path(self.TRIE_DEL_TEMP_FILE)]
+            tok_modifs= self.TRIE_MODIF_DIR
         )
 
         # os.remove(self.TRIE_ADD_TEMP_FILE)

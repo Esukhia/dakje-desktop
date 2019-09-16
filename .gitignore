@@ -6,3 +6,4 @@ POS_trie.pickled
 .idea
 build
 __pycache__/
+db.sqlite3
