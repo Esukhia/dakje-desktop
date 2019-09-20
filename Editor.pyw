@@ -215,7 +215,7 @@ class Editor(QtWidgets.QMainWindow):
                 self.tokens.extend(tokens)
                 
             else:
-                dself.tokens[startIndex: endIndex + 1] = tokens
+                self.tokens[startIndex: endIndex + 1] = tokens
         else:
             text = self.centralWidget.textEdit.toPlainText()
             tokens = self.tokenManager.segment(text)
