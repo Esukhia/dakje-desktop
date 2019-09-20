@@ -1,4 +1,4 @@
-from botok import *
+from pybo import *
 
 
 class Word:

@@ -41,10 +41,11 @@ class TextEdit(QtWidgets.QTextEdit):
         else:
             QtWidgets.QMessageBox.question(
                 self, 'Cancel', 'Saving Failed', QtWidgets.QMessageBox.Yes)
-
+    # FIXME not working
     def undo(self):
         self.document().undo()
 
+    # FIXME not working
     def redo(self):
         self.document().redo()
 
@@ -53,14 +54,14 @@ class TextEdit(QtWidgets.QTextEdit):
 
         if self.editor.viewManager.isSpaceView():
 
-            if self.textCursor().hasSelection():
-                QtWidgets.QMessageBox.warning(
-                    self, 'Mode Error',
-                    'Please dont edit text in space mode.'
-                    'Users can only split/merge tokens in this mode',
-                    buttons=QtWidgets.QMessageBox.Ok
-                )
-                return
+            # if self.textCursor().hasSelection():
+            #     QtWidgets.QMessageBox.warning(
+            #         self, 'Mode Error',
+            #         'Please dont edit text in space mode.'
+            #         'Users can only split/merge tokens in this mode',
+            #         buttons=QtWidgets.QMessageBox.Ok
+            #     )
+            #     return
 
             # split token
             # TODO any key becomes space? maybe just tsek and space
@@ -89,6 +90,7 @@ class TextEdit(QtWidgets.QTextEdit):
                 del self.editor.tokens[indexLeft:indexRight + 1]
 
                 newToken = copy.deepcopy(tokenLeft)
+                # TODO new lemma = tokenLeft.lemma + tokenRight.content
                 newToken.content = tokenLeft.content + tokenRight.content
 
                 self.editor.editTokenDialog.setMode(EditTokenDialog.MODE_ADD)

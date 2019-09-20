@@ -38,7 +38,7 @@ class Token:
         self.id = id  # have no id before save to database
 
         self.pyboToken = token
-        self.content = token.text
+        self.content = token.content
         self.pos = token.pos
         self.lemma = token.lemma
         

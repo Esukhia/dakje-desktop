@@ -3,7 +3,7 @@ import json
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-from botok import Token as PyboToken
+from pybo import Token as PyboToken
 
 from storage.models import Rule
 from storage.models import Token as TokenModel
@@ -300,7 +300,8 @@ class EditTokenDialog(QtWidgets.QDialog):
         # add the token to trie & dict
         self.editor.bt.add(token.content)
         tokenModel = TokenModel.objects.get_or_create(
-            content=token.content, action=TokenModel.TYPE_UPDATE)[0]
+            content=token.content)[0]
+            # content=token.content, action=TokenModel.TYPE_UPDATE)[0]
         tokenModel.pos = token.pos
         tokenModel.save()
 
