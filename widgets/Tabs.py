@@ -1,6 +1,6 @@
 import os
 
-import botok
+import pybo
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -349,7 +349,7 @@ class FindTab(QtWidgets.QWidget):
 
     def findCqlTokens(self):
         query = self.findInput.text()
-        matcher = botok.CQLMatcher(query)
+        matcher = pybo.CQLMatcher(query)
         tokens = self.editor.tokens
 
         slices = matcher.match([t.pyboToken for t in tokens])

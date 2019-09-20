@@ -1,7 +1,7 @@
 import os
 
 # import pybo
-import botok
+import pybo
 
 from pathlib import Path
 
@@ -67,7 +67,7 @@ class Token:
 
 
 class TokenManager:
-    TRIE_MODIF_DIR = os.path.join(BASE_DIR, 'sources', 'dictionaries')
+    TRIE_MODIF_DIR = os.path.join(BASE_DIR, 'resources', 'dictionaries')
     if not os.path.exists(TRIE_MODIF_DIR):
         os.makedirs(TRIE_MODIF_DIR)
 
@@ -103,15 +103,15 @@ class TokenManager:
                     type=TokenModel.TYPE_REMOVE) if d.pos is not None
             ]))
 
-        # This should be using botok instead:
-        # self.tokenizer = botok.WordTokenizer(
+        # This should be using pybo instead:
+        # self.tokenizer = pybo.WordTokenizer(
         #   'POS',
         #   tok_modifs = self.TRIE_ADD_TEMP_FILE)
         ### note: the directory should contain at least two subfolders:
         # lexica_bo: a dir containing files with words, a word per line
         # lexica_skrt: same, but for sanskrit entries
         # deactivate: same, but for the entries to deactivate from the trie
-        self.tokenizer = botok.WordTokenizer(
+        self.tokenizer = pybo.WordTokenizer(
             'POS',
             tok_modifs= self.TRIE_MODIF_DIR
         )

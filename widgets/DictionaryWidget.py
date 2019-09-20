@@ -200,17 +200,20 @@ class DictionaryEditorWidget(QDialog):
         self.proxyModel.setFilterFixedString(text)
 
     def initPyboDict(self):
-        import pkg_resources
-        resourcePkg = 'botok'
-        resourcePath = '/'.join(('resources', 'lexica_bo', 'Tibetan.DICT'))
-        reader = pkg_resources.resource_stream(resourcePkg, resourcePath)
+        # import pkg_resources
+        # resourcePkg = 'pybo'
+        # resourcePath = '/'.join(('resources', 'lexica_bo', 'Tibetan.DICT'))
+        # reader = pkg_resources.resource_stream(resourcePkg, resourcePath)
+
+        resourcePath = '/'.join(('resources', 'dictionaries', 'lexica_bo', 'Tibetan.DICT'))
+        reader = open(resourcePath, mode="r", encoding="utf-8", newline="")
         file = reader.read()
 
-        for line in file.decode().splitlines():
+        for line in file.splitlines():
             key, val = line.split()
             self.pyboDict[key] = val
 
-        file.decode()
+        # file.decode()
         reader.close()
 
     def removeWord(self):
