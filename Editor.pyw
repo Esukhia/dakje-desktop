@@ -224,7 +224,7 @@ class Editor(QtWidgets.QMainWindow):
         self.refreshView()
         
     def resegment(self):
-        text = ''.join([token.content for token in self.tokens])
+        text = ''.join([token.text for token in self.tokens])
         tokens = self.tokenManager.segment(text)
         self.tokens = tokens
         self.refreshView()
@@ -287,7 +287,7 @@ class Editor(QtWidgets.QMainWindow):
 
             if token.pos == "OOV":
                 self.actionManager.dictionaryAction.trigger()
-                self.dictionaryDialog.addWord(content=token.content)
+                self.dictionaryDialog.addWord(text=token.text)
             else:
                 self.editTokenDialog.setMode(EditTokenDialog.MODE_UPDATE)
                 self.editTokenDialog.setToken(token)
@@ -306,8 +306,8 @@ class Editor(QtWidgets.QMainWindow):
 
             elif text.endswith('\n'):
                 self.segment()
-                # to do: block mode: bug - if we delete content and try to rewrite new 
-                # content it copies the already saved content. 
+                # to do: block mode: bug - if we delete text and try to rewrite new 
+                # text it copies the already saved text. 
                 # self.segment(byBlock=True, breakLine=True)
 
     # Level List #
@@ -328,7 +328,7 @@ class Editor(QtWidgets.QMainWindow):
         with transaction.atomic():
             for word in words:
                 token = Token.objects.get_or_create(
-                    content=word, type=Token.TYPE_UPDATE)[0]
+                    text=word, type=Token.TYPE_UPDATE)[0]
                 token.level = level
                 token.save()
 
@@ -369,8 +369,8 @@ class Editor(QtWidgets.QMainWindow):
             self.textEdit.setTextCursor)(textCursor)
         self.refreshCoverage()
 
-        # print([t.content for t in self.tokens])
-        self.statusBar.showMessage('  ' + ' '.join([t.content for t in self.tokens[-19:]]))
+        # print([t.text for t in self.tokens])
+        self.statusBar.showMessage('  ' + ' '.join([t.text for t in self.tokens[-19:]]))
 
   
 
@@ -381,7 +381,7 @@ class Editor(QtWidgets.QMainWindow):
         # you need to press on enter for it to recognize that the text editor is empty 
         # it considers བོད and བོད་ different - the difference is the tseg (not sure if that is a bug) 
 
-        #Statistics - analyze the content in the text editor 
+        #Statistics - analyze the text in the text editor 
         
         wordCount = 0 # number of words written
         sentenceCount = 0 # number of sentence written - each new line is considered one sentnece 
@@ -396,17 +396,17 @@ class Editor(QtWidgets.QMainWindow):
         #parse through the list and not count the newline 
         #for now every newline is considered a completion of one sentence 
         for token in self.tokens:
-            if token.content == "།":
+            if token.text == "།":
                 continue
-            if token.content != "\n":
+            if token.text != "\n":
                 wordCount += 1
                 wordSentence += 1
                 if token.pos == "VERB":
                     verbsPerSen += 1
-                if token.content in counts:
+                if token.text in counts:
                     continue
                 else:
-                    counts[token.content] = 1
+                    counts[token.text] = 1
                     typeCount += 1
             else:
                 if wordCount == 0:
@@ -427,7 +427,7 @@ class Editor(QtWidgets.QMainWindow):
 
         #frequency - the number of times a token is repeated 
         frequency = Counter([
-            token.content for token in self.tokens])
+            token.text for token in self.tokens])
         print("Frequency: ", frequency)
         
 

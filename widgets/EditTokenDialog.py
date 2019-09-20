@@ -58,8 +58,8 @@ class CqlHBox(QtWidgets.QHBoxLayout):
         self.addWidget(self.deleteBtn)
 
     def setToken(self, token):
-        self.content = token.content
-        self.tokenCqlLabel.setText('[content="{}"'.format(token.content))
+        self.text = token.text
+        self.tokenCqlLabel.setText('[text="{}"'.format(token.text))
 
     def getCql(self):
         return self.previousCql.text() + \
@@ -129,9 +129,9 @@ class EditTokenDialog(QtWidgets.QDialog):
     def initForm(self):
         self.fbox = QtWidgets.QFormLayout(self)
 
-        # Content
-        self.contentLabel = QtWidgets.QLabel()
-        self.fbox.addRow(self.contentLabel)
+        # text
+        self.textLabel = QtWidgets.QLabel()
+        self.fbox.addRow(self.textLabel)
 
         # POS
         self.posField = QtWidgets.QLineEdit()
@@ -187,7 +187,7 @@ class EditTokenDialog(QtWidgets.QDialog):
 
     def setToken(self, token):
         self.token = token
-        self.contentLabel.setText(token.content)
+        self.textLabel.setText(token.text)
         self.posField.setText(token.pos)
         self.lemmaField.setText(token.lemma)
         self.levelField.setText('')
@@ -202,7 +202,7 @@ class EditTokenDialog(QtWidgets.QDialog):
         for i in reversed(range(self.historyVBox.count())):
             self.historyVBox.itemAt(i).removeLayout()
 
-        for rule in Rule.objects.filter(actionCql__icontains=token.content):
+        for rule in Rule.objects.filter(actionCql__icontains=token.text):
             self.historyVBox.addLayout(HistoryHBox(rule, self))
 
         self.addRuleBox()
@@ -249,7 +249,7 @@ class EditTokenDialog(QtWidgets.QDialog):
                 return False
 
             tokenModel = TokenModel.objects.get_or_create(
-                content=self.token.content, type=TokenModel.TYPE_UPDATE)[0]
+                text=self.token.text, type=TokenModel.TYPE_UPDATE)[0]
             tokenModel.pos = data.get('pos')
             tokenModel.lemma = data.get('lemma')
             tokenModel.meaning = data.get('meaning')
@@ -258,7 +258,7 @@ class EditTokenDialog(QtWidgets.QDialog):
 
             # add to trie
             self.editor.bt.inflect_n_add(
-                tokenModel.content, tokenModel.pos, 'data')
+                tokenModel.text, tokenModel.pos, 'data')
             self.editor.resegment()
         else:
             for ruleBox in self.ruleBoxes:
@@ -278,7 +278,7 @@ class EditTokenDialog(QtWidgets.QDialog):
         from managers import Token
 
         pyboToken = PyboToken()
-        pyboToken.content = self.contentLabel.text()
+        pyboToken.text = self.textLabel.text()
         pyboToken.pos = self.posField.text()
         pyboToken.lemma = self.lemmaField.text()
 
@@ -292,16 +292,16 @@ class EditTokenDialog(QtWidgets.QDialog):
         # deactivate the token which hasn't be split
         if self.mode == self.MODE_ADD_2 and self.secondToken:
             self.editor.bt.deactivate_word(
-                self.token.content + self.secondToken.content)
+                self.token.text + self.secondToken.text)
             TokenModel.objects.get_or_create(
-                content=self.token.content + self.secondToken.content,
+                text=self.token.text + self.secondToken.text,
                 action=TokenModel.TYPE_REMOVE)
 
         # add the token to trie & dict
-        self.editor.bt.add(token.content)
+        self.editor.bt.add(token.text)
         tokenModel = TokenModel.objects.get_or_create(
-            content=token.content)[0]
-            # content=token.content, action=TokenModel.TYPE_UPDATE)[0]
+            text=token.text)[0]
+            # text=token.text, action=TokenModel.TYPE_UPDATE)[0]
         tokenModel.pos = token.pos
         tokenModel.save()
 

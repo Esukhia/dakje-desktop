@@ -71,10 +71,10 @@ class TextEdit(QtWidgets.QTextEdit):
                 del self.editor.tokens[index]
 
                 tokenLeft = copy.deepcopy(token)
-                tokenLeft.content = token.content[:position - token.start]
+                tokenLeft.text = token.text[:position - token.start]
 
                 tokenRight = copy.deepcopy(token)
-                tokenRight.content = token.content[position - token.start:]
+                tokenRight.text = token.text[position - token.start:]
 
                 self.editor.editTokenDialog.setMode(EditTokenDialog.MODE_ADD_2)
                 self.editor.editTokenDialog.setAddingIndex(index)
@@ -90,8 +90,8 @@ class TextEdit(QtWidgets.QTextEdit):
                 del self.editor.tokens[indexLeft:indexRight + 1]
 
                 newToken = copy.deepcopy(tokenLeft)
-                # TODO new lemma = tokenLeft.lemma + tokenRight.content
-                newToken.content = tokenLeft.content + tokenRight.content
+                # TODO new lemma = tokenLeft.lemma + tokenRight.text
+                newToken.text = tokenLeft.text + tokenRight.text
 
                 self.editor.editTokenDialog.setMode(EditTokenDialog.MODE_ADD)
                 self.editor.editTokenDialog.setAddingIndex(indexLeft)

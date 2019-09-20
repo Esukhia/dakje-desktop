@@ -358,7 +358,7 @@ class FindTab(QtWidgets.QWidget):
             item = QtWidgets.QListWidgetItem()
             item.slice = list(slice)
             item.setText(' '.join(
-                [w.content for w in tokens[slice[0]:slice[1]+1]]))
+                [w.text for w in tokens[slice[0]:slice[1]+1]]))
             self.resultList.addItem(item)
 
         self.resultLabel.setText(str(len(slices)) + " Matches")

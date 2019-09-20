@@ -4,11 +4,11 @@ from pybo import *
 class Word:
     def __init__(self, token):
         # from pybo Token object
-        self.content = None        # substring of the raw input string
+        self.text = None        # substring of the raw input string
         self.char_groups = None    # a group attributed to every character. from BoStringUtils
         self.chunk_type = None     # attributed by BoTokenizer.Tokenizer
         self.chunk_markers = None  # convert the int in chunk_type into something readable
-        self.syls = None           # indices of syl chars to find cleaned syllables from self.content
+        self.syls = None           # indices of syl chars to find cleaned syllables from self.text
         self.start = None          # start index of the word in the raw input string
         self.tag = None            # tag attributed by BoTokenizer.Tokenizer (more than UD tag)
         self.partOfSpeech = None   # POS attributed by BoTokenizer.Tokenizer (raw UD POS tag)
@@ -22,7 +22,7 @@ class Word:
         self.highlighted = {}
 
     def __import_token(self, token):
-        self.content = token.content
+        self.text = token.text
         self.char_groups = token.char_groups
         self.chunk_type = token.chunk_type
         self.chunk_markers = token.chunk_markers
@@ -45,7 +45,7 @@ class Word:
 
     @property
     def length(self):
-        return len(self.content)
+        return len(self.text)
 
     @property
     def end(self):

@@ -100,12 +100,12 @@ class TableModel(QAbstractTableModel):
 
                 # if record exists, cover it or create new
                 token = Token.objects.get_or_create(
-                    content=key, pos=value, type=Token.TYPE_UPDATE)[0]
+                    text=key, pos=value, type=Token.TYPE_UPDATE)[0]
                 token.pos = value
                 token.save()
 
         for key, value in pyboDict.items():
-            Token.objects.get_or_create(content=key, pos=value,
+            Token.objects.get_or_create(text=key, pos=value,
                                         type=Token.TYPE_REMOVE)
 
         self.editor.refreshView()
@@ -131,9 +131,9 @@ class DictionaryEditorWidget(QDialog):
 
         for token in Token.objects.all():
             if token.type == Token.TYPE_UPDATE:
-                mergedDict[token.content] = token.pos
+                mergedDict[token.text] = token.pos
             else:  # Dict.ACTION_DELETE
-                del mergedDict[token.content]
+                del mergedDict[token.text]
 
         return mergedDict
 
@@ -220,9 +220,9 @@ class DictionaryEditorWidget(QDialog):
             self.model.data.pop(row)
         self.model.saveDict()
 
-    def addWord(self, content=None):
-        if content is not None:
-            self.model.data.insert(0, [content, ''])
+    def addWord(self, text=None):
+        if text is not None:
+            self.model.data.insert(0, [text, ''])
         else:
             self.model.data.insert(0, ['', ''])
         self.model.layoutChanged.emit()

@@ -43,7 +43,7 @@ class Token(models.Model):
     TYPE_UPDATE = 1
     TYPE_REMOVE = 2
 
-    content = models.CharField(max_length=255)
+    text = models.CharField(max_length=255)
     pos = models.CharField(max_length=255, null=True, blank=True)
     lemma = models.CharField(max_length=255, null=True, blank=True)
     level = models.IntegerField(null=True, blank=True)
