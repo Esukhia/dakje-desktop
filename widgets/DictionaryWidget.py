@@ -205,7 +205,7 @@ class DictionaryEditorWidget(QDialog):
         # resourcePath = '/'.join(('resources', 'lexica_bo', 'Tibetan.DICT'))
         # reader = pkg_resources.resource_stream(resourcePkg, resourcePath)
 
-        resourcePath = '/'.join(('resources', 'dictionaries', 'lexica_bo', 'Tibetan.DICT'))
+        resourcePath = os.path.join(BASE_DIR, 'resources', 'dictionaries', 'lexica_bo', 'Tibetan.DICT')
         reader = open(resourcePath, mode="r", encoding="utf-8", newline="")
         file = reader.read()
 
