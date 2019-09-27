@@ -71,7 +71,7 @@ class Editor(QtWidgets.QMainWindow):
         self.initUI()
         self.bindEvents()
         self.setWindowTitle("དག་བྱེད།")
-        self.setWindowIcon(QtGui.QIcon(os.path.join(BASE_DIR, "icons", "icon.jpg")))
+        self.setWindowIcon(QtGui.QIcon(os.path.join(BASE_DIR, "icons", "dakje.ico")))
         self.setWindowState(QtCore.Qt.WindowMaximized)
         # self.wordcount = 0
 
