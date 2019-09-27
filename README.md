@@ -1,4 +1,4 @@
-# Release note
+# Release notes
 
 ## Beta_01
 
