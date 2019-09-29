@@ -295,14 +295,15 @@ class EditTokenDialog(QtWidgets.QDialog):
                 self.token.text + self.secondToken.text)
             TokenModel.objects.get_or_create(
                 text=self.token.text + self.secondToken.text,
-                action=TokenModel.TYPE_REMOVE)
+                type=TokenModel.TYPE_REMOVE)
 
         # add the token to trie & dict
         self.editor.bt.add(token.text)
         tokenModel = TokenModel.objects.get_or_create(
-            text=token.text)[0]
-            # text=token.text, action=TokenModel.TYPE_UPDATE)[0]
+            # text=token.text)[0]
+            text=token.text, type=TokenModel.TYPE_UPDATE)[0]
         tokenModel.pos = token.pos
+        tokenModel.level = token.level
         tokenModel.save()
 
     def reject(self):

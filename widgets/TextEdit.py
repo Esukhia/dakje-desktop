@@ -90,8 +90,9 @@ class TextEdit(QtWidgets.QTextEdit):
                 del self.editor.tokens[indexLeft:indexRight + 1]
 
                 newToken = copy.deepcopy(tokenLeft)
-                # TODO new lemma = tokenLeft.lemma + tokenRight.text
+                # TODO take care of other attributes
                 newToken.text = tokenLeft.text + tokenRight.text
+                newToken.lemma = newToken.text
 
                 self.editor.editTokenDialog.setMode(EditTokenDialog.MODE_ADD)
                 self.editor.editTokenDialog.setAddingIndex(indexLeft)
