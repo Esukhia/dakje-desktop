@@ -78,21 +78,12 @@ class LevelTab(QtWidgets.QWidget):
         # Level Coverage
         self.levelCoverageLabel = QtWidgets.QLabel('Level Coverage')
         self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 2)
-<<<<<<< HEAD
 
         self.addBtn = QtWidgets.QPushButton('+')
         self.grids.addWidget(self.addBtn, 2,2,1,2)
         """
         self.addBtn.clicked.connect(self.addLevel)
 
-=======
-
-        self.addBtn = QtWidgets.QPushButton('+')
-        self.grids.addWidget(self.addBtn, 2,2,1,2)
-        """
-        self.addBtn.clicked.connect(self.addLevel)
-
->>>>>>> upstream/master
         self.addLevel()
 
     def addLevel(self):
@@ -358,11 +349,7 @@ class FindTab(QtWidgets.QWidget):
 
     def findCqlTokens(self):
         query = self.findInput.text()
-<<<<<<< HEAD
-        matcher = pybo.CQLMatcher(query)
-=======
         matcher = botok.CQLMatcher(query)
->>>>>>> upstream/master
         tokens = self.editor.tokens
 
         slices = matcher.match([t.pyboToken for t in tokens])
