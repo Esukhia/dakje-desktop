@@ -19,7 +19,7 @@ class RemoveButton(QPushButton):
         self.setFixedSize(20, 20)
 
 class ComboBoxFactory:
-    KEYWORD = ['content', 'pos']
+    KEYWORD = ['text', 'pos']
     RELATIONAL_OPR = ['=', '>=', '<=', '!=', '!<=', '!>=', '==', '!==']
     LOGICAL_OPR = ['', '&', '|', '!']
 

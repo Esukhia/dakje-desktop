@@ -41,10 +41,11 @@ class TextEdit(QtWidgets.QTextEdit):
         else:
             QtWidgets.QMessageBox.question(
                 self, 'Cancel', 'Saving Failed', QtWidgets.QMessageBox.Yes)
-
+    # FIXME not working
     def undo(self):
         self.document().undo()
 
+    # FIXME not working
     def redo(self):
         self.document().redo()
 
@@ -53,14 +54,14 @@ class TextEdit(QtWidgets.QTextEdit):
 
         if self.editor.viewManager.isSpaceView():
 
-            if self.textCursor().hasSelection():
-                QtWidgets.QMessageBox.warning(
-                    self, 'Mode Error',
-                    'Please dont edit text in space mode.'
-                    'Users can only split/merge tokens in this mode',
-                    buttons=QtWidgets.QMessageBox.Ok
-                )
-                return
+            # if self.textCursor().hasSelection():
+            #     QtWidgets.QMessageBox.warning(
+            #         self, 'Mode Error',
+            #         'Please dont edit text in space mode.'
+            #         'Users can only split/merge tokens in this mode',
+            #         buttons=QtWidgets.QMessageBox.Ok
+            #     )
+            #     return
 
             # split token
             # TODO any key becomes space? maybe just tsek and space
@@ -70,10 +71,10 @@ class TextEdit(QtWidgets.QTextEdit):
                 del self.editor.tokens[index]
 
                 tokenLeft = copy.deepcopy(token)
-                tokenLeft.content = token.content[:position - token.start]
+                tokenLeft.text = token.text[:position - token.start]
 
                 tokenRight = copy.deepcopy(token)
-                tokenRight.content = token.content[position - token.start:]
+                tokenRight.text = token.text[position - token.start:]
 
                 self.editor.editTokenDialog.setMode(EditTokenDialog.MODE_ADD_2)
                 self.editor.editTokenDialog.setAddingIndex(index)
@@ -89,7 +90,9 @@ class TextEdit(QtWidgets.QTextEdit):
                 del self.editor.tokens[indexLeft:indexRight + 1]
 
                 newToken = copy.deepcopy(tokenLeft)
-                newToken.content = tokenLeft.content + tokenRight.content
+                # TODO take care of other attributes
+                newToken.text = tokenLeft.text + tokenRight.text
+                newToken.lemma = newToken.text
 
                 self.editor.editTokenDialog.setMode(EditTokenDialog.MODE_ADD)
                 self.editor.editTokenDialog.setAddingIndex(indexLeft)

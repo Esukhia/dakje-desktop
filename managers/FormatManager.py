@@ -12,23 +12,29 @@ from storage.models import Format
 class FormatManager:
     LEVEL_FORMAT_COLORS = dict()
     LEVEL_FORMATS = dict()  # generate by LEVEL_FORMAT_COLORS
+
+    # default values
+    LEVEL_FORMAT_COLORS = {
+    1: '#87a840',
+    2: '#ddc328',
+    3: '#b63226',
+    4: '#278da9',
+    # 5: '#363d5c',
+    None: '#363d5c'
+    }
+
     for format in Format.objects.all():
         if format.level == 0:        
             LEVEL_FORMAT_COLORS[None] = format.color
         else:
             LEVEL_FORMAT_COLORS[format.level] = format.color
-        if Format.objects.filter(color='#87a840'):
-            format.color = "#000000"
-            format.save()
-
-        print('format.color', format.color)
-        print('format.level', format.level)
+        # print('format.color', format.color)
+        # print('format.level', format.level)
 
     POS_FORMAT_COLORS = {
         1: '#363d5c',
         2: '#87a840',
-        3: '#ddc328',
-       
+        3: '#ddc328'
     }
     POS_FORMATS = {}
 
