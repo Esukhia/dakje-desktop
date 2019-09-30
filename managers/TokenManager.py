@@ -33,18 +33,18 @@ def timed(func):
 
 
 class Token:
+    """
+    A class used to represent token objects
+    (pybo token attributes + custom attributes)
+    """
     def __init__(self, token, id=None):
+
+        # copy all token attributes
+        self.__dict__ = token.__dict__
 
         self.id = id  # have no id before save to database
 
-        self.pyboToken = token
-        self.text = token.text
-        self.pos = token.pos
-        self.lemma = token.lemma
-        
-
         self.blockIndex = None
-        self.start = token.start
         self.end = self.start + len(self.text)
         self.string = None
 
@@ -52,6 +52,7 @@ class Token:
         self.meaning = None
 
     def applyTokenModel(self, tokenModel):
+        # add attributes from the DB
         self.pos = tokenModel.pos if tokenModel.pos else self.pos
         self.lemma = tokenModel.lemma if tokenModel.lemma else self.lemma
         self.level = tokenModel.level if tokenModel.level else self.level
