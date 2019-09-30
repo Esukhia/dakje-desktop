@@ -1,6 +1,6 @@
 import os
 
-import botok
+import pybo
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -78,21 +78,12 @@ class LevelTab(QtWidgets.QWidget):
         # Level Coverage
         self.levelCoverageLabel = QtWidgets.QLabel('Level Coverage')
         self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 2)
-<<<<<<< HEAD
 
         self.addBtn = QtWidgets.QPushButton('+')
         self.grids.addWidget(self.addBtn, 2,2,1,2)
         """
         self.addBtn.clicked.connect(self.addLevel)
 
-=======
-
-        self.addBtn = QtWidgets.QPushButton('+')
-        self.grids.addWidget(self.addBtn, 2,2,1,2)
-        """
-        self.addBtn.clicked.connect(self.addLevel)
-
->>>>>>> upstream/master
         self.addLevel()
 
     def addLevel(self):
@@ -358,11 +349,7 @@ class FindTab(QtWidgets.QWidget):
 
     def findCqlTokens(self):
         query = self.findInput.text()
-<<<<<<< HEAD
         matcher = pybo.CQLMatcher(query)
-=======
-        matcher = botok.CQLMatcher(query)
->>>>>>> upstream/master
         tokens = self.editor.tokens
 
         slices = matcher.match([t.pyboToken for t in tokens])
@@ -371,7 +358,7 @@ class FindTab(QtWidgets.QWidget):
             item = QtWidgets.QListWidgetItem()
             item.slice = list(slice)
             item.setText(' '.join(
-                [w.content for w in tokens[slice[0]:slice[1]+1]]))
+                [w.text for w in tokens[slice[0]:slice[1]+1]]))
             self.resultList.addItem(item)
 
         self.resultLabel.setText(str(len(slices)) + " Matches")

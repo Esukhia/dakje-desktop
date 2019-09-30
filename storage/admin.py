@@ -10,8 +10,8 @@ class FormatAdmin(admin.ModelAdmin):
 admin.site.register(Format, FormatAdmin)
 
 class TokenAdmin(admin.ModelAdmin):
-    list_display = ('content', 'pos', 'lemma', 'level', 'meaning', 'type')
-    search_fields = ('content', 'pos', 'lemma', 'meaning')
+    list_display = ('text', 'pos', 'lemma', 'level', 'meaning', 'type')
+    search_fields = ('text', 'pos', 'lemma', 'meaning')
     list_filter = ('pos', 'level', 'type')
 
 admin.site.register(Token, TokenAdmin)

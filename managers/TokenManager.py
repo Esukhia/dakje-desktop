@@ -1,7 +1,7 @@
 import os
 
 # import pybo
-import botok
+import pybo
 
 from pathlib import Path
 
@@ -38,14 +38,14 @@ class Token:
         self.id = id  # have no id before save to database
 
         self.pyboToken = token
-        self.content = token.text
+        self.text = token.text
         self.pos = token.pos
         self.lemma = token.lemma
         
 
         self.blockIndex = None
         self.start = token.start
-        self.end = self.start + len(self.content)
+        self.end = self.start + len(self.text)
         self.string = None
 
         self.level = None
@@ -62,12 +62,12 @@ class Token:
         return self.end - self.start
 
     @property
-    def contentWithoutTsek(self):
-        return self.content[:-1] if self.content.endswith('་') else self.content
+    def textWithoutTsek(self):
+        return self.text[:-1] if self.text.endswith('་') else self.text
 
 
 class TokenManager:
-    TRIE_MODIF_DIR = os.path.join(BASE_DIR, 'sources', 'dictionaries')
+    TRIE_MODIF_DIR = os.path.join(BASE_DIR, 'resources', 'dictionaries')
     if not os.path.exists(TRIE_MODIF_DIR):
         os.makedirs(TRIE_MODIF_DIR)
 
@@ -91,27 +91,27 @@ class TokenManager:
 
         with open(self.TRIE_ADD_TEMP_FILE, 'w', encoding="utf-8") as f:
             f.write('\n'.join([
-                '{} {}'.format(d.content, d.pos)
+                '{} {}'.format(d.text, d.pos)
                 for d in TokenModel.objects.filter(
                     type=TokenModel.TYPE_UPDATE) if d.pos is not None
             ]))
 
         with open(self.TRIE_DEL_TEMP_FILE, 'w', encoding="utf-8") as f:
             f.write('\n'.join([
-                '{} {}'.format(d.content, d.pos)
+                '{} {}'.format(d.text, d.pos)
                 for d in TokenModel.objects.filter(
                     type=TokenModel.TYPE_REMOVE) if d.pos is not None
             ]))
 
-        # This should be using botok instead:
-        # self.tokenizer = botok.WordTokenizer(
+        # This should be using pybo instead:
+        # self.tokenizer = pybo.WordTokenizer(
         #   'POS',
         #   tok_modifs = self.TRIE_ADD_TEMP_FILE)
         ### note: the directory should contain at least two subfolders:
         # lexica_bo: a dir containing files with words, a word per line
         # lexica_skrt: same, but for sanskrit entries
         # deactivate: same, but for the entries to deactivate from the trie
-        self.tokenizer = botok.WordTokenizer(
+        self.tokenizer = pybo.WordTokenizer(
             'POS',
             tok_modifs= self.TRIE_MODIF_DIR
         )
@@ -145,20 +145,20 @@ class TokenManager:
                            else toStr(token))
                 token.end = len(result)
 
-                if token.content.endswith('\n'):
+                if token.text.endswith('\n'):
                     blockIndex += 1
             return result
 
         if self.view == ViewManager.PLAIN_TEXT_VIEW:
-            return _join(self.tokens, lambda t: t.content, sep='')
+            return _join(self.tokens, lambda t: t.text, sep='')
 
         elif self.view == ViewManager.SPACE_VIEW:
-            return _join(self.tokens, lambda t: t.content, sep=' ')
+            return _join(self.tokens, lambda t: t.text, sep=' ')
 
         elif self.view == ViewManager.TAG_VIEW:
-            return _join(self.tokens, lambda t: t.content + '/' + t.pos, sep='')
+            return _join(self.tokens, lambda t: t.text + '/' + t.pos, sep='')
         else:
-            return _join(self.tokens, lambda t: t.content + '/' + t.pos, sep=' ')
+            return _join(self.tokens, lambda t: t.text + '/' + t.pos, sep=' ')
 
     def find(self, position):
         for i, token in enumerate(self.tokens):
@@ -187,13 +187,13 @@ class TokenManager:
             type=TokenModel.TYPE_UPDATE)
 
         tokenDict = {
-            tokenModel.content: tokenModel for tokenModel in tokenModels}
+            tokenModel.text: tokenModel for tokenModel in tokenModels}
 
         for token in self.tokens:
-            tokenModel = tokenDict.get(token.content)
+            tokenModel = tokenDict.get(token.text)
 
             if tokenModel is None:
-                tokenModel = tokenDict.get(token.contentWithoutTsek)
+                tokenModel = tokenDict.get(token.textWithoutTsek)
 
             if tokenModel is not None:
                 token.applyTokenModel(tokenModel)
