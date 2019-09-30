@@ -467,7 +467,7 @@ class Editor(QtWidgets.QMainWindow):
             token.pos for token in self.tokens])
 
         posFreq = posCounter.most_common()
-
+        """
         if len(posFreq) >= 1:
             self.editorTab.firstFreqLabel.setText(posFreq[0][0])
             self.editorTab.firstFreqProgBar.setValue(
@@ -482,7 +482,7 @@ class Editor(QtWidgets.QMainWindow):
             self.editorTab.thirdFreqLabel.setText(posFreq[2][0])
             self.editorTab.thirdFreqProgBar.setValue(
                 posFreq[2][1] / tokenNum * 100.0)
-
+        """
     def getHighlightedLevels(self):
         result = []
         if self.levelTab.levelNoneCheckbox.isChecked():
