@@ -39,8 +39,8 @@ class Token:
     """
     def __init__(self, token, id=None):
 
-        # copy all token attributes
-        self.__dict__ = token.__dict__
+        # copy all token attributes from pybo tokens
+        self.__dict__ = token.__dict__.copy()
 
         self.id = id  # have no id before save to database
 
