@@ -379,7 +379,8 @@ class Editor(QtWidgets.QMainWindow):
         #to do: bug fix - 
         # if we press enter twice sentence count reinitializes
         # you need to press on enter for it to recognize that the text editor is empty 
-        # it considers བོད and བོད་ different - the difference is the tseg (not sure if that is a bug) 
+        # it considers བོད and བོད་ different - the difference is the tseg (not sure if that is a bug)
+        # It always counts the first enter  
 
         #Statistics - analyze the text in the text editor 
         
@@ -396,6 +397,7 @@ class Editor(QtWidgets.QMainWindow):
         #parse through the list and not count the newline 
         #for now every newline is considered a completion of one sentence 
         for token in self.tokens:
+            
             if token.text == "།":
                 continue
             if token.text != "\n":
@@ -465,7 +467,7 @@ class Editor(QtWidgets.QMainWindow):
             token.pos for token in self.tokens])
 
         posFreq = posCounter.most_common()
-
+        """
         if len(posFreq) >= 1:
             self.editorTab.firstFreqLabel.setText(posFreq[0][0])
             self.editorTab.firstFreqProgBar.setValue(
@@ -480,7 +482,7 @@ class Editor(QtWidgets.QMainWindow):
             self.editorTab.thirdFreqLabel.setText(posFreq[2][0])
             self.editorTab.thirdFreqProgBar.setValue(
                 posFreq[2][1] / tokenNum * 100.0)
-
+        """
     def getHighlightedLevels(self):
         result = []
         if self.levelTab.levelNoneCheckbox.isChecked():

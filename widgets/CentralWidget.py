@@ -54,10 +54,10 @@ class TabWidget(QtWidgets.QTabWidget):
         super().__init__(parent)
 
         self.levelTab = LevelTab(self)
-        self.editorTab = EditorTab(self)
+        #self.editorTab = EditorTab(self)
 
         self.addTab(self.levelTab, 'Level Mode')
-        self.addTab(self.editorTab, 'Editor Mode')
+        #self.addTab(self.editorTab, 'Editor Mode')
 
         self.currentChanged.connect(self.tabChanged)
 
