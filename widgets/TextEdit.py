@@ -51,6 +51,12 @@ class TextEdit(QtWidgets.QTextEdit):
 
     def keyPressEvent(self, e):
         from widgets.EditTokenDialog import EditTokenDialog
+        
+        if self.editor.viewManager.isPlainTextView():
+            print("entered in here")
+            if e.key() == QtCore.Qt.Key_Backspace:
+                print("entered in backspace")
+                self.editor.refreshCoverage()
 
         if self.editor.viewManager.isSpaceView():
 

@@ -397,6 +397,7 @@ class Editor(QtWidgets.QMainWindow):
         #parse through the list and not count the newline 
         #for now every newline is considered a completion of one sentence 
         for token in self.tokens:
+            
             if token.text == "།":
                 continue
             if token.text != "\n":

@@ -94,9 +94,9 @@ class ActionManager:
     def getToolBarActions(self):
         return [
             [self.newFileAction, self.openFileAction, self.saveFileAction],
-            [self.undoAction, self.redoAction],
+            #[self.undoAction, self.redoAction],
             [self.spaceViewAction, self.tagViewAction],
-            [self.fontPicker, self.dictionaryAction, self.openAdminAction]
+            [self.fontPicker] #, self.dictionaryAction, self.openAdminAction]
         ]
 
     def getMenuBarActions(self, menu):
