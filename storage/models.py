@@ -1,3 +1,7 @@
+# To update the fields in the database, edit classes and run
+# `python manage.py makemigrations`
+# `python manage.py migrate`
+
 import json
 
 from django.db import models

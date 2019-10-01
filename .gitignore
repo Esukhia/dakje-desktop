@@ -1,7 +1,9 @@
+.vscode/
 
 TrieAddTempFile.txt
 TrieDelTempFile.txt
 POS_trie.pickled
+
 
 .idea
 build

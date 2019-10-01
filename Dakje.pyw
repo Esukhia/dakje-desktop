@@ -61,7 +61,7 @@ sys.excepthook = exceptionHandler.handler
 
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
-    SEGMENT_WORDS = ['་', '།']
+    SEGMENT_WORDS = ['་', '།', '\n']
 
     @timed
     def __init__(self, parent=None):
@@ -98,7 +98,6 @@ class Editor(QtWidgets.QMainWindow):
                                 self.textChanged)
 
     def initProperties(self):
-
         self.tokens = []
         self.formats = []
         self.mode = 'Level Mode'  # LEVEL_MODE, EDITOR_MODE
@@ -140,7 +139,7 @@ class Editor(QtWidgets.QMainWindow):
         #default font and font size 
         font = QtGui.QFont()
         font.setFamily("Microsoft Himalaya")
-        font.setPointSize(12)
+        font.setPointSize(14)
         self.textEdit.setFont(font)
 
     def bindEvents(self):
@@ -274,8 +273,6 @@ class Editor(QtWidgets.QMainWindow):
         self.textEdit.redo()
 
 
-         
-
     # TextEdit Events #
     def cursorPositionChanged(self):
         cursor = self.textEdit.textCursor()
@@ -306,9 +303,12 @@ class Editor(QtWidgets.QMainWindow):
 
             elif text.endswith('\n'):
                 self.segment()
-                # to do: block mode: bug - if we delete text and try to rewrite new 
+                # TODO: block mode: bug - if we delete text and try to rewrite new 
                 # text it copies the already saved text. 
                 # self.segment(byBlock=True, breakLine=True)
+
+            elif text == '':
+                self.segment()
 
     # Level List #
     def importLevelList(self, level, levelNum):
@@ -543,6 +543,7 @@ def main():
     except:
         print("exiting")
         sys.exit(1)
+
 
 if __name__ == '__main__':
     main()
