@@ -31,13 +31,10 @@ class LeftTabWidget(QtWidgets.QTabWidget):
         
         self.findTab = FindTab(self)
         self.corpusAnalysisTab = CorpusAnalysisTab(self)
-
-        self.addTab(self.findTab, 'Find and Replace')
         self.addTab(self.corpusAnalysisTab, 'Corpus Analysis')
-
+        self.addTab(self.findTab, 'Find and Replace')
         self.currentChanged.connect(self.tabChanged)
         
-
     @property
     def editor(self):
         return self.parent().parent()

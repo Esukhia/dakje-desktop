@@ -10,16 +10,6 @@ from web.settings import BASE_DIR
 
 LEVEL_MODE_EXAMPLE_STRING = '''
 Statistics
-LEVEL FILE ...
-...
-
-Table of ranges: Types
-Types  No. of Files
-71       1
-
-Table of ranges: Groups
-Groups  No. of Files
-42         1
 
 ...
 ...
@@ -98,19 +88,19 @@ class LevelTab(QtWidgets.QWidget):
 
         self.level1Button = QtWidgets.QPushButton()
         self.level1Button.setFlat(True)
-        self.level1Button.setText('Level 1')
+        self.level1Button.setText('ཚིག་ཐོ་དང་པོ།')
         self.level1ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[1])
 
         self.level2Button = QtWidgets.QPushButton()
         self.level2Button.setFlat(True)
-        self.level2Button.setText('Level 2')
+        self.level2Button.setText('ཚིག་ཐོ་གཉིས་པ།')
         self.level2ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[2])
 
         self.level3Button = QtWidgets.QPushButton()
         self.level3Button.setFlat(True)
-        self.level3Button.setText('Level 3')
+        self.level3Button.setText('ཚིག་ཐོ་གསུམ་པ།')
         self.level3ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[3])
 
@@ -144,7 +134,7 @@ class LevelTab(QtWidgets.QWidget):
         #bold statistics 
         self.statisticsLabel.setFont(QtGui.QFont("Times",10,weight=QtGui.QFont.Bold))
 
-        self.forms.addRow(self.statisticsLabel)
+        # self.forms.addRow(self.statisticsLabel)
         self.editor.refreshCoverage
         
         self.wordCountLabel = QtWidgets.QLabel('0')
@@ -256,6 +246,7 @@ class FindTab(QtWidgets.QWidget):
         super().__init__(parent)
         self.initForms()
         self.initResult()
+        self.hide()
 
         self.vbox = QtWidgets.QVBoxLayout(self)
         self.vbox.addLayout(self.forms)

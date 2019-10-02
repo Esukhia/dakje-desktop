@@ -441,7 +441,7 @@ class Editor(QtWidgets.QMainWindow):
         
 
     def refreshCoverage(self):
-        # To Do: don't count new line and punctuation in word Count (Done)
+        # ToDo: don't count new line and punctuation in word Count (Done)
         #the progress bars take into consideration new line as a token 
 
         tokenNum = len(self.tokens)
