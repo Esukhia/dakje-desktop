@@ -306,6 +306,9 @@ class Editor(QtWidgets.QMainWindow):
 
             elif text.endswith('\n'):
                 self.segment()
+
+            elif text == '':
+                self.segment()
                 # to do: block mode: bug - if we delete text and try to rewrite new 
                 # text it copies the already saved text. 
                 # self.segment(byBlock=True, breakLine=True)
