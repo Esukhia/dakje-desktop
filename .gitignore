@@ -1,9 +1,11 @@
+.vscode/
 
 TrieAddTempFile.txt
 TrieDelTempFile.txt
 POS_trie.pickled
 
+
 .idea
 build
 __pycache__/
-db.sqlite3
+storage/db.sqlite3

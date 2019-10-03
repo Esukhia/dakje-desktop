@@ -54,12 +54,11 @@ class TextEdit(QtWidgets.QTextEdit):
         
         if self.editor.viewManager.isPlainTextView():
             print("entered in here")
-            if e.key() == QtCore.Qt.Key_Backspace:
-                print("entered in backspace")
-                self.editor.refreshCoverage()
+            # if e.key() == QtCore.Qt.Key_Backspace:
+            #     print("entered in backspace")
+            #     self.editor.segment()
 
         if self.editor.viewManager.isSpaceView():
-
             # if self.textCursor().hasSelection():
             #     QtWidgets.QMessageBox.warning(
             #         self, 'Mode Error',
