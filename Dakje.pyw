@@ -155,7 +155,7 @@ class Editor(QtWidgets.QMainWindow):
         self.fontPicker.setCurrentFont(self.textEdit.currentFont())
 
         # font size
-        FONT_SIZES = [6, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96]
+        FONT_SIZES = [6, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96, 144, 288]
         self.fontResizer = QtWidgets.QComboBox()
         self.toolBar.addWidget(self.fontResizer)
         self.fontResizer.addItems([str(s) for s in FONT_SIZES])
@@ -199,6 +199,30 @@ class Editor(QtWidgets.QMainWindow):
             pickle.dump(self.bt.head, f, pickle.HIGHEST_PROTOCOL)
 
         super().closeEvent(*args, **kwargs)
+
+    # Tool Bar Actions #
+
+    # user can choose their font
+
+    # def fontComboBox(self):
+    #     # font, ok = QtWidgets.QFontDialog.getFont(self.textEdit.font(), self)
+    #     # if ok:
+    #     #     # set the text in the widget to the choosen font
+    #     #     self.textEdit.setFont(font)
+
+    #     self.fonts = QFontComboBox()
+    #     self.fonts.currentFontChanged.connect(self.textEdit.setCurrentFont)
+    #     # format_toolbar.addWidget(self.fonts)
+
+    #     self.fontsize = QComboBox()
+    #     self.fontsize.addItems([str(s) for s in FONT_SIZES])
+
+    #     # Connect to the signal producing the text of the current selection. Convert the string to float
+    #     # and set as the pointsize. We could also use the index + retrieve from FONT_SIZES.
+    #     self.fontsize.currentIndexChanged[str].connect(lambda s: self.editor.setFontPointSize(float(s)) )
+    #     format_toolbar.addWidget(self.fontsize)
+
+
 
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
