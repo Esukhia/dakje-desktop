@@ -3,9 +3,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 class WordCount(QtWidgets.QDialog):
     def __init__(self,parent = None):
         QtGui.QDialog.__init__(self, parent)
- 
         self.parent = parent
- 
         self.initUI()
 
     def initUI(self):

@@ -79,11 +79,13 @@ class ActionManager:
             triggered=lambda: self.editor.dictionaryDialog.show()
         )
 
-        self.fontPicker = self.createAction(
-            '&Pick Font', 'font.png',
-            triggered=self.editor.fontPickerDialog
-        )
-  
+        # self.fontPicker = self.createAction(
+        #     '&Pick Font', 'font.png',
+        #     triggered=self.editor.fontPickerDialog
+        # )
+
+        # self.fonts = self.editor.fontP
+        # self.editor.fonts.currentFontChanged.connect(self.editor.)
 
         self.openAdminAction = self.createAction(
             '&Open Admin', 'settings.png',
@@ -96,7 +98,8 @@ class ActionManager:
             [self.newFileAction, self.openFileAction, self.saveFileAction],
             #[self.undoAction, self.redoAction],
             [self.spaceViewAction, self.tagViewAction],
-            [self.fontPicker] #, self.dictionaryAction, self.openAdminAction]
+            # [self.fontPicker] , 
+            # self.dictionaryAction, self.openAdminAction]
         ]
 
     def getMenuBarActions(self, menu):
@@ -112,7 +115,7 @@ class ActionManager:
                 self.redoAction,
                 self.spaceViewAction,
                 self.tagViewAction,
-                self.fontPicker,
+                # self.fontPicker,
                 self.dictionaryAction
             ]
         elif self.MENU_HELP == menu:

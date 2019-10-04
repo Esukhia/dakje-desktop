@@ -33,14 +33,27 @@ def timed(func):
 
 
 class Token:
-    """
-    A class used to represent token objects
-    (pybo token attributes + custom attributes)
-    """
     def __init__(self, token, id=None):
-
+        """
+        Class building token objects
+        (pybo token attributes + custom attributes)
+        IMPORTANT: .text_unaffixed should be used for lookups
+        .text might include extra tseks
+            :param self: 
+            :param token: 
+            :param id=None: 
+        """
         # copy all token attributes from pybo tokens
-        self.__dict__ = token.__dict__.copy()
+        self.text = token.text
+        self.text_cleaned = token.text_cleaned
+        self.text_unaffixed = token.text_unaffixed
+        self.lemma = token.lemma
+        self.pos = token.pos
+        self.start = token.start
+        self.type = token.chunk_type
+        # self.sense = token.sense
+        self.level = None
+        self.meaning = None
 
         self.id = id  # have no id before save to database
 
@@ -48,8 +61,6 @@ class Token:
         self.end = self.start + len(self.text)
         self.string = None
 
-        self.level = None
-        self.meaning = None
 
     def applyTokenModel(self, tokenModel):
         # add attributes from the DB
@@ -64,8 +75,7 @@ class Token:
 
     @property
     def textWithoutTsek(self):
-        return self.text[:-1] if self.text.endswith('་') else self.text
-
+        return self.text_unaffixed[:-1] if self.text_unaffixed.endswith('་') else self.text_unaffixed
 
 class TokenManager:
     TRIE_MODIF_DIR = os.path.join(BASE_DIR, 'resources', 'dictionaries')
@@ -104,11 +114,7 @@ class TokenManager:
                     type=TokenModel.TYPE_REMOVE) if d.pos is not None
             ]))
 
-        # This should be using pybo instead:
-        # self.tokenizer = pybo.WordTokenizer(
-        #   'POS',
-        #   tok_modifs = self.TRIE_ADD_TEMP_FILE)
-        ### note: the directory should contain at least two subfolders:
+        # the TRIE_MODIF directory should contain at least two subfolders:
         # lexica_bo: a dir containing files with words, a word per line
         # lexica_skrt: same, but for sanskrit entries
         # deactivate: same, but for the entries to deactivate from the trie
@@ -116,11 +122,6 @@ class TokenManager:
             'POS',
             tok_modifs= self.TRIE_MODIF_DIR
         )
-
-        # os.remove(self.TRIE_ADD_TEMP_FILE)
-        # os.remove(self.TRIE_DEL_TEMP_FILE)
-
-        # print(self.tokenizer.tok.trie.has_word("abc"))
 
     @property
     def view(self):
@@ -131,8 +132,8 @@ class TokenManager:
         return self.editor.tokens
 
     @timed
-    def segment(self, sentence):
-        tokens = self.tokenizer.tokenize(sentence)
+    def segment(self, string):
+        tokens = self.tokenizer.tokenize(string)
         return [Token(t) for t in tokens]
 
     def getString(self):
@@ -184,14 +185,15 @@ class TokenManager:
 
     @timed
     def applyDict(self):
+        # filter tokens added to the db 
         tokenModels = TokenModel.objects.filter(
             type=TokenModel.TYPE_UPDATE)
-
+        # import db tokens into tokenDict
         tokenDict = {
             tokenModel.text: tokenModel for tokenModel in tokenModels}
 
         for token in self.tokens:
-            tokenModel = tokenDict.get(token.text)
+            tokenModel = tokenDict.get(token.text_unaffixed)
 
             if tokenModel is None:
                 tokenModel = tokenDict.get(token.textWithoutTsek)

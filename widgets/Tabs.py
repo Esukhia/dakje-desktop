@@ -82,24 +82,28 @@ class LevelTab(QtWidgets.QWidget):
         """
         self.levelNoneButton = QtWidgets.QPushButton()
         self.levelNoneButton.setFlat(True)
+        self.levelNoneButton.setStyleSheet("Text-align:left")
         self.levelNoneButton.setText('Non-level')
         self.levelNoneProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[None])
 
         self.level1Button = QtWidgets.QPushButton()
         self.level1Button.setFlat(True)
+        self.level1Button.setStyleSheet("Text-align:left")
         self.level1Button.setText('ཚིག་ཐོ་དང་པོ།')
         self.level1ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[1])
 
         self.level2Button = QtWidgets.QPushButton()
         self.level2Button.setFlat(True)
+        self.level2Button.setStyleSheet("Text-align:left")
         self.level2Button.setText('ཚིག་ཐོ་གཉིས་པ།')
         self.level2ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[2])
 
         self.level3Button = QtWidgets.QPushButton()
         self.level3Button.setFlat(True)
+        self.level3Button.setStyleSheet("Text-align:left")
         self.level3Button.setText('ཚིག་ཐོ་གསུམ་པ།')
         self.level3ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[3])
@@ -137,17 +141,18 @@ class LevelTab(QtWidgets.QWidget):
         # self.forms.addRow(self.statisticsLabel)
         self.editor.refreshCoverage
         
+        # self.freqLabel = QtWidgets.QLabel('0')
         self.wordCountLabel = QtWidgets.QLabel('0')
         self.senCountLabel = QtWidgets.QLabel('0')
         self.typeCountLabel = QtWidgets.QLabel('0')
         self.maxWordLabel = QtWidgets.QLabel('0')
-        # self.freqLabel = QtWidgets.QLabel('0')
 
-        self.forms.addRow("Word Count: ",
+        # Word Count
+        self.forms.addRow("ཐ་སྙད་སྤྱིའི་གྲངས། ",
                           self.wordCountLabel)
-        self.forms.addRow("Type Count: ",
+        self.forms.addRow("ཚིག་རིགས་ཀྱི་གྲངས། ",
                           self.typeCountLabel)
-        self.forms.addRow("Sentence Count: ",
+        self.forms.addRow("ཚིག་གྲུབ་གྲངས། ",
                           self.senCountLabel)
         self.forms.addRow("Max words in a Sentence count: ",
                           self.maxWordLabel)

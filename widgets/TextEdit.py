@@ -16,7 +16,7 @@ class TextEdit(QtWidgets.QTextEdit):
 
     def openFile(self):
         self.filename, ok = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Open File', ".", "UTF-8 (*.txt)")
+            self, 'Open File', "resources\dictionaries", "UTF-8 (*.txt)")
 
         if self.filename:
             with open(self.filename, "r", encoding='utf-8') as f:
@@ -52,11 +52,11 @@ class TextEdit(QtWidgets.QTextEdit):
     def keyPressEvent(self, e):
         from widgets.EditTokenDialog import EditTokenDialog
         
-        if self.editor.viewManager.isPlainTextView():
-            print("entered in here")
-            # if e.key() == QtCore.Qt.Key_Backspace:
-            #     print("entered in backspace")
-            #     self.editor.segment()
+        # if self.editor.viewManager.isPlainTextView():
+        #     print("entered in here")
+        #     # if e.key() == QtCore.Qt.Key_Backspace:
+        #     #     print("entered in backspace")
+        #     #     self.editor.segment()
 
         if self.editor.viewManager.isSpaceView():
             # if self.textCursor().hasSelection():

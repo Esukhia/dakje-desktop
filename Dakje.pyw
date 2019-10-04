@@ -29,7 +29,8 @@ logging.basicConfig(level=logging.DEBUG,
                     datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 
-# Timed decorator
+
+# Timed decorator #
 def timed(func):
     """This decorator prints the execution time for the decorated function."""
     @wraps(func)
@@ -43,7 +44,10 @@ def timed(func):
     return wrapper
 
 # Exception
+
+
 class ExceptionHandler(QtCore.QObject):
+
     errorSignal = QtCore.pyqtSignal()
 
     def __init__(self):
@@ -70,8 +74,10 @@ class Editor(QtWidgets.QMainWindow):
         self.initManagers()
         self.initUI()
         self.bindEvents()
+        self.undoStack = QtWidgets.QUndoStack(self)
         self.setWindowTitle("དག་བྱེད།")
-        self.setWindowIcon(QtGui.QIcon(os.path.join(BASE_DIR, "icons", "dakje.ico")))
+        self.setWindowIcon(QtGui.QIcon(
+            os.path.join(BASE_DIR, "icons", "dakje.ico")))
         self.setWindowState(QtCore.Qt.WindowMaximized)
         # self.wordcount = 0
 
@@ -80,6 +86,7 @@ class Editor(QtWidgets.QMainWindow):
         self.textEdit.setSelection = self.ignoreTextChanged(
             self.ignoreCursorPositionChanged(self.textEdit.setSelection))
 
+    # why?
     def ignoreEvent(self, func, signal, event):
         def _func(*arg, **kwargs):
             signal.disconnect()
@@ -107,7 +114,6 @@ class Editor(QtWidgets.QMainWindow):
         self.editTokenDialog = EditTokenDialog(self)
         self.dictionaryDialog = DictionaryEditorWidget(self)
 
-
     def initManagers(self):
         self.actionManager = ActionManager(self)
         self.tokenManager = TokenManager(self)
@@ -127,7 +133,7 @@ class Editor(QtWidgets.QMainWindow):
         self.statusBar = StatusBar(parent=self)
         self.setStatusBar(self.statusBar)
 
-        self.centralWidget = CentralWidget(self)         
+        self.centralWidget = CentralWidget(self)
         self.setCentralWidget(self.centralWidget)
 
         self.highlighter = Highlighter(self.textEdit.document(), self)
@@ -136,11 +142,34 @@ class Editor(QtWidgets.QMainWindow):
         self.textEdit.setStyleSheet(
             'border: none; margin: 10px')
 
-        #default font and font size 
+        # default font and font size
         font = QtGui.QFont()
         font.setFamily("Microsoft Himalaya")
         font.setPointSize(14)
         self.textEdit.setFont(font)
+
+        # font family
+        self.toolBar.addSeparator()
+        self.fontPicker = QtWidgets.QFontComboBox()
+        self.toolBar.addWidget(self.fontPicker)
+        self.fontPicker.setCurrentFont(self.textEdit.currentFont())
+
+        # font size
+        FONT_SIZES = [6, 8, 9, 10, 11, 12, 13, 14, 18, 24, 36, 48, 64, 72, 96]
+        self.fontResizer = QtWidgets.QComboBox()
+        self.toolBar.addWidget(self.fontResizer)
+        self.fontResizer.addItems([str(s) for s in FONT_SIZES])
+        self.fontResizer.setCurrentText(str(font.pointSize()))
+
+        # update when font or size is changed
+        self.fontPicker.currentFontChanged.connect(self.changeFont)
+        self.fontResizer.currentIndexChanged.connect(self.changeFont)
+
+    def changeFont(self):
+        font = self.fontPicker.currentFont()
+        font.setPointSize(int(self.fontResizer.currentText()))
+        self.textEdit.setFont(font)
+
 
     def bindEvents(self):
         self.bindCursorPositionChanged()
@@ -152,37 +181,48 @@ class Editor(QtWidgets.QMainWindow):
 
     def bindTextChanged(self):
         self.textEdit.textChanged.connect(self.textChanged)
-    
+
     def bindLevelButtons(self):
         self.levelTab.level1Button.clicked.connect(
-            # partial(self.importRuleList, level=1)
-            partial(self.importLevelList, level=1, levelNum = self.levelTab.level1Button)
-        )      
+            partial(self.importLevelList, level=1, levelNum=self.levelTab.level1Button))
 
         self.levelTab.level2Button.clicked.connect(
-            partial(self.importLevelList, level=2, levelNum = self.levelTab.level2Button))
+            partial(self.importLevelList, level=2, levelNum=self.levelTab.level2Button))
 
         self.levelTab.level3Button.clicked.connect(
-            partial(self.importLevelList, level=3, levelNum = self.levelTab.level3Button))
-    
+            partial(self.importLevelList, level=3, levelNum=self.levelTab.level3Button))
+
     def closeEvent(self, *args, **kwargs):
-        
+
         import pickle
         with self.bt.pickled_file.open('wb') as f:
             pickle.dump(self.bt.head, f, pickle.HIGHEST_PROTOCOL)
 
         super().closeEvent(*args, **kwargs)
 
-
     # Tool Bar Actions #
 
-    #user can choose their font
-    def fontPickerDialog(self):
-        font, ok = QtWidgets.QFontDialog.getFont(self.textEdit.font(), self)
-        if ok:
-            #set the text in the widget to the choosen font 
-            self.textEdit.setFont(font)
-            
+    # user can choose their font
+
+    # def fontComboBox(self):
+    #     # font, ok = QtWidgets.QFontDialog.getFont(self.textEdit.font(), self)
+    #     # if ok:
+    #     #     # set the text in the widget to the choosen font
+    #     #     self.textEdit.setFont(font)
+
+    #     self.fonts = QFontComboBox()
+    #     self.fonts.currentFontChanged.connect(self.textEdit.setCurrentFont)
+    #     # format_toolbar.addWidget(self.fonts)
+
+    #     self.fontsize = QComboBox()
+    #     self.fontsize.addItems([str(s) for s in FONT_SIZES])
+
+    #     # Connect to the signal producing the text of the current selection. Convert the string to float
+    #     # and set as the pointsize. We could also use the index + retrieve from FONT_SIZES.
+    #     self.fontsize.currentIndexChanged[str].connect(lambda s: self.editor.setFontPointSize(float(s)) )
+    #     format_toolbar.addWidget(self.fontsize)
+
+
 
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
@@ -196,41 +236,49 @@ class Editor(QtWidgets.QMainWindow):
         self.viewManager.toggleTagView()
         self.refreshView()
 
-
     def segment(self, byBlock=False, breakLine=False):
+        """
+        1. Gets the text in textedit, 2. segments it with pybo,
+        3. assigns a lists of Token objects to self.tokens,
+        4. displays text with refreshview().
+        Segmentation by blocks avoids resegmenting the whole document at each change 
+            :param self: Editor
+            :param byBlock=False: 
+            :param breakLine=False: 
+        """
         if byBlock:
             block = self.textEdit.textCursor().block()
-            text = block.text()
+            string = block.text()
 
             if breakLine:
                 block = block.previous()
-                text = block.text() + '\n'
+                string = block.text() + '\n'
 
-            tokens = self.tokenManager.segment(text)
+            tokens = self.tokenManager.segment(string)
             startIndex, endIndex = self.tokenManager.findByBlockIndex(
                 block.blockNumber())
 
             if startIndex is None:
                 self.tokens.extend(tokens)
-                
+
             else:
                 self.tokens[startIndex: endIndex + 1] = tokens
         else:
-            text = self.centralWidget.textEdit.toPlainText()
-            tokens = self.tokenManager.segment(text)
-            self.tokens = tokens
-            
+            string = self.centralWidget.textEdit.toPlainText()
+            self.tokens = self.tokenManager.segment(string)
+
         self.refreshView()
-        
+
     def resegment(self):
-        text = ''.join([token.text for token in self.tokens])
-        tokens = self.tokenManager.segment(text)
+        # FIXME is this really useful?
+        string = ''.join([token.text for token in self.tokens])
+        tokens = self.tokenManager.segment(string)
         self.tokens = tokens
         self.refreshView()
 
     @property
     def bt(self):
-        return self.tokenManager.tokenizer.tok.trie     
+        return self.tokenManager.tokenizer.tok.trie
 
     # TextEdit #
     @property
@@ -271,9 +319,11 @@ class Editor(QtWidgets.QMainWindow):
 
     def redo(self):
         self.textEdit.redo()
+    
 
 
     # TextEdit Events #
+
     def cursorPositionChanged(self):
         cursor = self.textEdit.textCursor()
         position = cursor.position()
@@ -303,22 +353,23 @@ class Editor(QtWidgets.QMainWindow):
 
             elif text.endswith('\n'):
                 self.segment()
-                # TODO: block mode: bug - if we delete text and try to rewrite new 
-                # text it copies the already saved text. 
+                # TODO: block mode: bug - if we delete text and try to rewrite new
+                # text it copies the already saved text.
                 # self.segment(byBlock=True, breakLine=True)
 
             elif text == '':
                 self.segment()
 
-    # Level List #
+    # Import Level List #
+    # TODO: set list names when starting the app
     def importLevelList(self, level, levelNum):
         filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self)
         splitFilePath = filePath.split('/')
-        
+
         if '' in splitFilePath[:1]:
             return
         else:
-            self.fileName = splitFilePath[len(splitFilePath) - 1]        
+            self.fileName = splitFilePath[len(splitFilePath) - 1]
             levelNum.setText(self.fileName)
         with open(filePath, encoding='utf-8') as f:
             words = [word[:-1] if word.endswith('་') else word
@@ -346,7 +397,15 @@ class Editor(QtWidgets.QMainWindow):
 
     # Refresh #
     def refreshView(self):
+        """
+        docstring here
+            :param self: 
+        """
+        # Adds token info from the db
+        # - level
+        # - meaning
         self.tokenManager.applyDict()
+        # ???
         self.tokenManager.matchRules()
 
         # keep cursor
@@ -357,6 +416,7 @@ class Editor(QtWidgets.QMainWindow):
             currentToken = current[1]
             distance = textCursor.position() - currentToken.start
 
+        # Sets text in textEdit before moving on to highlighting
         text = self.tokenManager.getString()
         self.textEdit.setPlainText(text)
 
@@ -370,34 +430,33 @@ class Editor(QtWidgets.QMainWindow):
         self.refreshCoverage()
 
         # print([t.text for t in self.tokens])
-        self.statusBar.showMessage('  ' + ' '.join([t.text for t in self.tokens[-19:]]))
-
-  
+        self.statusBar.showMessage(
+            '  ' + ' '.join([t.text for t in self.tokens[-19:]]))
 
     def statistics(self):
-        
-        #to do: bug fix - 
+
+        # to do: bug fix -
         # if we press enter twice sentence count reinitializes
-        # you need to press on enter for it to recognize that the text editor is empty 
+        # you need to press on enter for it to recognize that the text editor is empty
         # it considers བོད and བོད་ different - the difference is the tseg (not sure if that is a bug)
-        # It always counts the first enter  
+        # It always counts the first enter
 
-        #Statistics - analyze the text in the text editor 
-        
-        wordCount = 0 # number of words written
-        sentenceCount = 0 # number of sentence written - each new line is considered one sentnece 
-        typeCount = 0 # number of words used 
-        max = 0 # maximum number of words in a sentence - longest sentence
-        counts = dict() 
-        sentenceWordCount = [] #records the number of words in each sentence
-        wordSentence = 0 # words in a sentence 
-        verbsPerSen = 0 # verbs in a sentence
-        verbSentence = [] #records the number of verbs in each sentence 
+        # Statistics - analyze the text in the text editor
 
-        #parse through the list and not count the newline 
-        #for now every newline is considered a completion of one sentence 
+        wordCount = 0  # number of words written
+        sentenceCount = 0  # number of sentence written - each new line is considered one sentnece
+        typeCount = 0  # number of words used
+        max = 0  # maximum number of words in a sentence - longest sentence
+        counts = dict()
+        sentenceWordCount = []  # records the number of words in each sentence
+        wordSentence = 0  # words in a sentence
+        verbsPerSen = 0  # verbs in a sentence
+        verbSentence = []  # records the number of verbs in each sentence
+
+        # parse through the list and not count the newline
+        # for now every newline is considered a completion of one sentence
         for token in self.tokens:
-            
+
             if token.text == "།":
                 continue
             if token.text != "\n":
@@ -420,43 +479,42 @@ class Editor(QtWidgets.QMainWindow):
                     max = sentenceWordCount[sentenceCount - 1]
                 wordSentence = 0
                 verbsPerSen = 0
-                
-            
+
         # print("maximum words in a sentence: ", max)
         # print("word count: ", wordCount)
         # print("type count: ", typeCount)
         # print("sentence count: ", sentenceCount)
 
-        #frequency - the number of times a token is repeated 
+        # frequency - the number of times a token is repeated
         frequency = Counter([
-            token.text for token in self.tokens])
+            (token.text, token.level, token.pos, token.text_unaffixed) for token in self.tokens])
         print("Frequency: ", frequency)
-        
 
-        #Updating the Statistics 
+        # Updating the Statistics
         self.levelTab.wordCountLabel.setText(str(wordCount))
         self.levelTab.typeCountLabel.setText(str(typeCount))
         self.levelTab.senCountLabel.setText(str(sentenceCount))
         self.levelTab.maxWordLabel.setText(str(max))
-        
 
     def refreshCoverage(self):
         # ToDo: don't count new line and punctuation in word Count (Done)
-        #the progress bars take into consideration new line as a token 
+        # the progress bars take into consideration new line as a token
 
         tokenNum = len(self.tokens)
         self.statistics()
 
+        # TODO exclude punct
         levelCounter = Counter([
-            token.level for token in self.tokens])
- 
+            token.level for token in self.tokens if token.type == 'TEXT'])
+
+
         def getLevelProp(key):
             if tokenNum == 0:
                 return 0
             else:
                 return levelCounter[key] / tokenNum * 100.0
-        
-        #updating the progress bar 
+
+        # updating the progress bar
         self.levelTab.tokenCoverageProgBar.setValue(100 - getLevelProp(None))
         self.levelTab.levelNoneProgBar.setValue(getLevelProp(None))
         self.levelTab.level1ProgBar.setValue(getLevelProp(1))
@@ -483,6 +541,7 @@ class Editor(QtWidgets.QMainWindow):
             self.editorTab.thirdFreqProgBar.setValue(
                 posFreq[2][1] / tokenNum * 100.0)
         """
+
     def getHighlightedLevels(self):
         result = []
         if self.levelTab.levelNoneCheckbox.isChecked():
@@ -523,6 +582,7 @@ class Editor(QtWidgets.QMainWindow):
             self.statusBar.lineLabel.setText(
                 'Ln {}, Col {}'.format(ln, col))
 
+
 def runserver():
     import django
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
@@ -530,6 +590,7 @@ def runserver():
 
     from django.core.management import call_command
     call_command('runserver', '--noreload')
+
 
 def main():
     multiprocessing.Process(target=runserver, daemon=True).start()
