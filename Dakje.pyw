@@ -200,30 +200,6 @@ class Editor(QtWidgets.QMainWindow):
 
         super().closeEvent(*args, **kwargs)
 
-    # Tool Bar Actions #
-
-    # user can choose their font
-
-    # def fontComboBox(self):
-    #     # font, ok = QtWidgets.QFontDialog.getFont(self.textEdit.font(), self)
-    #     # if ok:
-    #     #     # set the text in the widget to the choosen font
-    #     #     self.textEdit.setFont(font)
-
-    #     self.fonts = QFontComboBox()
-    #     self.fonts.currentFontChanged.connect(self.textEdit.setCurrentFont)
-    #     # format_toolbar.addWidget(self.fonts)
-
-    #     self.fontsize = QComboBox()
-    #     self.fontsize.addItems([str(s) for s in FONT_SIZES])
-
-    #     # Connect to the signal producing the text of the current selection. Convert the string to float
-    #     # and set as the pointsize. We could also use the index + retrieve from FONT_SIZES.
-    #     self.fontsize.currentIndexChanged[str].connect(lambda s: self.editor.setFontPointSize(float(s)) )
-    #     format_toolbar.addWidget(self.fontsize)
-
-
-
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
             self.segment()
