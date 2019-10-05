@@ -133,7 +133,7 @@ class TokenManager:
 
     @timed
     def segment(self, string):
-        tokens = self.tokenizer.tokenize(string)
+        tokens = self.tokenizer.tokenize(string, spaces_as_punct=True)
         return [Token(t) for t in tokens]
 
     def getString(self):

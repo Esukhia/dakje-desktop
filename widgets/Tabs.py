@@ -65,21 +65,6 @@ class LevelTab(QtWidgets.QWidget):
         self.grids.addWidget(self.tokenCoverageLabel, 0, 0, 1, 4)
         self.grids.addWidget(self.tokenCoverageProgBar, 1, 0, 1, 4)
 
-        # Level Coverage
-        self.levelCoverageLabel = QtWidgets.QLabel('Level Coverage')
-        self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 2)
-
-        self.addBtn = QtWidgets.QPushButton('+')
-        self.grids.addWidget(self.addBtn, 2,2,1,2)
-        """
-        self.addBtn.clicked.connect(self.addLevel)
-
-        self.addLevel()
-
-    def addLevel(self):
-
-        add a + button in the grid
-        """
         self.levelNoneButton = QtWidgets.QPushButton()
         self.levelNoneButton.setFlat(True)
         self.levelNoneButton.setStyleSheet("Text-align:left")
@@ -109,6 +94,8 @@ class LevelTab(QtWidgets.QWidget):
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[3])
 
         # Checkboxes
+        # TODO : add all levels checkbox
+
         self.levelNoneCheckbox = QtWidgets.QCheckBox()
         self.level1Checkbox = QtWidgets.QCheckBox()
         self.level2Checkbox = QtWidgets.QCheckBox()
@@ -124,11 +111,28 @@ class LevelTab(QtWidgets.QWidget):
             [self.level2Checkbox, self.level2Button, self.level2ProgBar],
             [self.level3Checkbox, self.level3Button, self.level3ProgBar],
         ]
+
         for i, levelCoverage in enumerate(self.levelCoverages):
-            row = 3 + i
-            self.grids.addWidget(levelCoverage[0], row, 0, 1, 1)
-            self.grids.addWidget(levelCoverage[1], row, 1, 1, 1)
-            self.grids.addWidget(levelCoverage[2], row, 2, 1, 2)
+            self.levelRow = 2 + i
+            self.grids.addWidget(levelCoverage[0], self.levelRow, 0, 1, 1)
+            self.grids.addWidget(levelCoverage[1], self.levelRow, 1, 1, 1)
+            self.grids.addWidget(levelCoverage[2], self.levelRow, 2, 1, 2)
+
+        # Add new level
+        # self.levelCoverageLabel = QtWidgets.QLabel('Level Coverage')
+        # self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 2)
+
+        self.addBtn = QtWidgets.QPushButton('+')
+        self.grids.addWidget(self.addBtn, self.levelRow+1,2,1,2)
+        """
+        self.addBtn.clicked.connect(self.addLevel)
+
+        self.addLevel()
+
+    def addLevel(self):
+
+        add a + button in the grid
+        """
 
 
     def initForms(self):

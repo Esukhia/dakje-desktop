@@ -24,7 +24,7 @@ class Highlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, parent, editor):
         super().__init__(parent)
         self.editor = editor
-
+    
     # @timed
     def highlightBlock(self, p_str):
         currentBlock = self.currentBlock()

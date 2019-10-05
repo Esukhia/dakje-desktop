@@ -487,7 +487,7 @@ class Editor(QtWidgets.QMainWindow):
 
         # frequency - the number of times a token is repeated
         frequency = Counter([
-            (token.text, token.level, token.pos, token.text_unaffixed) for token in self.tokens])
+            (token.text, token.type, token.pos, token.text_unaffixed) for token in self.tokens])
         print("Frequency: ", frequency)
 
         # Updating the Statistics
@@ -497,34 +497,34 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.maxWordLabel.setText(str(max))
 
     def refreshCoverage(self):
-        # ToDo: don't count new line and punctuation in word Count (Done)
-        # the progress bars take into consideration new line as a token
 
-        tokenNum = len(self.tokens)
+        tokenNum = sum(1 for t in self.tokens if t.type == 'TEXT')
+        print('tokenNum: ', tokenNum)
+
         self.statistics()
 
-        # TODO exclude punct
         levelCounter = Counter([
             token.level for token in self.tokens if token.type == 'TEXT'])
 
 
-        def getLevelProp(key):
+        def getLevelPercentage(key):
             if tokenNum == 0:
                 return 0
             else:
                 return levelCounter[key] / tokenNum * 100.0
 
         # updating the progress bar
-        self.levelTab.tokenCoverageProgBar.setValue(100 - getLevelProp(None))
-        self.levelTab.levelNoneProgBar.setValue(getLevelProp(None))
-        self.levelTab.level1ProgBar.setValue(getLevelProp(1))
-        self.levelTab.level2ProgBar.setValue(getLevelProp(2))
-        self.levelTab.level3ProgBar.setValue(getLevelProp(3))
+        self.levelTab.tokenCoverageProgBar.setValue(100 - getLevelPercentage(None))
+        self.levelTab.levelNoneProgBar.setValue(getLevelPercentage(None))
+        self.levelTab.level1ProgBar.setValue(getLevelPercentage(1))
+        self.levelTab.level2ProgBar.setValue(getLevelPercentage(2))
+        self.levelTab.level3ProgBar.setValue(getLevelPercentage(3))
 
         posCounter = Counter([
             token.pos for token in self.tokens])
 
         posFreq = posCounter.most_common()
+        print(posFreq)
         """
         if len(posFreq) >= 1:
             self.editorTab.firstFreqLabel.setText(posFreq[0][0])
