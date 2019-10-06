@@ -137,6 +137,7 @@ class TokenManager:
         return [Token(t) for t in tokens]
 
     def getString(self):
+        # create display string for textEdit
         def _join(tokens, toStr, sep):
             blockIndex = 0
             result = ''

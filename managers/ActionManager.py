@@ -59,7 +59,7 @@ class ActionManager:
             '&Redo', 'redo.png',
             shortcut=QtGui.QKeySequence.Redo,
             statusTip='Redo the last editing action',
-            triggered=self.editor.segment
+            triggered=self.editor.redo
         )
 
         self.tagViewAction = self.createAction(

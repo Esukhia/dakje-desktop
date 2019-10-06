@@ -345,19 +345,19 @@ class Editor(QtWidgets.QMainWindow):
 
     def textChanged(self):
         if self.viewManager.isPlainTextView():
-            text = self.textEdit.toPlainText()
+            string = self.textEdit.toPlainText()
 
-            if any([text.endswith(w) for w in self.SEGMENT_WORDS]):
+            if any([string.endswith(w) for w in self.SEGMENT_WORDS]):
                 self.segment()
                 # self.segment(byBlock=True)
 
-            elif text.endswith('\n'):
+            elif string.endswith('\n'):
                 self.segment()
                 # TODO: block mode: bug - if we delete text and try to rewrite new
                 # text it copies the already saved text.
                 # self.segment(byBlock=True, breakLine=True)
 
-            elif text == '':
+            elif string == '':
                 self.segment()
 
     # Import Level List #
