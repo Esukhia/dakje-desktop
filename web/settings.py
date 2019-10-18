@@ -5,7 +5,11 @@ SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # update this to the dakje folder
 BASE_DIR = os.path.dirname(SETTINGS_DIR)
-
+# might not work if user moved Documents 
+# refer to https://stackoverflow.com/a/6227623
+# TODO create if not exist by copying files from the pkg directory. Reset?
+FILES_DIR = os.path.expanduser('~/Documents/Dakje/')
+ 
 
 SECRET_KEY = '30mc!-oq02xh=^letug)p6vwmc8t2i0nz=q0jaj6x22d1y+v3)'
 

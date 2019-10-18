@@ -1,6 +1,8 @@
 import copy
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+from web.settings import BASE_DIR, DESKTOP
 
 class TextEdit(QtWidgets.QTextEdit):
     def __init__(self, parent=None):
@@ -16,7 +18,7 @@ class TextEdit(QtWidgets.QTextEdit):
 
     def openFile(self):
         self.filename, ok = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Open File', "resources\dictionaries", "UTF-8 (*.txt)")
+            self, 'Open File', DESKTOP, "UTF-8 (*.txt)")
 
         if self.filename:
             with open(self.filename, "r", encoding='utf-8') as f:
@@ -25,7 +27,7 @@ class TextEdit(QtWidgets.QTextEdit):
     def saveFile(self):
         if not self.filename:
             self.filename, ok = QtWidgets.QFileDialog.getSaveFileName(
-                self, "Choose a file name", '.', "UTF-8 (*.txt)")
+                self, "Choose a file name", DESKTOP, "UTF-8 (*.txt)")
 
             if not ok:
                 return
@@ -41,7 +43,8 @@ class TextEdit(QtWidgets.QTextEdit):
         else:
             QtWidgets.QMessageBox.question(
                 self, 'Cancel', 'Saving Failed', QtWidgets.QMessageBox.Yes)
-    # FIXME not working
+
+    # FIXME not working, , segment() needs to be added to the stack
     def undo(self):
         self.document().undo()
 

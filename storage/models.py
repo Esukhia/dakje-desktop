@@ -1,4 +1,5 @@
-# To update the fields in the database, edit classes and run
+# To update the fields in the database: 
+# Edit classes in models and admin then run
 # `python manage.py makemigrations`
 # `python manage.py migrate`
 
@@ -51,7 +52,7 @@ class Token(models.Model):
     pos = models.CharField(max_length=255, null=True, blank=True)
     lemma = models.CharField(max_length=255, null=True, blank=True)
     level = models.IntegerField(null=True, blank=True)
-    meaning = models.TextField(null=True, blank=True)
+    sense = models.TextField(null=True, blank=True)
 
     type = models.IntegerField(choices=(
         (TYPE_UPDATE, 'update'),

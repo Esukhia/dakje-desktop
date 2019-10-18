@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import (
 )
 
 from storage.models import Token
-from web.settings import BASE_DIR
 
+from web.settings import BASE_DIR, FILES_DIR
 
 class TableModel(QAbstractTableModel):
     def __init__(self, parent, data, header):
@@ -145,7 +145,7 @@ class DictionaryEditorWidget(QDialog):
             data=[[k, v] for k, v in dict.items()]
         )
 
-        # print(self.model.bt.has_word('ནང་ཆོས་'))
+        # print('bt: ', self.model.bt.has_word('ནང་ཆོས་'))
 
         self.proxyModel = QSortFilterProxyModel()
         self.proxyModel.eventFilter = lambda: self.removeButton.setDisabled(True)
@@ -205,7 +205,7 @@ class DictionaryEditorWidget(QDialog):
         # resourcePath = '/'.join(('resources', 'lexica_bo', 'Tibetan.DICT'))
         # reader = pkg_resources.resource_stream(resourcePkg, resourcePath)
 
-        resourcePath = os.path.join(BASE_DIR, 'resources', 'dictionaries', 'lexica_bo', 'Tibetan.DICT')
+        resourcePath = os.path.join(FILES_DIR, 'words', 'lexica_bo', 'Tibetan.txt')
         reader = open(resourcePath, mode="r", encoding="utf-8", newline="")
         file = reader.read()
 

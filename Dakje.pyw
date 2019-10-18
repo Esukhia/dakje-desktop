@@ -21,7 +21,7 @@ from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token 
 from storage.models import Token
-from web.settings import BASE_DIR
+from web.settings import BASE_DIR, FILES_DIR
 
 # Logger
 logging.basicConfig(level=logging.DEBUG,
@@ -201,9 +201,7 @@ class Editor(QtWidgets.QMainWindow):
         super().closeEvent(*args, **kwargs)
 
     # Tool Bar Actions #
-
     # user can choose their font
-
     # def fontComboBox(self):
     #     # font, ok = QtWidgets.QFontDialog.getFont(self.textEdit.font(), self)
     #     # if ok:
@@ -221,8 +219,6 @@ class Editor(QtWidgets.QMainWindow):
     #     # and set as the pointsize. We could also use the index + retrieve from FONT_SIZES.
     #     self.fontsize.currentIndexChanged[str].connect(lambda s: self.editor.setFontPointSize(float(s)) )
     #     format_toolbar.addWidget(self.fontsize)
-
-
 
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
@@ -357,13 +353,13 @@ class Editor(QtWidgets.QMainWindow):
                 # text it copies the already saved text.
                 # self.segment(byBlock=True, breakLine=True)
 
-            elif string == '':
+            elif string == '': 
                 self.segment()
 
-    # Import Level List #
+    # Import Level List#
     # TODO: set list names when starting the app
     def importLevelList(self, level, levelNum):
-        filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self)
+        filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select a level list", os.path.join(FILES_DIR, 'levels'), filter="UTF-8 ཡིག་རྐྱང་། (*.txt)")
         splitFilePath = filePath.split('/')
 
         if '' in splitFilePath[:1]:
@@ -371,6 +367,7 @@ class Editor(QtWidgets.QMainWindow):
         else:
             self.fileName = splitFilePath[len(splitFilePath) - 1]
             levelNum.setText(self.fileName)
+
         with open(filePath, encoding='utf-8') as f:
             words = [word[:-1] if word.endswith('་') else word
                      for word in [line.rstrip('\r\n')
@@ -386,7 +383,7 @@ class Editor(QtWidgets.QMainWindow):
         self.refreshView()
 
     def importRuleList(self, level):
-        filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self)
+        filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select a rule list", os.path.join(FILES_DIR, 'levels'), filter="UTF-8 ཡིག་རྐྱང་། (*.txt)")
 
         with open(filePath, encoding='utf-8') as f:
             rules = [line.rstrip('\r\n') for line in f.readlines()]
@@ -403,7 +400,7 @@ class Editor(QtWidgets.QMainWindow):
         """
         # Adds token info from the db
         # - level
-        # - meaning
+        # - sense
         self.tokenManager.applyDict()
         # ???
         self.tokenManager.matchRules()

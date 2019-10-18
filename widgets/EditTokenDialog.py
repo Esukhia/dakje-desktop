@@ -10,7 +10,6 @@ from storage.models import Token as TokenModel
 from web.settings import BASE_DIR
 from .CQLWidget import CqlQueryGenerator
 
-
 class CqlHBox(QtWidgets.QHBoxLayout):
     def __init__(self, parent):
         super().__init__()
@@ -146,11 +145,11 @@ class EditTokenDialog(QtWidgets.QDialog):
         self.levelField = QtWidgets.QLineEdit()
         self.fbox.addRow("Level", self.levelField)
 
-        # meaning
-        self.meaningField = QtWidgets.QTextEdit()
-        self.meaningField.setFixedHeight(
-            self.meaningField.fontMetrics().lineSpacing() * 3)  # 3 rows
-        self.fbox.addRow("meaning", self.meaningField)
+        # sense
+        self.senseField = QtWidgets.QTextEdit()
+        self.senseField.setFixedHeight(
+            self.senseField.fontMetrics().lineSpacing() * 3)  # 3 rows
+        self.fbox.addRow("sense", self.senseField)
 
         # Rule
         # Add Rule Button & Confirm
@@ -191,13 +190,13 @@ class EditTokenDialog(QtWidgets.QDialog):
         self.posField.setText(token.pos)
         self.lemmaField.setText(token.lemma)
         self.levelField.setText('')
-        self.meaningField.setText('')
+        self.senseField.setText('')
 
         if token.level is not None:
             self.levelField.setText(str(token.level))
 
-        if token.meaning is not None:
-            self.meaningField.setText(token.meaning)
+        if token.sense is not None:
+            self.senseField.setText(token.sense)
 
         for i in reversed(range(self.historyVBox.count())):
             self.historyVBox.itemAt(i).removeLayout()
@@ -232,7 +231,7 @@ class EditTokenDialog(QtWidgets.QDialog):
         data = {
             'pos': self.posField.text(),
             'lemma': self.lemmaField.text(),
-            'meaning': self.meaningField.toPlainText()
+            'sense': self.senseField.toPlainText()
         }
 
         if self.levelField.text() != '':
@@ -252,7 +251,7 @@ class EditTokenDialog(QtWidgets.QDialog):
                 text=self.token.text, type=TokenModel.TYPE_UPDATE)[0]
             tokenModel.pos = data.get('pos')
             tokenModel.lemma = data.get('lemma')
-            tokenModel.meaning = data.get('meaning')
+            tokenModel.sense = data.get('sense')
             tokenModel.level = data.get('level')
             tokenModel.save()
 
@@ -285,13 +284,13 @@ class EditTokenDialog(QtWidgets.QDialog):
         token = Token(pyboToken)
         if self.levelField.text() != '':
             token.level = int(self.levelField.text())
-        token.meaning = self.meaningField.toPlainText()
+        token.sense = self.senseField.toPlainText()
 
         self.editor.tokens.insert(self.addingIndex, token)
 
         # deactivate the token which hasn't be split
         if self.mode == self.MODE_ADD_2 and self.secondToken:
-            self.editor.bt.deactivate_word(
+            self.editor.bt.deactivate(
                 self.token.text + self.secondToken.text)
             TokenModel.objects.get_or_create(
                 text=self.token.text + self.secondToken.text,

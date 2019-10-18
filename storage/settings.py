@@ -5,7 +5,6 @@ SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 BASE_DIR = os.path.dirname(SETTINGS_DIR)
 
-
 SECRET_KEY = '30mc!-oq02xh=^letug)p6vwmc8t2i0nz=q0jaj6x22d1y+v3)'
 
 DEBUG = True

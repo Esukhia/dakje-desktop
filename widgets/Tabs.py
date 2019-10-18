@@ -59,11 +59,21 @@ class LevelTab(QtWidgets.QWidget):
     def initGrids(self):
         self.grids = QtWidgets.QGridLayout()
 
-        # Token Coverage
-        self.tokenCoverageLabel = QtWidgets.QLabel('Token Coverage')
+
+        # Selection Coverage
+        self.tokenCoverageLabel = QtWidgets.QLabel('Selection Coverage')
         self.tokenCoverageProgBar = ProgressBar(self, 0, '#278da9')
         self.grids.addWidget(self.tokenCoverageLabel, 0, 0, 1, 4)
         self.grids.addWidget(self.tokenCoverageProgBar, 1, 0, 1, 4)
+
+        # Grade Profile
+        self.levelProfileCheckbox = QtWidgets.QCheckBox()
+        self.levelProfileButton = QtWidgets.QPushButton()
+        self.levelProfileButton.setFlat(True)
+        self.levelProfileButton.setStyleSheet("Text-align:left")
+        self.levelProfileButton.setText('Load grade profile')
+        # self.grids.addWidget(self.levelProfileCheckbox, 2, 0, 1, 1)
+        # self.grids.addWidget(self.levelProfileButton, 2, 1, 1, 1)
 
         self.levelNoneButton = QtWidgets.QPushButton()
         self.levelNoneButton.setFlat(True)
@@ -75,7 +85,7 @@ class LevelTab(QtWidgets.QWidget):
         self.level1Button = QtWidgets.QPushButton()
         self.level1Button.setFlat(True)
         self.level1Button.setStyleSheet("Text-align:left")
-        self.level1Button.setText('ཚིག་ཐོ་དང་པོ།')
+        self.level1Button.setText('ཚིག་ཐོ་དང་པོ།', )
         self.level1ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[1])
 
@@ -94,18 +104,17 @@ class LevelTab(QtWidgets.QWidget):
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[3])
 
         # Checkboxes
-        # TODO : add all levels checkbox
-
         self.levelNoneCheckbox = QtWidgets.QCheckBox()
         self.level1Checkbox = QtWidgets.QCheckBox()
         self.level2Checkbox = QtWidgets.QCheckBox()
         self.level3Checkbox = QtWidgets.QCheckBox()
 
-        for checkbox in (self.levelNoneCheckbox, self.level1Checkbox,
+        for checkbox in (self.levelProfileCheckbox, self.levelNoneCheckbox, self.level1Checkbox,
                          self.level2Checkbox, self.level3Checkbox):
             checkbox.clicked.connect(self.editor.refreshView)
 
         self.levelCoverages = [
+            # [self.levelProfileCheckbox, self.levelProfileButton],
             [self.levelNoneCheckbox, self.levelNoneButton, self.levelNoneProgBar],
             [self.level1Checkbox, self.level1Button, self.level1ProgBar],
             [self.level2Checkbox, self.level2Button, self.level2ProgBar],
@@ -113,7 +122,7 @@ class LevelTab(QtWidgets.QWidget):
         ]
 
         for i, levelCoverage in enumerate(self.levelCoverages):
-            self.levelRow = 2 + i
+            self.levelRow = 4 + i
             self.grids.addWidget(levelCoverage[0], self.levelRow, 0, 1, 1)
             self.grids.addWidget(levelCoverage[1], self.levelRow, 1, 1, 1)
             self.grids.addWidget(levelCoverage[2], self.levelRow, 2, 1, 2)

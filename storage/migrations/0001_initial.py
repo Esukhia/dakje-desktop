@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                 ('pos', models.CharField(blank=True, max_length=255, null=True)),
                 ('lemma', models.CharField(blank=True, max_length=255, null=True)),
                 ('level', models.IntegerField(blank=True, null=True)),
-                ('meaning', models.TextField(blank=True, null=True)),
+                ('sense', models.TextField(blank=True, null=True)),
                 ('type', models.IntegerField(choices=[(1, 'update'), (2, 'remove')])),
             ],
         ),

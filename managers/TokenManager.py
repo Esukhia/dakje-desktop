@@ -10,6 +10,7 @@ from storage.models import Rule
 from storage.models import Token as TokenModel
 from .ViewManager import ViewManager
 from web.settings import BASE_DIR
+from web.settings import FILES_DIR
 
 
 import time
@@ -51,9 +52,9 @@ class Token:
         self.pos = token.pos
         self.start = token.start
         self.type = token.chunk_type
-        # self.sense = token.sense
+        # self.sense = token.sense # no sense in pybo
         self.level = None
-        self.meaning = None
+        self.sense = None
 
         self.id = id  # have no id before save to database
 
@@ -67,7 +68,7 @@ class Token:
         self.pos = tokenModel.pos if tokenModel.pos else self.pos
         self.lemma = tokenModel.lemma if tokenModel.lemma else self.lemma
         self.level = tokenModel.level if tokenModel.level else self.level
-        self.meaning = tokenModel.meaning if tokenModel.meaning else self.meaning
+        self.sense = tokenModel.sense if tokenModel.sense else self.sense
 
     @property
     def length(self):
@@ -78,7 +79,7 @@ class Token:
         return self.text_unaffixed[:-1] if self.text_unaffixed.endswith('་') else self.text_unaffixed
 
 class TokenManager:
-    TRIE_MODIF_DIR = os.path.join(BASE_DIR, 'resources', 'dictionaries')
+    TRIE_MODIF_DIR = os.path.join(FILES_DIR, 'words')
     if not os.path.exists(TRIE_MODIF_DIR):
         os.makedirs(TRIE_MODIF_DIR)
 
@@ -87,6 +88,7 @@ class TokenManager:
         os.makedirs(TRIE_ADD_DIR)
 
     TRIE_DEL_DIR = os.path.join(TRIE_MODIF_DIR, 'deactivate')
+    print(TRIE_DEL_DIR)
     if not os.path.exists(TRIE_DEL_DIR):
         os.makedirs(TRIE_DEL_DIR)
 

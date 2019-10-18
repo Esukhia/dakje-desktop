@@ -5,7 +5,7 @@ class MenuBar(QtWidgets.QMenuBar):
         super().__init__(parent)
         self.actionManager = actionManager
 
-        self.menuFile = QtWidgets.QMenu('&File')
+        self.menuFile = QtWidgets.QMenu('&ཡིག་ཆ།')
         self.menuEdit = QtWidgets.QMenu('&Edit')
         self.menuHelp = QtWidgets.QMenu('&Help')
 
