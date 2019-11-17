@@ -12,6 +12,7 @@ from storage.models import Token
 from web.settings import BASE_DIR, FILES_DIR
 
 class TableModel(QAbstractTableModel):
+    # 
     def __init__(self, parent, data, header):
         QAbstractTableModel.__init__(self, parent)
         self.parent = parent
@@ -134,7 +135,6 @@ class DictionaryEditorWidget(QDialog):
                 mergedDict[token.text] = token.pos
             else:  # Dict.ACTION_DELETE
                 del mergedDict[token.text]
-
         return mergedDict
 
     def setupTable(self):

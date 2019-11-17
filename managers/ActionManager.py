@@ -8,7 +8,8 @@ from web.settings import BASE_DIR
 class ActionManager:
     MENU_FILE = 1
     MENU_EDIT = 2
-    MENU_HELP = 3
+    MENU_VIEW = 3
+    MENU_HELP = 4
 
     def __init__(self, editor):
         self.editor = editor
@@ -74,10 +75,11 @@ class ActionManager:
             triggered=self.editor.toggleSpaceView
         )
 
-        self.dictionaryAction = self.createAction(
-            '&Open Dictionary', 'dictionary.png',
-            triggered=lambda: self.editor.dictionaryDialog.show()
-        )
+
+        # self.dictionaryAction = self.createAction(
+        #     '&Open Dictionary', 'dictionary.png',
+        #     triggered=lambda: self.editor.dictionaryDialog.show()
+        # )
 
         # self.fontPicker = self.createAction(
         #     '&Pick Font', 'font.png',
@@ -113,10 +115,11 @@ class ActionManager:
             return [
                 self.undoAction,
                 self.redoAction,
+            ]
+        elif self.MENU_VIEW == menu:
+            return [
                 self.spaceViewAction,
                 self.tagViewAction,
-                # self.fontPicker,
-                self.dictionaryAction
             ]
         elif self.MENU_HELP == menu:
             return []

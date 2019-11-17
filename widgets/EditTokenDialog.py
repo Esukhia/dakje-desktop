@@ -166,7 +166,8 @@ class EditTokenDialog(QtWidgets.QDialog):
         self.ruleHBox.addWidget(self.addRuleButton)
         self.fbox.addRow(self.ruleHBox)
 
-        self.historyVBox = QtWidgets.QVBoxLayout(self)
+        # QLayout: Attempting to add QLayout "" to EditTokenDialog "", which already has a layout
+        self.historyVBox = QtWidgets.QVBoxLayout()
         self.fbox.addRow(QtWidgets.QLabel('Existing Rules'))
         self.fbox.addRow(self.historyVBox)
 

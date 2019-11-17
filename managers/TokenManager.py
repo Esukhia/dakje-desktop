@@ -1,6 +1,13 @@
+'''
+
+
+
+
+
+'''
+
 import os
 
-# import pybo
 import pybo
 
 from pathlib import Path
@@ -79,6 +86,7 @@ class Token:
         return self.text_unaffixed[:-1] if self.text_unaffixed.endswith('་') else self.text_unaffixed
 
 class TokenManager:
+    # This class runs botok, and gives him custom lists
     TRIE_MODIF_DIR = os.path.join(FILES_DIR, 'words')
     if not os.path.exists(TRIE_MODIF_DIR):
         os.makedirs(TRIE_MODIF_DIR)
@@ -97,9 +105,9 @@ class TokenManager:
 
     def __init__(self, editor):
         self.editor = editor
-        self.lang = "bo"
-        self.mode = "default"
-        self.tagger = None
+        # self.lang = "bo"
+        # self.mode = "default"
+        # self.tagger = None
         self.matcher = Matchers.expertaRuleMatcher()
 
         with open(self.TRIE_ADD_TEMP_FILE, 'w', encoding="utf-8") as f:

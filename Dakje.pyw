@@ -8,6 +8,7 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
 django.setup()
 
+
 # editor
 import sys
 
@@ -17,10 +18,13 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from django.db import transaction
 
 from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
-                     EditTokenDialog, Highlighter, DictionaryEditorWidget)
+                     EditTokenDialog, Highlighter)
+                    #  EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token 
 from storage.models import Token
+Token.objects.all().delete()
+
 from web.settings import BASE_DIR, FILES_DIR
 
 # Logger
@@ -44,8 +48,6 @@ def timed(func):
     return wrapper
 
 # Exception
-
-
 class ExceptionHandler(QtCore.QObject):
 
     errorSignal = QtCore.pyqtSignal()
@@ -112,7 +114,7 @@ class Editor(QtWidgets.QMainWindow):
         self.filename = None
 
         self.editTokenDialog = EditTokenDialog(self)
-        self.dictionaryDialog = DictionaryEditorWidget(self)
+        # self.dictionaryDialog = DictionaryEditorWidget(self)
 
     def initManagers(self):
         self.actionManager = ActionManager(self)
@@ -126,6 +128,12 @@ class Editor(QtWidgets.QMainWindow):
 
         self.menuBar = MenuBar(self.actionManager, parent=self)
         self.setMenuBar(self.menuBar)
+
+        # TODO group doesn't really work for mutually exclusive, has to be done manually
+        # self.viewActionGroup =  QtWidgets.QActionGroup(self)
+        # self.viewActionGroup.addAction(self.actionManager.spaceViewAction)
+        # self.viewActionGroup.addAction(self.actionManager.tagViewAction)
+
 
         self.toolBar = ToolBar(self.actionManager, parent=self)
         self.addToolBar(self.toolBar)
@@ -223,6 +231,7 @@ class Editor(QtWidgets.QMainWindow):
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
             self.segment()
+        
         self.viewManager.toggleSpaceView()
         self.refreshView()
 
@@ -315,8 +324,6 @@ class Editor(QtWidgets.QMainWindow):
 
     def redo(self):
         self.textEdit.redo()
-    
-
 
     # TextEdit Events #
 
@@ -329,6 +336,7 @@ class Editor(QtWidgets.QMainWindow):
             token = self.tokenManager.find(position)[1]
 
             if token.pos == "OOV":
+                # TODO
                 self.actionManager.dictionaryAction.trigger()
                 self.dictionaryDialog.addWord(text=token.text)
             else:
@@ -578,7 +586,6 @@ class Editor(QtWidgets.QMainWindow):
         if ln and col:
             self.statusBar.lineLabel.setText(
                 'Ln {}, Col {}'.format(ln, col))
-
 
 def runserver():
     import django
