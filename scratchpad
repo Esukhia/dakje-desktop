@@ -1,0 +1,3 @@
+        self.viewActionGroup = QtWidgets.QActionGroup()
+        self.viewActionGroup.addAction(self.spaceViewAction)
+        self.viewActionGroup.addAction(self.tagViewAction)

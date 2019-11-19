@@ -17,15 +17,15 @@ from collections import Counter
 from PyQt5 import QtCore, QtWidgets, QtGui
 from django.db import transaction
 
-from dakje.widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
-                           EditTokenDialog, Highlighter)
+from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
+                     EditTokenDialog, Highlighter)
                     #  EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
-from dakje.managers import ActionManager, TokenManager, ViewManager, FormatManager
-from dakje.storage.models import Token
+from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token 
+from storage.models import Token
 Token.objects.all().delete()
 
-from dakje.web.settings import BASE_DIR, FILES_DIR
+from web.settings import BASE_DIR, FILES_DIR
 
 # Logger
 logging.basicConfig(level=logging.DEBUG,

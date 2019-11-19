@@ -64,7 +64,9 @@ import experta
 
 from experta import KnowledgeEngine, Fact
 from experta import Rule as expertaRule
+from experta.matchers.rete.check import FeatureCheck
 
+from storage.models import Rule
 
 class CQL(Fact):
     """Info about the traffic light."""

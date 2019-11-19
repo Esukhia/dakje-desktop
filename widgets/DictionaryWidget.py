@@ -7,9 +7,9 @@ from PyQt5.QtWidgets import (
     QDialog, QHeaderView, QTableView, QMessageBox
 )
 
-from dakje.storage.models import Token
+from storage.models import Token
 
-from dakje.web.settings import BASE_DIR, FILES_DIR
+from web.settings import BASE_DIR, FILES_DIR
 
 class TableModel(QAbstractTableModel):
     # 

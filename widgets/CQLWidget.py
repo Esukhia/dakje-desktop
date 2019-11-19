@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (
     QWidget, QComboBox, QPushButton, QMainWindow,
     QLabel, QLineEdit, QFormLayout, QHBoxLayout, QDialog
 )
-from dakje.web.settings import BASE_DIR
+from web.settings import BASE_DIR
 
 class RemoveButton(QPushButton):
     def __init__(self, parent=None):

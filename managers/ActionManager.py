@@ -3,7 +3,7 @@ import webbrowser
 
 from PyQt5 import QtGui, QtWidgets
 
-from dakje.web.settings import BASE_DIR
+from web.settings import BASE_DIR
 
 class ActionManager:
     MENU_FILE = 1

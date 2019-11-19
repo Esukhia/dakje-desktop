@@ -1,8 +1,12 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
-from .Tabs import LevelTab, FindTab, CorpusAnalysisTab
+import os
+import pybo
+
+from .Tabs import LevelTab, EditorTab, FindTab, CorpusAnalysisTab
 from .TextEdit import TextEdit
 
+from web.settings import BASE_DIR
 
 class CentralWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):

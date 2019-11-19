@@ -5,9 +5,9 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 from pybo import Token as PyboToken
 
-from dakje.storage.models import Rule
-from dakje.storage.models import Token as TokenModel
-from dakje.web.settings import BASE_DIR
+from storage.models import Rule
+from storage.models import Token as TokenModel
+from web.settings import BASE_DIR
 from .CQLWidget import CqlQueryGenerator
 
 class CqlHBox(QtWidgets.QHBoxLayout):
@@ -275,7 +275,7 @@ class EditTokenDialog(QtWidgets.QDialog):
                     )
 
     def addToken(self):
-        from dakje.managers import Token
+        from managers import Token
 
         pyboToken = PyboToken()
         pyboToken.text = self.textLabel.text()
