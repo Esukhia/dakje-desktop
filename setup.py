@@ -62,6 +62,5 @@ setuptools.setup(
         "data/words/lexica_bo/*",
         "html/*",
         "icons/*",
-        "storage/db.sqlite3"
     ],
 )
