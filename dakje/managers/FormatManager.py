@@ -1,5 +1,5 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-from storage.models import Format
+from PyQt5 import QtGui
+from dakje.storage.models import Format
 
 # class Format(QtGui.QTextFormat):
 #     def __init__(self):

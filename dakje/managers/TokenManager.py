@@ -10,14 +10,11 @@ import os
 
 import pybo
 
-from pathlib import Path
-
-from widgets import Matchers
-from storage.models import Rule
-from storage.models import Token as TokenModel
+from dakje.widgets import Matchers
+from dakje.storage.models import Rule
+from dakje.storage.models import Token as TokenModel
 from .ViewManager import ViewManager
-from web.settings import BASE_DIR
-from web.settings import FILES_DIR
+from dakje.web.settings import FILES_DIR
 
 
 import time

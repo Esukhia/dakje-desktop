@@ -2,7 +2,7 @@ import copy
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from web.settings import BASE_DIR, DESKTOP
+from dakje.web.settings import DESKTOP
 
 
 class TextEdit(QtWidgets.QTextEdit):
@@ -54,7 +54,7 @@ class TextEdit(QtWidgets.QTextEdit):
         self.document().redo()
 
     def keyPressEvent(self, e):
-        from widgets.EditTokenDialog import EditTokenDialog
+        from dakje.widgets import EditTokenDialog
         
         # if self.editor.viewManager.isPlainTextView():
         #     print("entered in here")

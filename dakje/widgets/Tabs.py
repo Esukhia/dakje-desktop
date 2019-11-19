@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from .CQLWidget import CqlQueryGenerator
 
-from web.settings import BASE_DIR
+from dakje.web.settings import BASE_DIR
 
 LEVEL_MODE_EXAMPLE_STRING = '''
 Statistics

@@ -5,10 +5,10 @@ TrieDelTempFile.txt
 POS_trie.pickled
 
 
-.idea
+../.idea
 build
 __pycache__/
-storage/db.sqlite3
+dakje/storage/db.sqlite3
 
 botok.yaml
 scratchpad
