@@ -9,3 +9,6 @@ POS_trie.pickled
 build
 __pycache__/
 storage/db.sqlite3
+
+botok.yaml
+scratchpad
