@@ -4,6 +4,7 @@ import copy
 from PyQt5 import QtCore, QtGui, QtWidgets
 from web.settings import BASE_DIR, DESKTOP
 
+
 class TextEdit(QtWidgets.QTextEdit):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -44,7 +45,7 @@ class TextEdit(QtWidgets.QTextEdit):
             QtWidgets.QMessageBox.question(
                 self, 'Cancel', 'Saving Failed', QtWidgets.QMessageBox.Yes)
 
-    # FIXME not working, , segment() needs to be added to the stack
+    # FIXME not working, segment() needs to be added to the stack
     def undo(self):
         self.document().undo()
 
