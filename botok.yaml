@@ -1,24 +1,24 @@
 ﻿tokenizers:
   trie_files:
-    - &ancient lexica_bo/ancient.txt
-    - &except lexica_bo/exceptions.txt
-    - &uncomp lexica_bo/uncompound_lexicon.txt
-    - &tsikchen lexica_bo/tsikchen.txt
-    - &dagdra lexica_bo/dagdra.txt
-    - &oral0 lexica_bo/oral_corpus_0.txt
-    - &oral1 lexica_bo/oral_corpus_1.txt
-    - &oral2 lexica_bo/oral_corpus_2.txt
-    - &oral3 lexica_bo/oral_corpus_3.txt
-    - &oral4 lexica_bo/recordings_4.txt
-    - &mgd lexica_bo/mgd.txt
-    - &verbs lexica_bo/verbs.txt
+    - &ancient words_bo/ancient.txt
+    - &except words_bo/exceptions.txt
+    - &uncomp words_bo/uncompound_lexicon.txt
+    - &tsikchen words_bo/tsikchen.txt
+    - &dagdra words_bo/dagdra.txt
+    - &oral0 words_bo/oral_corpus_0.txt
+    - &oral1 words_bo/oral_corpus_1.txt
+    - &oral2 words_bo/oral_corpus_2.txt
+    - &oral3 words_bo/oral_corpus_3.txt
+    - &oral4 words_bo/recordings_4.txt
+    - &mgd words_bo/mgd.txt
+    - &verbs words_bo/verbs.txt
   skrt_files:
-    - &skrt lexica_skrt/sanskrit.txt
+    - &skrt words_skrt/sanskrit.txt
   non_inflected:
-    - &part lexica_non_inflected/particles.txt
+    - &part words_non_inflected/particles.txt
   lem-pos-freq_files:
-    - &lpf_soas entry_data/TiDC_corpus.csv
-    - &lpf_part entry_data/particles.csv
+    - &lpf_soas entry_data/TiDC_corpus.tsv
+    - &lpf_part entry_data/particles.tsv
   freq_files:
     - &freq_mgd frequency/mgd.txt
     - &tc frequency/tc.txt
