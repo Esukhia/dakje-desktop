@@ -2,7 +2,7 @@
 TrieAddTempFile.txt
 TrieDelTempFile.txt
 default.profile
-dakje/storage/db.sqlite3
+# dakje/storage/db.sqlite3
 scratchpad
 
 # pybo
