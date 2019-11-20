@@ -65,23 +65,6 @@ sys._excepthook = sys.excepthook
 sys.excepthook = exceptionHandler.handler
 
 
-class CommandEditText(QtWidgets.QUndoCommand):
-
-    def __init__(self, editor, text, description):
-        super(CommandEditText, self).__init__(description)
-        self.editor = editor
-        self.oldText = self.editor.toPlainText()
-        self.newText = text
-
-    def redo(self):
-        self.editor.setText(self.newText)
-        print(f'newText : {self.newText}')
-
-    def undo(self):
-        self.editor.setText(self.oldText)
-        print(f'oldText - {self.oldText}')
-
-
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
     SEGMENT_WORDS = ['་', '།', '\n']
@@ -93,20 +76,19 @@ class Editor(QtWidgets.QMainWindow):
         self.initManagers()
         self.initUI()
         self.bindEvents()
+        self.undoStack = QtWidgets.QUndoStack(self)
         self.setWindowTitle("དག་བྱེད།")
         self.setWindowIcon(QtGui.QIcon(
             os.path.join(BASE_DIR, "icons", "dakje.ico")))
         self.setWindowState(QtCore.Qt.WindowMaximized)
         # self.wordcount = 0
 
-        self.textEdit.setUndoRedoEnabled(False)
-
         self.textEdit.setPlainText = self.ignoreTextChanged(
             self.ignoreCursorPositionChanged(self.textEdit.setPlainText))
         self.textEdit.setSelection = self.ignoreTextChanged(
             self.ignoreCursorPositionChanged(self.textEdit.setSelection))
 
-
+    # why?
     def ignoreEvent(self, func, signal, event):
         def _func(*arg, **kwargs):
             signal.disconnect()
@@ -135,7 +117,6 @@ class Editor(QtWidgets.QMainWindow):
         # self.dictionaryDialog = DictionaryEditorWidget(self)
 
     def initManagers(self):
-        self.undoStk = QtWidgets.QUndoStack(self)
         self.actionManager = ActionManager(self)
         self.tokenManager = TokenManager(self)
         self.tokenList = Token(self)
@@ -197,6 +178,7 @@ class Editor(QtWidgets.QMainWindow):
         font.setPointSize(int(self.fontResizer.currentText()))
         self.textEdit.setFont(font)
 
+
     def bindEvents(self):
         self.bindCursorPositionChanged()
         self.bindTextChanged()
@@ -225,6 +207,26 @@ class Editor(QtWidgets.QMainWindow):
             pickle.dump(self.bt.head, f, pickle.HIGHEST_PROTOCOL)
 
         super().closeEvent(*args, **kwargs)
+
+    # Tool Bar Actions #
+    # user can choose their font
+    # def fontComboBox(self):
+    #     # font, ok = QtWidgets.QFontDialog.getFont(self.textEdit.font(), self)
+    #     # if ok:
+    #     #     # set the text in the widget to the choosen font
+    #     #     self.textEdit.setFont(font)
+
+    #     self.fonts = QFontComboBox()
+    #     self.fonts.currentFontChanged.connect(self.textEdit.setCurrentFont)
+    #     # format_toolbar.addWidget(self.fonts)
+
+    #     self.fontsize = QComboBox()
+    #     self.fontsize.addItems([str(s) for s in FONT_SIZES])
+
+    #     # Connect to the signal producing the text of the current selection. Convert the string to float
+    #     # and set as the pointsize. We could also use the index + retrieve from FONT_SIZES.
+    #     self.fontsize.currentIndexChanged[str].connect(lambda s: self.editor.setFontPointSize(float(s)) )
+    #     format_toolbar.addWidget(self.fontsize)
 
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
@@ -318,16 +320,13 @@ class Editor(QtWidgets.QMainWindow):
         self.filename = self.textEdit.saveFile()
 
     def undo(self):
-        # self.textEdit.undo()
-        self.QUndoStack.undo()
-        print('undo')
+        self.textEdit.undo()
 
     def redo(self):
-        # self.textEdit.redo()
-        self.QUndoStack.redo()
-        print('redo')
+        self.textEdit.redo()
 
     # TextEdit Events #
+
     def cursorPositionChanged(self):
         cursor = self.textEdit.textCursor()
         position = cursor.position()
@@ -411,8 +410,7 @@ class Editor(QtWidgets.QMainWindow):
         # - level
         # - sense
         self.tokenManager.applyDict()
-
-        # 
+        # ???
         self.tokenManager.matchRules()
 
         # keep cursor
@@ -423,13 +421,9 @@ class Editor(QtWidgets.QMainWindow):
             currentToken = current[1]
             distance = textCursor.position() - currentToken.start
 
+        # Sets text in textEdit before moving on to highlighting
         text = self.tokenManager.getString()
-
-        # # Sets text in textEdit before moving on to highlighting
-        # self.textEdit.setPlainText(text)
-
-        command = CommandEditText(self.textEdit, text, "Edit text")
-        self.undoStk.push(command)
+        self.textEdit.setPlainText(text)
 
         if current is not None:
             textCursor.setPosition(currentToken.start + distance)

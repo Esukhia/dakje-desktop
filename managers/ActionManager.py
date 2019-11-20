@@ -53,14 +53,14 @@ class ActionManager:
             '&Undo', 'undo.png',
             shortcut=QtGui.QKeySequence.Undo,
             statusTip='Undo the last editing action',
-            triggered=self.editor.undoStk.undo
+            triggered=self.editor.undo
         )
 
         self.redoAction = self.createAction(
             '&Redo', 'redo.png',
             shortcut=QtGui.QKeySequence.Redo,
             statusTip='Redo the last editing action',
-            triggered=self.editor.undoStk.redo
+            triggered=self.editor.redo
         )
 
         self.tagViewAction = self.createAction(
@@ -80,6 +80,14 @@ class ActionManager:
         #     '&Open Dictionary', 'dictionary.png',
         #     triggered=lambda: self.editor.dictionaryDialog.show()
         # )
+
+        # self.fontPicker = self.createAction(
+        #     '&Pick Font', 'font.png',
+        #     triggered=self.editor.fontPickerDialog
+        # )
+
+        # self.fonts = self.editor.fontP
+        # self.editor.fonts.currentFontChanged.connect(self.editor.)
 
         self.openAdminAction = self.createAction(
             '&Open Admin', 'settings.png',
