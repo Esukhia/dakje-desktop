@@ -30,7 +30,7 @@
 
 adjustments:
   files:
-    - &rdr adjustment/rdr_basis.yaml
+    - &rdr adjustment/rdr_basis.tsv
   profiles:
     empty: []
     basic: [*rdr]

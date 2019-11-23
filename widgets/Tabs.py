@@ -37,7 +37,6 @@ class ProgressBar(QtWidgets.QProgressBar):
             self.setStyleSheet(
                 'QProgressBar::chunk {background-color: ' + color + '}')
 
-
 class LevelTab(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -59,28 +58,42 @@ class LevelTab(QtWidgets.QWidget):
     def initGrids(self):
         self.grids = QtWidgets.QGridLayout()
 
-
         # Selection Coverage
         self.tokenCoverageLabel = QtWidgets.QLabel('Selection Coverage')
         self.tokenCoverageProgBar = ProgressBar(self, 0, '#278da9')
-        self.grids.addWidget(self.tokenCoverageLabel, 0, 0, 1, 4)
-        self.grids.addWidget(self.tokenCoverageProgBar, 1, 0, 1, 4)
+        self.grids.addWidget(self.tokenCoverageLabel, 0, 0, 1, 5)
+        self.grids.addWidget(self.tokenCoverageProgBar, 1, 0, 1, 5)
 
-        # Grade Profile
-        self.levelProfileCheckbox = QtWidgets.QCheckBox()
+        # Grade Profile      
         self.levelProfileButton = QtWidgets.QPushButton()
-        self.levelProfileButton.setFlat(True)
-        self.levelProfileButton.setStyleSheet("Text-align:left")
-        self.levelProfileButton.setText('Load grade profile')
-        # self.grids.addWidget(self.levelProfileCheckbox, 2, 0, 1, 1)
-        # self.grids.addWidget(self.levelProfileButton, 2, 1, 1, 1)
+        self.levelProfileButton.setText('Load Profile')
+        # TODO align left when setting the name of a profile dir
+        # self.levelProfileButton.setStyleSheet("Text-align:left")
+        self.levelReloadButton = QtWidgets.QPushButton()
+        self.levelReloadButton.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.levelReloadButton.setFlat(True)
+        self.levelReloadButton.setIcon(QtGui.QIcon(os.path.join(
+            BASE_DIR, 'icons', 'reload.png')))
 
+        self.levelProfileCheckbox = QtWidgets.QCheckBox()
+        self.levelProfileCheckbox.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        # self.levelProfileLabel = QtWidgets.QLabel('test')
+        # TODO change to "Change Profile" when profile already loaded
+        self.grids.addWidget(self.levelProfileCheckbox, 2, 0, 1, 1)
+        self.grids.addWidget(self.levelProfileButton, 2, 1, 1, 1)
+        self.grids.addWidget(self.levelReloadButton, 2, 2, 1, 1)
+        # self.grids.addWidget(self.levelProfileLabel, 2, 3, 1, 2)
+
+        # Levels
         self.levelNoneButton = QtWidgets.QPushButton()
+        self.levelNoneButton.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.levelNoneButton.setFlat(True)
+        self.levelNoneButton.setEnabled(False)
         self.levelNoneButton.setStyleSheet("Text-align:left")
-        self.levelNoneButton.setText('Non-level')
+        self.levelNoneButton.setText(' Non-level')
         self.levelNoneProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[None])
+        self.levelNoneProgBar.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
 
         self.level1Button = QtWidgets.QPushButton()
         self.level1Button.setFlat(True)
@@ -109,12 +122,11 @@ class LevelTab(QtWidgets.QWidget):
         self.level2Checkbox = QtWidgets.QCheckBox()
         self.level3Checkbox = QtWidgets.QCheckBox()
 
-        for checkbox in (self.levelProfileCheckbox, self.levelNoneCheckbox, self.level1Checkbox,
+        for checkbox in (self.levelNoneCheckbox, self.level1Checkbox,
                          self.level2Checkbox, self.level3Checkbox):
             checkbox.clicked.connect(self.editor.refreshView)
 
         self.levelCoverages = [
-            # [self.levelProfileCheckbox, self.levelProfileButton],
             [self.levelNoneCheckbox, self.levelNoneButton, self.levelNoneProgBar],
             [self.level1Checkbox, self.level1Button, self.level1ProgBar],
             [self.level2Checkbox, self.level2Button, self.level2ProgBar],
@@ -122,25 +134,24 @@ class LevelTab(QtWidgets.QWidget):
         ]
 
         for i, levelCoverage in enumerate(self.levelCoverages):
-            self.levelRow = 4 + i
+            self.levelRow = 5 + i
             self.grids.addWidget(levelCoverage[0], self.levelRow, 0, 1, 1)
-            self.grids.addWidget(levelCoverage[1], self.levelRow, 1, 1, 1)
-            self.grids.addWidget(levelCoverage[2], self.levelRow, 2, 1, 2)
+            self.grids.addWidget(levelCoverage[1], self.levelRow, 1, 1, 2)
+            self.grids.addWidget(levelCoverage[2], self.levelRow, 3, 1, 2)
 
         # Add new level
         # self.levelCoverageLabel = QtWidgets.QLabel('Level Coverage')
         # self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 2)
 
         self.addBtn = QtWidgets.QPushButton('+')
-        self.grids.addWidget(self.addBtn, self.levelRow+1,2,1,2)
+        self.grids.addWidget(self.addBtn, self.levelRow + 1,3,1,2)
         """
         self.addBtn.clicked.connect(self.addLevel)
 
         self.addLevel()
 
-    def addLevel(self):
-
-        add a + button in the grid
+        def addLevel(self):
+            add a + button in the grid
         """
 
 

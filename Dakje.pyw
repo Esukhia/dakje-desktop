@@ -11,7 +11,7 @@ django.setup()
 
 # editor
 import sys
-
+import pathlib
 from functools import partial, wraps
 from collections import Counter
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -23,6 +23,8 @@ from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token 
 from storage.models import Token
+
+# flushes the Tokens on start, should be in a function
 Token.objects.all().delete()
 
 from web.settings import BASE_DIR, FILES_DIR
@@ -88,7 +90,6 @@ class Editor(QtWidgets.QMainWindow):
         self.textEdit.setSelection = self.ignoreTextChanged(
             self.ignoreCursorPositionChanged(self.textEdit.setSelection))
 
-    # why?
     def ignoreEvent(self, func, signal, event):
         def _func(*arg, **kwargs):
             signal.disconnect()
@@ -134,7 +135,6 @@ class Editor(QtWidgets.QMainWindow):
         # self.viewActionGroup.addAction(self.actionManager.spaceViewAction)
         # self.viewActionGroup.addAction(self.actionManager.tagViewAction)
 
-
         self.toolBar = ToolBar(self.actionManager, parent=self)
         self.addToolBar(self.toolBar)
 
@@ -178,10 +178,10 @@ class Editor(QtWidgets.QMainWindow):
         font.setPointSize(int(self.fontResizer.currentText()))
         self.textEdit.setFont(font)
 
-
     def bindEvents(self):
         self.bindCursorPositionChanged()
         self.bindTextChanged()
+        self.bindProfileButton()
         self.bindLevelButtons()
 
     def bindCursorPositionChanged(self):
@@ -190,15 +190,20 @@ class Editor(QtWidgets.QMainWindow):
     def bindTextChanged(self):
         self.textEdit.textChanged.connect(self.textChanged)
 
+    def bindProfileButton(self):
+        self.levelTab.levelProfileButton.clicked.connect(
+            partial(self.importLevelProfile))
+
     def bindLevelButtons(self):
+        # turn this in loop for more levels
         self.levelTab.level1Button.clicked.connect(
-            partial(self.importLevelList, level=1, levelNum=self.levelTab.level1Button))
+            partial(self.importLevelList, level=1, levelButton=self.levelTab.level1Button))
 
         self.levelTab.level2Button.clicked.connect(
-            partial(self.importLevelList, level=2, levelNum=self.levelTab.level2Button))
+            partial(self.importLevelList, level=2, levelButton=self.levelTab.level2Button))
 
         self.levelTab.level3Button.clicked.connect(
-            partial(self.importLevelList, level=3, levelNum=self.levelTab.level3Button))
+            partial(self.importLevelList, level=3, levelButton=self.levelTab.level3Button))
 
     def closeEvent(self, *args, **kwargs):
 
@@ -254,6 +259,7 @@ class Editor(QtWidgets.QMainWindow):
         if byBlock:
             block = self.textEdit.textCursor().block()
             string = block.text()
+            print(string)
 
             if breakLine:
                 block = block.previous()
@@ -275,7 +281,7 @@ class Editor(QtWidgets.QMainWindow):
         self.refreshView()
 
     def resegment(self):
-        # FIXME is this really useful?
+        # used after updateToken()
         string = ''.join([token.text for token in self.tokens])
         tokens = self.tokenManager.segment(string)
         self.tokens = tokens
@@ -364,23 +370,92 @@ class Editor(QtWidgets.QMainWindow):
             elif string == '': 
                 self.segment()
 
-    # Import Level List#
-    # TODO: set list names when starting the app
-    def importLevelList(self, level, levelNum):
-        filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select a level list", os.path.join(FILES_DIR, 'levels'), filter="UTF-8 ཡིག་རྐྱང་། (*.txt)")
-        splitFilePath = filePath.split('/')
+    # Import Level Profile #
+    def importLevelProfile(self):
+        # a profile is a dir containing level lists
+        dirPath = QtWidgets.QFileDialog.getExistingDirectory(parent=self, directory=os.path.join(FILES_DIR, 'levels'), options=QtWidgets.QFileDialog.ShowDirsOnly)
+        print(dirPath)
 
+        # get file paths
+        if dirPath:
+            levelFiles = list(pathlib.Path(dirPath).glob("*.txt"))
+        else:
+            return
+
+        if not levelFiles:
+            print('send me home!')
+            return
+        if levelFiles[0]:
+            self.setLevelList(level=1, levelButton=self.levelTab.level1Button, filePath=levelFiles[0])
+        if levelFiles[1]:
+            self.setLevelList(level=2, levelButton=self.levelTab.level2Button, filePath=levelFiles[1])
+        if levelFiles[2]:
+            self.setLevelList(level=3, levelButton=self.levelTab.level3Button, filePath=levelFiles[2])
+        if levelFiles[3]:
+            return
+
+
+
+        self.levelTab.level2Button.clicked.connect(
+            partial(self.importLevelList, level=2, levelButton=self.levelTab.level2Button))
+
+        self.levelTab.level3Button.clicked.connect(
+            partial(self.importLevelList, level=3, levelButton=self.levelTab.level3Button))
+
+
+        for l in levelFiles:
+            print(l)
+
+        # print(levelFiles)
+
+        
+
+
+
+        # get button paths
+
+        # for paths setLevelList()
+
+        # set profile name
+
+
+
+
+
+    # Import Level List
+    def importLevelList(self, level, levelButton):
+        # get file path
+        filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select a level list", os.path.join(FILES_DIR, 'levels'), filter="UTF-8 ཡིག་རྐྱང་། (*.txt)")
+
+        if not filePath:
+            return
+        else:
+            self.setLevelList(level, levelButton, filePath)
+
+    def setLevelList(self, level, levelButton, filePath):
+
+        splitFilePath = pathlib.PurePath(filePath).parts
+
+        # TODO save level & path for refresh
+
+
+        # get and set file name
         if '' in splitFilePath[:1]:
             return
         else:
-            self.fileName = splitFilePath[len(splitFilePath) - 1]
-            levelNum.setText(self.fileName)
+            fileName = splitFilePath[len(splitFilePath) - 1]
+            levelButton.setText(fileName)
 
+        # get strings
         with open(filePath, encoding='utf-8') as f:
             words = [word[:-1] if word.endswith('་') else word
                      for word in [line.rstrip('\r\n')
                                   for line in f.readlines()]]
 
+        # TODO flush current level words
+
+
+        # create words, add to level
         with transaction.atomic():
             for word in words:
                 token = Token.objects.get_or_create(
