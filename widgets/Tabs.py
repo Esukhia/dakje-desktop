@@ -64,7 +64,7 @@ class LevelTab(QtWidgets.QWidget):
         self.grids.addWidget(self.tokenCoverageLabel, 0, 0, 1, 5)
         self.grids.addWidget(self.tokenCoverageProgBar, 1, 0, 1, 5)
 
-        # Grade Profile      
+        # Level Profile      
         self.levelProfileButton = QtWidgets.QPushButton()
         self.levelProfileButton.setText('Load Profile')
         # TODO align left when setting the name of a profile dir
@@ -77,12 +77,12 @@ class LevelTab(QtWidgets.QWidget):
 
         self.levelProfileCheckbox = QtWidgets.QCheckBox()
         self.levelProfileCheckbox.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        # self.levelProfileLabel = QtWidgets.QLabel('test')
+        self.levelProfileLabel = QtWidgets.QLabel('test')
         # TODO change to "Change Profile" when profile already loaded
         self.grids.addWidget(self.levelProfileCheckbox, 2, 0, 1, 1)
         self.grids.addWidget(self.levelProfileButton, 2, 1, 1, 1)
         self.grids.addWidget(self.levelReloadButton, 2, 2, 1, 1)
-        # self.grids.addWidget(self.levelProfileLabel, 2, 3, 1, 2)
+        self.grids.addWidget(self.levelProfileLabel, 2, 3, 1, 2)
 
         # Levels
         self.levelNoneButton = QtWidgets.QPushButton()

@@ -22,10 +22,11 @@ from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
                     #  EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token 
-from storage.models import Token
 
+from storage.models import Token
 # flushes the Tokens on start, should be in a function
 Token.objects.all().delete()
+
 
 from web.settings import BASE_DIR, FILES_DIR
 
@@ -71,6 +72,8 @@ class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
     SEGMENT_WORDS = ['་', '།', '\n']
 
+    
+    
     @timed
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -192,7 +195,7 @@ class Editor(QtWidgets.QMainWindow):
 
     def bindProfileButton(self):
         self.levelTab.levelProfileButton.clicked.connect(
-            partial(self.importLevelProfile))
+            partial(self.loadLevelProfile))
 
     def bindLevelButtons(self):
         # turn this in loop for more levels
@@ -371,10 +374,11 @@ class Editor(QtWidgets.QMainWindow):
                 self.segment()
 
     # Import Level Profile #
-    def importLevelProfile(self):
+    def loadLevelProfile(self):
         # a profile is a dir containing level lists
         dirPath = QtWidgets.QFileDialog.getExistingDirectory(parent=self, directory=os.path.join(FILES_DIR, 'levels'), options=QtWidgets.QFileDialog.ShowDirsOnly)
-        print(dirPath)
+        
+        self.levelTab.levelProfileLabel.setText(pathlib.Path(dirPath).stem)
 
         # get file paths
         if dirPath:
