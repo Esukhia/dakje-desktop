@@ -8,6 +8,13 @@ from .CQLWidget import CqlQueryGenerator
 
 from web.settings import BASE_DIR
 
+LEVEL_NAMES = [
+    'ཚིག་ཐོ་དང་པོ།',
+    'ཚིག་ཐོ་གཉིས་པ།',
+    'ཚིག་ཐོ་གསུམ་པ།'
+]
+
+LEVEL_PROFILE_PATH = ''
 LEVEL_MODE_EXAMPLE_STRING = '''
 Statistics
 
@@ -23,7 +30,6 @@ Statistics
 0 words per sentences
 '''
 
-
 class ProgressBar(QtWidgets.QProgressBar):
     def __init__(self, parent=None, value=None, color=None):
         
@@ -38,6 +44,8 @@ class ProgressBar(QtWidgets.QProgressBar):
                 'QProgressBar::chunk {background-color: ' + color + '}')
 
 class LevelTab(QtWidgets.QWidget):
+
+
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -98,21 +106,21 @@ class LevelTab(QtWidgets.QWidget):
         self.level1Button = QtWidgets.QPushButton()
         self.level1Button.setFlat(True)
         self.level1Button.setStyleSheet("Text-align:left")
-        self.level1Button.setText('ཚིག་ཐོ་དང་པོ།', )
+        self.level1Button.setText(LEVEL_NAMES[0])
         self.level1ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[1])
 
         self.level2Button = QtWidgets.QPushButton()
         self.level2Button.setFlat(True)
         self.level2Button.setStyleSheet("Text-align:left")
-        self.level2Button.setText('ཚིག་ཐོ་གཉིས་པ།')
+        self.level2Button.setText(LEVEL_NAMES[1])
         self.level2ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[2])
 
         self.level3Button = QtWidgets.QPushButton()
         self.level3Button.setFlat(True)
         self.level3Button.setStyleSheet("Text-align:left")
-        self.level3Button.setText('ཚིག་ཐོ་གསུམ་པ།')
+        self.level3Button.setText(LEVEL_NAMES[2])
         self.level3ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[3])
 

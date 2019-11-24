@@ -20,7 +20,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from django.db import transaction
 
 from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
-                     EditTokenDialog, Highlighter)
+                     EditTokenDialog, Highlighter, Tabs)
                     #  EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token 
@@ -204,6 +204,7 @@ class Editor(QtWidgets.QMainWindow):
         self.bindTextChanged()
         self.bindProfileButton()
         self.bindLevelButtons()
+        self.bindReloadProfileButton()
 
     def bindCursorPositionChanged(self):
         self.textEdit.cursorPositionChanged.connect(self.cursorPositionChanged)
@@ -214,6 +215,10 @@ class Editor(QtWidgets.QMainWindow):
     def bindProfileButton(self):
         self.levelTab.levelProfileButton.clicked.connect(
             partial(self.loadLevelProfile))
+
+    def bindReloadProfileButton(self):
+        self.levelTab.levelReloadButton.clicked.connect(
+            partial(self.reloadLevelProfile))
 
     def bindLevelButtons(self):
         # turn this in loop for more levels
@@ -398,13 +403,26 @@ class Editor(QtWidgets.QMainWindow):
         # a profile is a dir containing level lists
         dirPath = QtWidgets.QFileDialog.getExistingDirectory(parent=self, directory=os.path.join(FILES_DIR, 'levels'), options=QtWidgets.QFileDialog.ShowDirsOnly)
         self.levelTab.levelProfileLabel.setText(pathlib.Path(dirPath).stem)
-        
+        # dirpath string
+        Tabs.LEVEL_PROFILE_PATH = dirPath
+        self.setLevelProfile(dirPath)
+
+    def setLevelProfile(self, dirPath):
+        # clear db
+        Token.objects.all().delete()
+
+        # reset level names
+        self.levelTab.level1Button.setText(Tabs.LEVEL_NAMES[0])
+        self.levelTab.level2Button.setText(Tabs.LEVEL_NAMES[1])
+        self.levelTab.level3Button.setText(Tabs.LEVEL_NAMES[2])
+
         # get file paths
         if dirPath:
             levelFiles = list(pathlib.Path(dirPath).glob("*.txt"))
         else:
             return
 
+        # set level lists
         if not levelFiles:
             print('send me home!')
             return
@@ -417,8 +435,7 @@ class Editor(QtWidgets.QMainWindow):
         if levelFiles[3]:
             return
 
-
-
+        # reset selection coverage
         self.levelTab.level2Button.clicked.connect(
             partial(self.importLevelList, level=2, levelButton=self.levelTab.level2Button))
 
@@ -429,21 +446,11 @@ class Editor(QtWidgets.QMainWindow):
         for l in levelFiles:
             print(l)
 
-        # print(levelFiles)
-
-        
-
-
-
-        # get button paths
-
-        # for paths setLevelList()
-
-        # set profile name
-
-
-
-
+    def reloadLevelProfile(self):
+        print('refreshed')
+        self.setLevelProfile(Tabs.LEVEL_PROFILE_PATH)
+        self.refreshView()
+    
 
     # Import Level List
     def importLevelList(self, level, levelButton):
@@ -459,9 +466,6 @@ class Editor(QtWidgets.QMainWindow):
 
         splitFilePath = pathlib.PurePath(filePath).parts
 
-        # TODO save level & path for refresh
-
-
         # get and set file name
         if '' in splitFilePath[:1]:
             return
@@ -476,7 +480,6 @@ class Editor(QtWidgets.QMainWindow):
                                   for line in f.readlines()]]
 
         # TODO flush current level words
-
 
         # create words, add to level
         with transaction.atomic():
