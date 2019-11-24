@@ -5,9 +5,11 @@ import time
 import multiprocessing
 
 import django
+
+from PyQt5.Qt import QTextEdit
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
 django.setup()
-
 
 # editor
 import sys
@@ -22,11 +24,10 @@ from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
                     #  EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token 
-
 from storage.models import Token
+
 # flushes the Tokens on start, should be in a function
 Token.objects.all().delete()
-
 
 from web.settings import BASE_DIR, FILES_DIR
 
@@ -67,21 +68,35 @@ exceptionHandler = ExceptionHandler()
 sys._excepthook = sys.excepthook
 sys.excepthook = exceptionHandler.handler
 
+def ignoreEvent(signal):
+    def d(func):
+        func.ignoreSignals = []
+
+        @wraps(func)
+        def f(*args, **kws):
+            if signal in func.ignoreSignals:
+                print(f"{func} ignore {signal}")
+                return None
+            else:
+                print(f"{func} called by {signal}")
+                return func(*args, **kws)
+        return f
+    return d
 
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
     SEGMENT_WORDS = ['་', '།', '\n']
 
-    
-    
     @timed
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        self.undoStack = QtWidgets.QUndoStack(self)
+
         self.initProperties()
         self.initManagers()
         self.initUI()
         self.bindEvents()
-        self.undoStack = QtWidgets.QUndoStack(self)
         self.setWindowTitle("དག་བྱེད།")
         self.setWindowIcon(QtGui.QIcon(
             os.path.join(BASE_DIR, "icons", "dakje.ico")))
@@ -93,22 +108,23 @@ class Editor(QtWidgets.QMainWindow):
         self.textEdit.setSelection = self.ignoreTextChanged(
             self.ignoreCursorPositionChanged(self.textEdit.setSelection))
 
-    def ignoreEvent(self, func, signal, event):
+    # why?
+    def _ignoreEvent(self, func, signal, event):
         def _func(*arg, **kwargs):
-            signal.disconnect()
+            event.__func__.ignoreSignals.append(signal)
             func(*arg, **kwargs)
-            signal.connect(event)
+            event.__func__.ignoreSignals.remove(signal)
         return _func
 
     def ignoreCursorPositionChanged(self, func):
-        return self.ignoreEvent(func,
-                                self.textEdit.cursorPositionChanged,
-                                self.cursorPositionChanged)
+        return self._ignoreEvent(func,
+                                 QTextEdit.cursorPositionChanged,
+                                 self.cursorPositionChanged)
 
     def ignoreTextChanged(self, func):
-        return self.ignoreEvent(func,
-                                self.textEdit.textChanged,
-                                self.textChanged)
+        return self._ignoreEvent(func,
+                                 QTextEdit.textChanged,
+                                 self.textChanged)
 
     def initProperties(self):
         self.tokens = []
@@ -137,6 +153,7 @@ class Editor(QtWidgets.QMainWindow):
         # self.viewActionGroup =  QtWidgets.QActionGroup(self)
         # self.viewActionGroup.addAction(self.actionManager.spaceViewAction)
         # self.viewActionGroup.addAction(self.actionManager.tagViewAction)
+
 
         self.toolBar = ToolBar(self.actionManager, parent=self)
         self.addToolBar(self.toolBar)
@@ -180,6 +197,7 @@ class Editor(QtWidgets.QMainWindow):
         font = self.fontPicker.currentFont()
         font.setPointSize(int(self.fontResizer.currentText()))
         self.textEdit.setFont(font)
+
 
     def bindEvents(self):
         self.bindCursorPositionChanged()
@@ -336,6 +354,7 @@ class Editor(QtWidgets.QMainWindow):
 
     # TextEdit Events #
 
+    @ignoreEvent(QTextEdit.cursorPositionChanged)
     def cursorPositionChanged(self):
         cursor = self.textEdit.textCursor()
         position = cursor.position()
@@ -356,6 +375,7 @@ class Editor(QtWidgets.QMainWindow):
         self.showStatus(ln=cursor.blockNumber() + 1,
                         col=cursor.columnNumber() + 1)
 
+    @ignoreEvent(QTextEdit.textChanged)
     def textChanged(self):
         if self.viewManager.isPlainTextView():
             string = self.textEdit.toPlainText()
@@ -374,11 +394,10 @@ class Editor(QtWidgets.QMainWindow):
                 self.segment()
 
     # Import Level Profile #
-    def loadLevelProfile(self):
+    def importLevelProfile(self):
         # a profile is a dir containing level lists
         dirPath = QtWidgets.QFileDialog.getExistingDirectory(parent=self, directory=os.path.join(FILES_DIR, 'levels'), options=QtWidgets.QFileDialog.ShowDirsOnly)
-        
-        self.levelTab.levelProfileLabel.setText(pathlib.Path(dirPath).stem)
+        print(dirPath)
 
         # get file paths
         if dirPath:

@@ -1,12 +1,139 @@
 import copy
 
-
+from PyQt5.QtCore import Qt
 from PyQt5 import QtCore, QtGui, QtWidgets
-from web.settings import BASE_DIR, DESKTOP
+from PyQt5.QtWidgets import QTextEdit, QUndoCommand, QUndoStack
 
-class TextEdit(QtWidgets.QTextEdit):
-    def __init__(self, parent=None):
-        super().__init__(parent)
+from web.settings import DESKTOP
+
+class EmulatedTextUndoCommand(QUndoCommand):
+
+    def __init__(self, edit, oldText, newText,
+                 oldCursorPosition=None, newCursorPosition=None):
+        super(EmulatedTextUndoCommand, self).__init__("")
+        self.edit = edit
+        self.oldText = oldText
+        self.newText = newText
+        self.oldCursorPosition = oldCursorPosition
+        self.newCursorPosition = newCursorPosition
+
+        self.called = False
+
+    def redo(self):
+        if not self.called:
+            self.called = True
+            return
+
+        print("redo: %s" % self)
+        self.edit._setPlainText(self.newText)
+        if self.newCursorPosition:
+            print("redo cursor position: %d" % self.newCursorPosition)
+            self.edit.blockSignals(True)
+            try:
+                t = self.edit.textCursor()
+                t.setPosition(self.newCursorPosition)
+                self.edit.setTextCursor(t)
+            finally:
+                self.edit.blockSignals(False)
+
+    def undo(self):
+        print("undo: %s" % self)
+        self.edit._setPlainText(self.oldText)
+        if self.oldCursorPosition:
+            print("undo cursor position: %d" % self.oldCursorPosition)
+            self.edit.blockSignals(True)
+            try:
+                t = self.edit.textCursor()
+                t.setPosition(self.oldCursorPosition)
+                self.edit.setTextCursor(t)
+            finally:
+                self.edit.blockSignals(False)
+
+    def __str__(self, *args, **kwargs):
+        return "old: %s, new: %s" % (self.oldText, self.newText)
+
+class CustomUndoTextEdit(QTextEdit):
+    def __init__(self, *args, undoStack=None, **kws):
+        super().__init__(*args, **kws)
+
+        self.undoStack = (undoStack if undoStack is not None
+                          else QUndoStack(self))
+        self.textChangedAfterUndoCommandAdded = False
+
+        self.document().undoCommandAdded.connect(
+            self.onUndoCommandAdded)
+        self.textChanged.connect(self.onTextChanged)
+
+    def _setPlainText(self, text):
+        self.blockSignals(True)
+        try:
+            return QTextEdit.setPlainText(self, text)
+        finally:
+            self.blockSignals(False)
+
+    def setPlainText(self, text):
+        command = EmulatedTextUndoCommand(self,
+            self.toPlainText(), text,
+                self.textCursor().position(),
+                self.textCursor().position())
+        self.undoStack.push(command)
+
+        result = QTextEdit.setPlainText(self, text)
+        self.textChangedAfterUndoCommandAdded = False
+        return result
+
+    def keyPressEvent(self, event):
+        print("keyPressEvent")
+        if event.key() == (Qt.Key_Control and Qt.Key_Z):
+            print("press Undo")
+            self.undo()
+        elif event.key() == (Qt.Key_Control and Qt.Key_Y):
+            print("press Redo")
+            self.redo()
+        else: # call base class keyPressEvent
+            QTextEdit.keyPressEvent(self, event)
+
+    def onTextChanged(self):
+        print("onTextChanged")
+        self.textChangedAfterUndoCommandAdded = True
+
+    def onUndoCommandAdded(self):
+        print("insert undo command: %s %d" % (
+            self.toPlainText(), self.textCursor().position()))
+        if self.undoStack.isClean():
+            command = EmulatedTextUndoCommand(
+                self, "", self.toPlainText(),
+                None, self.textCursor().position())
+        else:
+            lastCommand = self.undoStack.command(self.undoStack.count() - 1)
+            command = EmulatedTextUndoCommand(
+                self, lastCommand.newText, self.toPlainText(),
+                lastCommand.newCursorPosition,
+                self.textCursor().position())
+        self.undoStack.push(command)
+        self.textChangedAfterUndoCommandAdded = False
+
+    def undo(self):
+        print("undo")
+        if self.textChangedAfterUndoCommandAdded:
+            lastCommand = self.undoStack.command(self.undoStack.count() - 1)
+            command = EmulatedTextUndoCommand(
+                self, lastCommand.newText, self.toPlainText(),
+                lastCommand.newCursorPosition,
+                self.textCursor().position())
+            self.undoStack.push(command)
+
+        self.undoStack.undo()
+        self.textChangedAfterUndoCommandAdded = False
+
+    def redo(self):
+        print("redo")
+        self.undoStack.redo()
+        self.textChangedAfterUndoCommandAdded = False
+
+class TextEdit(CustomUndoTextEdit):
+    def __init__(self, parent=None, *args, **kws):
+        super().__init__(parent, *args, **kws)
         self.filename = None
 
     @property
@@ -44,17 +171,17 @@ class TextEdit(QtWidgets.QTextEdit):
             QtWidgets.QMessageBox.question(
                 self, 'Cancel', 'Saving Failed', QtWidgets.QMessageBox.Yes)
 
-    # FIXME not working, , segment() needs to be added to the stack
-    def undo(self):
-        self.document().undo()
-
-    # FIXME not working
-    def redo(self):
-        self.document().redo()
+#     # FIXME not working, , segment() needs to be added to the stack
+#     def undo(self):
+#         self.document().undo()
+#
+#     # FIXME not working
+#     def redo(self):
+#         self.document().redo()
 
     def keyPressEvent(self, e):
         from widgets.EditTokenDialog import EditTokenDialog
-        
+
         # if self.editor.viewManager.isPlainTextView():
         #     print("entered in here")
         #     # if e.key() == QtCore.Qt.Key_Backspace:

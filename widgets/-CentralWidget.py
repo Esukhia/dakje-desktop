@@ -1,14 +1,19 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 
-from .Tabs import LevelTab, FindTab, CorpusAnalysisTab
+import os
+import pybo
+
+from .Tabs import LevelTab, EditorTab, FindTab, CorpusAnalysisTab
 from .TextEdit import TextEdit
+
+from web.settings import BASE_DIR
 
 class CentralWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
         self.leftTabWidget = LeftTabWidget(self)
-        self.textEdit = TextEdit(self, undoStack=parent.undoStack)
+        self.textEdit = TextEdit(self)
         self.tabWidget = TabWidget(self)
 
         self.hbox = QtWidgets.QHBoxLayout(self)
@@ -23,13 +28,14 @@ class CentralWidget(QtWidgets.QWidget):
 class LeftTabWidget(QtWidgets.QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-
+        
         self.findTab = FindTab(self)
         self.corpusAnalysisTab = CorpusAnalysisTab(self)
         self.addTab(self.corpusAnalysisTab, 'Corpus')
-        self.addTab(self.findTab, 'Find and Replace')
-        self.currentChanged.connect(self.tabChanged)
-
+        # FNR tab:
+        # self.addTab(self.findTab, 'Find and Replace')
+        # self.currentChanged.connect(self.tabChanged)
+        
     @property
     def editor(self):
         return self.parent().parent()
