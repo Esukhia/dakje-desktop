@@ -6,7 +6,7 @@ import multiprocessing
 
 import django
 
-from PyQt5.Qt import QTextEdit
+from PyQt5.QtWidgets import QTextEdit
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
 django.setup()
@@ -394,11 +394,11 @@ class Editor(QtWidgets.QMainWindow):
                 self.segment()
 
     # Import Level Profile #
-    def importLevelProfile(self):
+    def loadLevelProfile(self):
         # a profile is a dir containing level lists
         dirPath = QtWidgets.QFileDialog.getExistingDirectory(parent=self, directory=os.path.join(FILES_DIR, 'levels'), options=QtWidgets.QFileDialog.ShowDirsOnly)
-        print(dirPath)
-
+        self.levelTab.levelProfileLabel.setText(pathlib.Path(dirPath).stem)
+        
         # get file paths
         if dirPath:
             levelFiles = list(pathlib.Path(dirPath).glob("*.txt"))
