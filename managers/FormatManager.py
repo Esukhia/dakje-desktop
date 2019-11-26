@@ -13,14 +13,14 @@ class FormatManager:
     LEVEL_FORMAT_COLORS = dict()
     LEVEL_FORMATS = dict()  # generate by LEVEL_FORMAT_COLORS
 
-    # default values
+    # default values based on Ayu theme
     LEVEL_FORMAT_COLORS = {
-    1: '#87a840',
-    2: '#ddc328',
-    3: '#b63226',
-    4: '#278da9',
-    # 5: '#363d5c',
-    None: '#363d5c'
+    1: '#f29718', # yellow
+    2: '#8EB811', # green
+    3: '#00A0EC', # blue
+    # 2: '#a478ce', # purple
+    # 4: 'f2590c', # orange
+    None: 'f2590c'
     }
 
     for format in Format.objects.all():
