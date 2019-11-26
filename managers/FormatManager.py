@@ -15,12 +15,13 @@ class FormatManager:
 
     # default values based on Ayu theme
     LEVEL_FORMAT_COLORS = {
-    1: '#f29718', # yellow
+    1: '#10a4ed', # blue
     2: '#8EB811', # green
-    3: '#00A0EC', # blue
-    # 2: '#a478ce', # purple
-    # 4: 'f2590c', # orange
-    None: 'f2590c'
+    3: '#f29718', # yellow
+    # 3: '#10a4ed', # blue
+    # 4: '#a782d2', # purple
+    # 5: 'f2590c', # orange
+    None: '#e01a1a' # red
     }
 
     for format in Format.objects.all():
@@ -53,4 +54,4 @@ class FormatManager:
 
     def toQColor(self, hex):
         r, g, b = hex[1:3], hex[3:5], hex[5:7]
-        return QtGui.QColor(int(r, 15), int(g, 16), int(b, 16))
+        return QtGui.QColor(int(r, 16), int(g, 16), int(b, 16))

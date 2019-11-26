@@ -49,6 +49,27 @@ class ActionManager:
             triggered=self.editor.saveFile
         )
 
+        self.copyAction = self.createAction(
+            '&Copy...', 'copy.png',
+            shortcut=QtGui.QKeySequence.Copy,
+            statusTip='copy the current document',
+            triggered=self.editor.copy
+        )
+
+        self.pasteAction = self.createAction(
+            '&Paste...', 'paste.png',
+            shortcut=QtGui.QKeySequence.Paste,
+            statusTip='Paste the current document',
+            triggered=self.editor.paste
+        )
+
+        self.cutAction = self.createAction(
+            '&Cut...', 'cut.png',
+            shortcut=QtGui.QKeySequence.Cut,
+            statusTip='Cut the current document',
+            triggered=self.editor.cut
+        )
+
         self.undoAction = self.createAction(
             '&Undo', 'undo.png',
             shortcut=QtGui.QKeySequence.Undo,
@@ -115,6 +136,9 @@ class ActionManager:
             return [
                 self.undoAction,
                 self.redoAction,
+                self.copyAction,
+                self.pasteAction,
+                self.cutAction
             ]
         elif self.MENU_VIEW == menu:
             return [

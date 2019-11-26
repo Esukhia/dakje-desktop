@@ -131,6 +131,11 @@ class CustomUndoTextEdit(QTextEdit):
         self.undoStack.redo()
         self.textChangedAfterUndoCommandAdded = False
 
+    # Paste without formatting
+    def insertFromMimeData(self, source):
+        self.insertPlainText(source.text())
+
+
 class TextEdit(CustomUndoTextEdit):
     def __init__(self, parent=None, *args, **kws):
         super().__init__(parent, *args, **kws)
@@ -171,13 +176,6 @@ class TextEdit(CustomUndoTextEdit):
             QtWidgets.QMessageBox.question(
                 self, 'Cancel', 'Saving Failed', QtWidgets.QMessageBox.Yes)
 
-#     # FIXME not working, , segment() needs to be added to the stack
-#     def undo(self):
-#         self.document().undo()
-#
-#     # FIXME not working
-#     def redo(self):
-#         self.document().redo()
 
     def keyPressEvent(self, e):
         from widgets.EditTokenDialog import EditTokenDialog

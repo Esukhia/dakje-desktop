@@ -203,6 +203,7 @@ class Editor(QtWidgets.QMainWindow):
         self.bindCursorPositionChanged()
         self.bindTextChanged()
         self.bindProfileButton()
+        self.bindProfileCheckbox()
         self.bindLevelButtons()
         self.bindReloadProfileButton()
 
@@ -216,12 +217,16 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.levelProfileButton.clicked.connect(
             partial(self.loadLevelProfile))
 
+    def bindProfileCheckbox(self):
+        self.levelTab.levelProfileCheckbox.stateChanged.connect(
+            partial(self.changeLevelCheckboxes))
+
     def bindReloadProfileButton(self):
         self.levelTab.levelReloadButton.clicked.connect(
             partial(self.reloadLevelProfile))
 
     def bindLevelButtons(self):
-        # turn this in loop for more levels
+        # turn this into a loop for more levels
         self.levelTab.level1Button.clicked.connect(
             partial(self.importLevelList, level=1, levelButton=self.levelTab.level1Button))
 
@@ -231,6 +236,17 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.level3Button.clicked.connect(
             partial(self.importLevelList, level=3, levelButton=self.levelTab.level3Button))
 
+    def changeLevelCheckboxes(self):
+        if self.levelTab.levelProfileCheckbox.isChecked():
+            self.levelTab.level1Checkbox.setChecked(True)
+            self.levelTab.level2Checkbox.setChecked(True)
+            self.levelTab.level3Checkbox.setChecked(True)
+        else:
+            self.levelTab.level1Checkbox.setChecked(False)
+            self.levelTab.level3Checkbox.setChecked(False)
+            self.levelTab.level2Checkbox.setChecked(False)
+        self.refreshView()
+
     def closeEvent(self, *args, **kwargs):
 
         import pickle
@@ -239,25 +255,14 @@ class Editor(QtWidgets.QMainWindow):
 
         super().closeEvent(*args, **kwargs)
 
-    # Tool Bar Actions #
-    # user can choose their font
-    # def fontComboBox(self):
-    #     # font, ok = QtWidgets.QFontDialog.getFont(self.textEdit.font(), self)
-    #     # if ok:
-    #     #     # set the text in the widget to the choosen font
-    #     #     self.textEdit.setFont(font)
+    def copy(self):
+        self.textEdit.copy()
 
-    #     self.fonts = QFontComboBox()
-    #     self.fonts.currentFontChanged.connect(self.textEdit.setCurrentFont)
-    #     # format_toolbar.addWidget(self.fonts)
+    def paste(self):
+        self.textEdit.paste()
 
-    #     self.fontsize = QComboBox()
-    #     self.fontsize.addItems([str(s) for s in FONT_SIZES])
-
-    #     # Connect to the signal producing the text of the current selection. Convert the string to float
-    #     # and set as the pointsize. We could also use the index + retrieve from FONT_SIZES.
-    #     self.fontsize.currentIndexChanged[str].connect(lambda s: self.editor.setFontPointSize(float(s)) )
-    #     format_toolbar.addWidget(self.fontsize)
+    def cut(self):
+        self.textEdit.cut()
 
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
@@ -370,7 +375,7 @@ class Editor(QtWidgets.QMainWindow):
 
             if token.pos == "OOV":
                 # TODO
-                self.actionManager.dictionaryAction.trigger()
+                # self.actionManager.dictionaryAction.trigger()
                 self.dictionaryDialog.addWord(text=token.text)
             else:
                 self.editTokenDialog.setMode(EditTokenDialog.MODE_UPDATE)
@@ -422,17 +427,17 @@ class Editor(QtWidgets.QMainWindow):
         else:
             return
 
-        # set level lists
+        # FIXME set level lists
         if not levelFiles:
-            print('send me home!')
+            print('Where is my file?')
             return
-        if levelFiles[0]:
+        if len(levelFiles) >= 1:
             self.setLevelList(level=1, levelButton=self.levelTab.level1Button, filePath=levelFiles[0])
-        if levelFiles[1]:
+        if len(levelFiles) >= 2:
             self.setLevelList(level=2, levelButton=self.levelTab.level2Button, filePath=levelFiles[1])
-        if levelFiles[2]:
+        if len(levelFiles) >= 3:
             self.setLevelList(level=3, levelButton=self.levelTab.level3Button, filePath=levelFiles[2])
-        if levelFiles[3]:
+        if len(levelFiles) > 3:
             return
 
         # reset selection coverage
@@ -450,7 +455,6 @@ class Editor(QtWidgets.QMainWindow):
         print('refreshed')
         self.setLevelProfile(Tabs.LEVEL_PROFILE_PATH)
         self.refreshView()
-    
 
     # Import Level List
     def importLevelList(self, level, levelButton):
