@@ -1,9 +1,5 @@
 '''
 
-
-
-
-
 '''
 
 import os
@@ -169,7 +165,9 @@ class TokenManager:
             return _join(self.tokens, lambda t: t.text, sep=' ')
 
         elif self.view == ViewManager.TAG_VIEW:
-            return _join(self.tokens, lambda t: t.text + '/' + t.pos, sep='')
+        # virtual default tag+space, tag and space should be 
+        #     return _join(self.tokens, lambda t: t.text + '/' + t.pos, sep='')
+            return _join(self.tokens, lambda t: t.text + '/' + t.pos, sep=' ')
         else:
             return _join(self.tokens, lambda t: t.text + '/' + t.pos, sep=' ')
 

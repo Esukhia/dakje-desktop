@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QTextEdit, QUndoCommand, QUndoStack
 
 from web.settings import DESKTOP
 
+
 class EmulatedTextUndoCommand(QUndoCommand):
 
     def __init__(self, edit, oldText, newText,
@@ -52,6 +53,7 @@ class EmulatedTextUndoCommand(QUndoCommand):
     def __str__(self, *args, **kwargs):
         return "old: %s, new: %s" % (self.oldText, self.newText)
 
+
 class CustomUndoTextEdit(QTextEdit):
     def __init__(self, *args, undoStack=None, **kws):
         super().__init__(*args, **kws)
@@ -83,15 +85,24 @@ class CustomUndoTextEdit(QTextEdit):
         return result
 
     def keyPressEvent(self, event):
-        print("keyPressEvent")
-        if event.key() == (Qt.Key_Control and Qt.Key_Z):
-            print("press Undo")
-            self.undo()
-        elif event.key() == (Qt.Key_Control and Qt.Key_Y):
-            print("press Redo")
-            self.redo()
-        else: # call base class keyPressEvent
-            QTextEdit.keyPressEvent(self, event)
+        # print("keyPressEvent")
+
+        # only allow to add spaces and delete in SpaceView
+        if self.editor.viewManager.isSpaceView():
+            if event.key() != (Qt.Key_Space or Qt.Key_Backspace):
+                return
+            else:
+                QTextEdit.keyPressEvent(self, event)
+
+        else:
+            if event.key() == (Qt.Key_Control and Qt.Key_Z):
+                print("press Undo")
+                self.undo()
+            elif event.key() == (Qt.Key_Control and Qt.Key_Y):
+                print("press Redo")
+                self.redo()
+            else: # call base class keyPressEvent
+                QTextEdit.keyPressEvent(self, event)
 
     def onTextChanged(self):
         print("onTextChanged")

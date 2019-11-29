@@ -46,14 +46,11 @@ class ViewManager:
         self.checkReplaceOK()
         self.editor.showStatus()
 
-    # TODO not working for space view
     def checkReadonly(self):
         if self.view in (self.PLAIN_TEXT_VIEW, self.SPACE_VIEW):
             self.editor.textEdit.setReadOnly(False)
-            print('not read only')
         else:
             self.editor.textEdit.setReadOnly(True)
-            print('read only')
 
     def checkReplaceOK(self):
         if self.view == self.PLAIN_TEXT_VIEW:

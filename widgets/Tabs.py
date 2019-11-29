@@ -14,7 +14,6 @@ LEVEL_NAMES = [
     'ཚིག་ཐོ་གསུམ་པ།'
 ]
 
-LEVEL_PROFILE_PATH = ''
 LEVEL_MODE_EXAMPLE_STRING = '''
 Statistics
 
@@ -85,7 +84,7 @@ class LevelTab(QtWidgets.QWidget):
 
         self.levelProfileCheckbox = QtWidgets.QCheckBox()
         self.levelProfileCheckbox.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.levelProfileLabel = QtWidgets.QLabel('test')
+        self.levelProfileLabel = QtWidgets.QLabel('')
         # TODO change to "Change Profile" when profile already loaded
         self.grids.addWidget(self.levelProfileCheckbox, 2, 0, 1, 1)
         self.grids.addWidget(self.levelProfileButton, 2, 1, 1, 1)

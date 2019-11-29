@@ -24,12 +24,16 @@ from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
                     #  EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token 
-from storage.models import Token
+from web.settings import BASE_DIR, FILES_DIR
 
+from storage.models import Token, Setting
 # flushes the Tokens on start, should be in a function
 Token.objects.all().delete()
 
-from web.settings import BASE_DIR, FILES_DIR
+
+# Highlighting profile settings
+LEVEL_PROFILE_PATH = ''
+HIGHLIGHTING_STATE = ''
 
 # Logger
 logging.basicConfig(level=logging.DEBUG,
@@ -107,6 +111,7 @@ class Editor(QtWidgets.QMainWindow):
             self.ignoreCursorPositionChanged(self.textEdit.setPlainText))
         self.textEdit.setSelection = self.ignoreTextChanged(
             self.ignoreCursorPositionChanged(self.textEdit.setSelection))
+        self.initLevelProfile()
 
     # why?
     def _ignoreEvent(self, func, signal, event):
@@ -403,16 +408,27 @@ class Editor(QtWidgets.QMainWindow):
             elif string == '': 
                 self.segment()
 
+    def initLevelProfile(self):
+        # load last level profile
+        Setting.objects.update_or_create(key='profile_path')
+        if Setting.objects.get(key='profile_path').value:
+            self.LEVEL_PROFILE_PATH = Setting.objects.get(key='profile_path').value
+            self.setLevelProfile()
+
     # Import Level Profile #
     def loadLevelProfile(self):
         # a profile is a dir containing level lists
         dirPath = QtWidgets.QFileDialog.getExistingDirectory(parent=self, directory=os.path.join(FILES_DIR, 'levels'), options=QtWidgets.QFileDialog.ShowDirsOnly)
-        self.levelTab.levelProfileLabel.setText(pathlib.Path(dirPath).stem)
-        # dirpath string
-        Tabs.LEVEL_PROFILE_PATH = dirPath
-        self.setLevelProfile(dirPath)
 
-    def setLevelProfile(self, dirPath):
+        setting = Setting.objects.get(key='profile_path')
+        self.LEVEL_PROFILE_PATH = setting.value = dirPath
+        setting.save()
+        
+        self.levelTab.levelProfileLabel.setText(pathlib.Path(self.LEVEL_PROFILE_PATH).stem)
+        # dirpath string
+        self.setLevelProfile()
+
+    def setLevelProfile(self):
         # clear db
         Token.objects.all().delete()
 
@@ -422,8 +438,8 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.level3Button.setText(Tabs.LEVEL_NAMES[2])
 
         # get file paths
-        if dirPath:
-            levelFiles = list(pathlib.Path(dirPath).glob("*.txt"))
+        if self.LEVEL_PROFILE_PATH:
+            levelFiles = list(pathlib.Path(self.LEVEL_PROFILE_PATH).glob("*.txt"))
         else:
             return
 
@@ -452,8 +468,7 @@ class Editor(QtWidgets.QMainWindow):
             print(l)
 
     def reloadLevelProfile(self):
-        print('refreshed')
-        self.setLevelProfile(Tabs.LEVEL_PROFILE_PATH)
+        self.setLevelProfile()
         self.refreshView()
 
     # Import Level List
@@ -482,8 +497,6 @@ class Editor(QtWidgets.QMainWindow):
             words = [word[:-1] if word.endswith('་') else word
                      for word in [line.rstrip('\r\n')
                                   for line in f.readlines()]]
-
-        # TODO flush current level words
 
         # create words, add to level
         with transaction.atomic():
