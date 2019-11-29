@@ -33,6 +33,7 @@ Token.objects.all().delete()
 
 # Highlighting profile settings
 LEVEL_PROFILE_PATH = ''
+# TODO record checkbox state
 HIGHLIGHTING_STATE = ''
 
 # Logger

@@ -12,6 +12,7 @@ from storage.models import Format
 class FormatManager:
     LEVEL_FORMAT_COLORS = dict()
     LEVEL_FORMATS = dict()  # generate by LEVEL_FORMAT_COLORS
+    TAG_FORMAT = QtGui.QTextCharFormat()
 
     # default values based on Ayu theme
     LEVEL_FORMAT_COLORS = {
@@ -29,8 +30,6 @@ class FormatManager:
             LEVEL_FORMAT_COLORS[None] = format.color
         else:
             LEVEL_FORMAT_COLORS[format.level] = format.color
-        # print('format.color', format.color)
-        # print('format.level', format.level)
 
     POS_FORMAT_COLORS = {
         1: '#363d5c',
@@ -51,6 +50,9 @@ class FormatManager:
             format = QtGui.QTextCharFormat()
             format.setForeground(self.toQColor(color))
             self.POS_FORMATS[level] = format
+
+        self.TAG_FORMAT.setVerticalAlignment(QtGui.QTextCharFormat.AlignSuperScript)
+        self.TAG_FORMAT.setForeground(self.toQColor('#a0a0a4'))
 
     def toQColor(self, hex):
         r, g, b = hex[1:3], hex[3:5], hex[5:7]

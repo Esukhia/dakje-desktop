@@ -4,6 +4,7 @@ from functools import wraps
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
+
 # logger = logging.getLogger(__name__)
 
 # # Timed decorator
@@ -24,7 +25,7 @@ class Highlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, parent, editor):
         super().__init__(parent)
         self.editor = editor
-    
+
     # @timed
     def highlightBlock(self, text):
         currentBlock = self.currentBlock()
@@ -35,28 +36,35 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                 if token.level not in highlightedLevels:
                     continue
 
-                # self.setFormat(
-                #     token.start - currentBlock.position(), token.length,
-                #     self.editor.formatManager.LEVEL_FORMATS[token.level]
-                # )
-
                 format = self.editor.formatManager.LEVEL_FORMATS[token.level]
 
-        # TODO add regexes like here for /pos https://github.com/baoboa/pyqt5/blob/master/examples/richtext/syntaxhighlighter.py#L157
-        #         format.setVerticalAlignment(QtGui.QTextCharFormat.AlignSuperScript)
+                if self.editor.viewManager.isTagView():
 
-                self.setFormat(
-                    token.start - currentBlock.position(), token.length,
-                    format
-                )
+                    textFormat = format
+                    textLen = len(token.text)
+                    textStart = (token.start - currentBlock.position())
+                    textSpan = textLen
+                    self.setFormat(textStart , textSpan, textFormat)
 
-        else:  # editor mode
-            highlightedPoses = self.editor.getHighlightedPoses()
-            for token in self.editor.tokens:
-                if token.pos not in highlightedPoses:
-                    continue
-                self.setFormat(
-                    token.start - currentBlock.position(), token.length,
-                    self.editor.formatManager.POS_FORMATS[
-                        self.editor.getPosRank(token.pos)]
-                )
+                    tagFormat = self.editor.formatManager.TAG_FORMAT
+                    tagStart = (token.start - currentBlock.position()) + textLen
+                    tagSpan = token.length - textLen
+                    self.setFormat(tagStart , tagSpan, tagFormat)
+
+                else:
+                    format.setVerticalAlignment(
+                        QtGui.QTextCharFormat.AlignNormal)
+                    self.setFormat(
+                        token.start - currentBlock.position(), token.length, format
+                        )
+
+        # else:  # editor mode
+            # highlightedPoses = self.editor.getHighlightedPoses()
+            # for token in self.editor.tokens:
+            #     if token.pos not in highlightedPoses:
+            #         continue
+            #     self.setFormat(
+            #         token.start - currentBlock.position(), token.length,
+            #         self.editor.formatManager.POS_FORMATS[
+            #             self.editor.getPosRank(token.pos)]
+            #     )
