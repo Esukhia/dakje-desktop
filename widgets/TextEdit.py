@@ -198,17 +198,8 @@ class TextEdit(CustomUndoTextEdit):
         #     #     self.editor.segment()
 
         if self.editor.viewManager.isSpaceView():
-            # if self.textCursor().hasSelection():
-            #     QtWidgets.QMessageBox.warning(
-            #         self, 'Mode Error',
-            #         'Please dont edit text in space mode.'
-            #         'Users can only split/merge tokens in this mode',
-            #         buttons=QtWidgets.QMessageBox.Ok
-            #     )
-            #     return
 
             # split token
-            # TODO any key becomes space? maybe just tsek and space
             if e.key() == QtCore.Qt.Key_Space:
                 position = self.textCursor().position()  # before pressing
                 index, token = self.editor.tokenManager.find(position)

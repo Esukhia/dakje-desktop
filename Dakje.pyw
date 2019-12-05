@@ -369,7 +369,6 @@ class Editor(QtWidgets.QMainWindow):
         self.textEdit.redo()
 
     # TextEdit Events #
-
     @ignoreEvent(QTextEdit.cursorPositionChanged)
     def cursorPositionChanged(self):
         cursor = self.textEdit.textCursor()
@@ -379,10 +378,12 @@ class Editor(QtWidgets.QMainWindow):
                 not self.editTokenDialog.isVisible()):
             token = self.tokenManager.find(position)[1]
 
-            if token.pos == "OOV":
-                # TODO
+            if 0 > 1:
+                pass
+            # if token.pos == "OOV":
+                # TODO deal with OOVs
                 # self.actionManager.dictionaryAction.trigger()
-                self.dictionaryDialog.addWord(text=token.text)
+                # self.dictionaryDialog.addWord(text=token.text)
             else:
                 self.editTokenDialog.setMode(EditTokenDialog.MODE_UPDATE)
                 self.editTokenDialog.setToken(token)
@@ -529,7 +530,8 @@ class Editor(QtWidgets.QMainWindow):
         # - level
         # - sense
         self.tokenManager.applyDict()
-        # ???
+
+        # adjustment rules ... defer to pybo?
         self.tokenManager.matchRules()
 
         # keep cursor

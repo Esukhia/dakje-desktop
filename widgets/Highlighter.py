@@ -4,7 +4,6 @@ from functools import wraps
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-
 # logger = logging.getLogger(__name__)
 
 # # Timed decorator
@@ -30,13 +29,18 @@ class Highlighter(QtGui.QSyntaxHighlighter):
     def highlightBlock(self, text):
         currentBlock = self.currentBlock()
 
+
+
         if self.editor.isLevelMode():
             highlightedLevels = self.editor.getHighlightedLevels()
+
+
             for token in self.editor.tokens:
-                if token.level not in highlightedLevels:
-                    continue
 
                 format = self.editor.formatManager.LEVEL_FORMATS[token.level]
+
+                if token.level not in highlightedLevels:
+                    continue
 
                 if self.editor.viewManager.isTagView():
 
