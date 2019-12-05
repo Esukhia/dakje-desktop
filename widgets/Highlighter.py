@@ -29,38 +29,35 @@ class Highlighter(QtGui.QSyntaxHighlighter):
     def highlightBlock(self, text):
         currentBlock = self.currentBlock()
 
-
-
         if self.editor.isLevelMode():
-            highlightedLevels = self.editor.getHighlightedLevels()
 
+            highlightedLevels = self.editor.getHighlightedLevels()
 
             for token in self.editor.tokens:
 
                 format = self.editor.formatManager.LEVEL_FORMATS[token.level]
 
-                if token.level not in highlightedLevels:
-                    continue
-
                 if self.editor.viewManager.isTagView():
-
-                    textFormat = format
+                    # format text string
                     textLen = len(token.text)
                     textStart = (token.start - currentBlock.position())
                     textSpan = textLen
-                    self.setFormat(textStart , textSpan, textFormat)
+                    if token.level in highlightedLevels:
+                        self.setFormat(textStart, textSpan, format)
 
+                    # format tags
                     tagFormat = self.editor.formatManager.TAG_FORMAT
-                    tagStart = (token.start - currentBlock.position()) + textLen
+                    tagStart = (
+                        token.start - currentBlock.position()) + textLen
                     tagSpan = token.length - textLen
-                    self.setFormat(tagStart , tagSpan, tagFormat)
+                    self.setFormat(tagStart, tagSpan, tagFormat)
 
                 else:
-                    format.setVerticalAlignment(
-                        QtGui.QTextCharFormat.AlignNormal)
-                    self.setFormat(
-                        token.start - currentBlock.position(), token.length, format
-                        )
+                    # only format what's in the level lists
+                    if token.level in highlightedLevels:
+                        self.setFormat(
+                            token.start - currentBlock.position(), token.length, format)
+
 
         # else:  # editor mode
             # highlightedPoses = self.editor.getHighlightedPoses()

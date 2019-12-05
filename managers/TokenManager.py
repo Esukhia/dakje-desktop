@@ -167,9 +167,9 @@ class TokenManager:
         elif self.view == ViewManager.TAG_VIEW:
         # virtual default tag+space, tag and space should be 
         #     return _join(self.tokens, lambda t: t.text + '࿚' + t.pos, sep='')
-            return _join(self.tokens, lambda t: t.text + '࿚' + t.pos, sep=' ')
+            return _join(self.tokens, lambda t: t.text + '࿚' + t.pos, sep='  ')
         else:
-            return _join(self.tokens, lambda t: t.text + '࿚' + t.pos, sep=' ')
+            return _join(self.tokens, lambda t: t.text + '࿚' + t.pos, sep='  ')
 
     def find(self, position):
         for i, token in enumerate(self.tokens):
