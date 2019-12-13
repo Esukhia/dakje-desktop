@@ -16,24 +16,18 @@ from web.settings import BASE_DIR
 from web.settings import FILES_DIR
 
 
-import time
-import logging
 from functools import wraps
-
-logger = logging.getLogger(__name__)
-
-# Timed decorator
+from time import time
 def timed(func):
-    """This decorator prints the execution time for the decorated function."""
     @wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-        logger.debug("{} ran in {}s".format(
-            func.__name__, round(end - start, 5)))
-        return result
-    return wrapper
+    def _time_it(*args, **kwargs):
+        start = int(round(time() * 1000))
+        try:
+            return func(*args, **kwargs)
+        finally:
+            end_ = int(round(time() * 1000)) - start
+            print(f"{func.__name__}: {end_ if end_ > 0 else 0} ms")
+    return _time_it
 
 
 class Token:
@@ -65,7 +59,7 @@ class Token:
         self.end = self.start + len(self.text)
         self.string = None
 
-
+    # @timed
     def applyTokenModel(self, tokenModel):
         # add attributes from the DB
         self.pos = tokenModel.pos if tokenModel.pos else self.pos
@@ -92,7 +86,7 @@ class TokenManager:
         os.makedirs(TRIE_ADD_DIR)
 
     TRIE_DEL_DIR = os.path.join(TRIE_MODIF_DIR, 'deactivate')
-    print(TRIE_DEL_DIR)
+    # print(TRIE_DEL_DIR)
     if not os.path.exists(TRIE_DEL_DIR):
         os.makedirs(TRIE_DEL_DIR)
 
@@ -124,10 +118,10 @@ class TokenManager:
         # lexica_bo: a dir containing files with words, a word per line
         # lexica_skrt: same, but for sanskrit entries
         # deactivate: same, but for the entries to deactivate from the trie
-        self.tokenizer = pybo.WordTokenizer(
-            'POS',
-            tok_modifs= self.TRIE_MODIF_DIR
-        )
+        # self.tokenizer = pybo.WordTokenizer(
+        #     'POS',
+        #     tok_modifs= self.TRIE_MODIF_DIR
+        # )
 
     @property
     def view(self):
@@ -139,7 +133,10 @@ class TokenManager:
 
     @timed
     def segment(self, string):
-        tokens = self.tokenizer.tokenize(string, spaces_as_punct=True)
+        # tokens = self.tokenizer.tokenize(string, spaces_as_punct=True)
+
+        tokens = self.editor.tokenizer.tokenize(string, spaces_as_punct=True)
+
         return [Token(t) for t in tokens]
 
     def getString(self):
@@ -156,6 +153,7 @@ class TokenManager:
 
                 if token.text.endswith('\n'):
                     blockIndex += 1
+            print(f'_join: {result}')
             return result
 
         if self.view == ViewManager.PLAIN_TEXT_VIEW:

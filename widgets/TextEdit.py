@@ -25,10 +25,10 @@ class EmulatedTextUndoCommand(QUndoCommand):
             self.called = True
             return
 
-        print("redo: %s" % self)
+        # print("redo: %s" % self)
         self.edit._setPlainText(self.newText)
         if self.newCursorPosition:
-            print("redo cursor position: %d" % self.newCursorPosition)
+            # print("redo cursor position: %d" % self.newCursorPosition)
             self.edit.blockSignals(True)
             try:
                 t = self.edit.textCursor()
@@ -38,10 +38,10 @@ class EmulatedTextUndoCommand(QUndoCommand):
                 self.edit.blockSignals(False)
 
     def undo(self):
-        print("undo: %s" % self)
+        # print("undo: %s" % self)
         self.edit._setPlainText(self.oldText)
         if self.oldCursorPosition:
-            print("undo cursor position: %d" % self.oldCursorPosition)
+            # print("undo cursor position: %d" % self.oldCursorPosition)
             self.edit.blockSignals(True)
             try:
                 t = self.edit.textCursor()
@@ -96,21 +96,21 @@ class CustomUndoTextEdit(QTextEdit):
 
         else:
             if event.key() == (Qt.Key_Control and Qt.Key_Z):
-                print("press Undo")
+                # print("press Undo")
                 self.undo()
             elif event.key() == (Qt.Key_Control and Qt.Key_Y):
-                print("press Redo")
+                # print("press Redo")
                 self.redo()
             else: # call base class keyPressEvent
                 QTextEdit.keyPressEvent(self, event)
 
     def onTextChanged(self):
-        print("onTextChanged")
+        # print("onTextChanged")
         self.textChangedAfterUndoCommandAdded = True
 
     def onUndoCommandAdded(self):
-        print("insert undo command: %s %d" % (
-            self.toPlainText(), self.textCursor().position()))
+        # print("insert undo command: %s %d" % (
+            # self.toPlainText(), self.textCursor().position()))
         if self.undoStack.isClean():
             command = EmulatedTextUndoCommand(
                 self, "", self.toPlainText(),
@@ -125,7 +125,7 @@ class CustomUndoTextEdit(QTextEdit):
         self.textChangedAfterUndoCommandAdded = False
 
     def undo(self):
-        print("undo")
+        # print("undo")
         if self.textChangedAfterUndoCommandAdded:
             lastCommand = self.undoStack.command(self.undoStack.count() - 1)
             command = EmulatedTextUndoCommand(
@@ -138,7 +138,7 @@ class CustomUndoTextEdit(QTextEdit):
         self.textChangedAfterUndoCommandAdded = False
 
     def redo(self):
-        print("redo")
+        # print("redo")
         self.undoStack.redo()
         self.textChangedAfterUndoCommandAdded = False
 

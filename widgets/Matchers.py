@@ -1,25 +1,18 @@
 import json
-import logging
-import time
-
 import pybo
 
 from functools import wraps
-
-logger = logging.getLogger(__name__)
-
-# Timed decorator
+from time import time
 def timed(func):
-    """This decorator prints the execution time for the decorated function."""
     @wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-        logger.debug("{} ran in {}s".format(
-            func.__name__, round(end - start, 5)))
-        return result
-    return wrapper
+    def _time_it(*args, **kwargs):
+        start = int(round(time() * 1000))
+        try:
+            return func(*args, **kwargs)
+        finally:
+            end_ = int(round(time() * 1000)) - start
+            print(f"{func.__name__}: {end_ if end_ > 0 else 0} ms")
+    return _time_it
 
 
 class BaseRuleMatcher:

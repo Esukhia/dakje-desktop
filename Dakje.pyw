@@ -5,6 +5,7 @@ import time
 import multiprocessing
 
 import django
+import pybo
 
 from PyQt5.QtWidgets import QTextEdit
 
@@ -36,25 +37,19 @@ LEVEL_PROFILE_PATH = ''
 # TODO record checkbox state
 HIGHLIGHTING_STATE = ''
 
-# Logger
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)-8s %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S')
-logger = logging.getLogger(__name__)
 
-
-# Timed decorator #
+from functools import wraps
+from time import time
 def timed(func):
-    """This decorator prints the execution time for the decorated function."""
     @wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-        logger.debug("{} ran in {}s".format(
-            func.__name__, round(end - start, 5)))
-        return result
-    return wrapper
+    def _time_it(*args, **kwargs):
+        start = int(round(time() * 1000))
+        try:
+            return func(*args, **kwargs)
+        finally:
+            end_ = int(round(time() * 1000)) - start
+            print(f"{func.__name__}: {end_ if end_ > 0 else 0} ms")
+    return _time_it
 
 # Exception
 class ExceptionHandler(QtCore.QObject):
@@ -80,17 +75,17 @@ def ignoreEvent(signal):
         @wraps(func)
         def f(*args, **kws):
             if signal in func.ignoreSignals:
-                print(f"{func} ignore {signal}")
+                # print(f"{func} ignore {signal}")
                 return None
             else:
-                print(f"{func} called by {signal}")
+                # print(f"{func} called by {signal}")
                 return func(*args, **kws)
         return f
     return d
 
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
-    SEGMENT_WORDS = ['་', '།', '\n']
+    SEG_TRIGGERS = ['་', '།', '\n']
 
     @timed
     def __init__(self, parent=None):
@@ -102,6 +97,7 @@ class Editor(QtWidgets.QMainWindow):
         self.initManagers()
         self.initUI()
         self.bindEvents()
+        self.initTokenizer()
         self.setWindowTitle("དག་བྱེད།")
         self.setWindowIcon(QtGui.QIcon(
             os.path.join(BASE_DIR, "icons", "dakje.ico")))
@@ -132,6 +128,12 @@ class Editor(QtWidgets.QMainWindow):
                                  QTextEdit.textChanged,
                                  self.textChanged)
 
+    def initTokenizer(self):
+        self.tokenizer = pybo.WordTokenizer(
+            'POS',
+            tok_modifs= self.tokenManager.TRIE_MODIF_DIR
+        )
+
     def initProperties(self):
         self.tokens = []
         self.formats = []
@@ -159,7 +161,6 @@ class Editor(QtWidgets.QMainWindow):
         # self.viewActionGroup =  QtWidgets.QActionGroup(self)
         # self.viewActionGroup.addAction(self.actionManager.spaceViewAction)
         # self.viewActionGroup.addAction(self.actionManager.tagViewAction)
-
 
         self.toolBar = ToolBar(self.actionManager, parent=self)
         self.addToolBar(self.toolBar)
@@ -283,7 +284,7 @@ class Editor(QtWidgets.QMainWindow):
         self.viewManager.toggleTagView()
         self.refreshView()
 
-    def segment(self, byBlock=False, breakLine=False):
+    def segment(self, byBlock=False, breakLine=False, byShunit=False):
         """
         1. Gets the text in textedit, 2. segments it with pybo,
         3. assigns a lists of Token objects to self.tokens,
@@ -296,7 +297,7 @@ class Editor(QtWidgets.QMainWindow):
         if byBlock:
             block = self.textEdit.textCursor().block()
             string = block.text()
-            print(string)
+            # print(string)
 
             if breakLine:
                 block = block.previous()
@@ -311,6 +312,12 @@ class Editor(QtWidgets.QMainWindow):
 
             else:
                 self.tokens[startIndex: endIndex + 1] = tokens
+
+        if byShunit:
+            # find shunit in 
+
+            pass
+
         else:
             string = self.centralWidget.textEdit.toPlainText()
             self.tokens = self.tokenManager.segment(string)
@@ -319,6 +326,7 @@ class Editor(QtWidgets.QMainWindow):
 
     def resegment(self):
         # used after updateToken()
+        # updateToken() not used
         string = ''.join([token.text for token in self.tokens])
         tokens = self.tokenManager.segment(string)
         self.tokens = tokens
@@ -326,7 +334,7 @@ class Editor(QtWidgets.QMainWindow):
 
     @property
     def bt(self):
-        return self.tokenManager.tokenizer.tok.trie
+        return self.tokenizer.tok.trie
 
     # TextEdit #
     @property
@@ -397,18 +405,21 @@ class Editor(QtWidgets.QMainWindow):
         if self.viewManager.isPlainTextView():
             string = self.textEdit.toPlainText()
 
-            if any([string.endswith(w) for w in self.SEGMENT_WORDS]):
+            if any([string.endswith(w) for w in self.SEG_TRIGGERS]):
                 self.segment()
+                print('option1')
                 # self.segment(byBlock=True)
 
             elif string.endswith('\n'):
                 self.segment()
+                print('option2')
                 # TODO: block mode: bug - if we delete text and try to rewrite new
                 # text it copies the already saved text.
                 # self.segment(byBlock=True, breakLine=True)
 
             elif string == '': 
                 self.segment()
+                print('option3')
 
     def initLevelProfile(self):
         # load last level profile
@@ -465,9 +476,8 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.level3Button.clicked.connect(
             partial(self.importLevelList, level=3, levelButton=self.levelTab.level3Button))
 
-
-        for l in levelFiles:
-            print(l)
+        # for l in levelFiles:
+        #     print(l)
 
     def reloadLevelProfile(self):
         self.setLevelProfile()
@@ -483,6 +493,7 @@ class Editor(QtWidgets.QMainWindow):
         else:
             self.setLevelList(level, levelButton, filePath)
 
+    # @timed
     def setLevelList(self, level, levelButton, filePath):
 
         splitFilePath = pathlib.PurePath(filePath).parts
@@ -520,10 +531,20 @@ class Editor(QtWidgets.QMainWindow):
 
         self.refreshView()
 
+    def findShunit(self):
+        # shunit is the text block between two shad
+
+
+
+        pass
+
+
     # Refresh #
+    @timed
     def refreshView(self):
+
         """
-        docstring here
+        Refreshes the view without segmenting 
             :param self: 
         """
         # Adds token info from the db
@@ -537,10 +558,12 @@ class Editor(QtWidgets.QMainWindow):
         # keep cursor
         textCursor = self.textEdit.textCursor()
         current = self.tokenManager.find(textCursor.position())
+        # print(f'current: {current[0]}')
 
         if current is not None:
             currentToken = current[1]
             distance = textCursor.position() - currentToken.start
+            print(f'current: {current[0]}, {current[1].text}')
 
         # Sets text in textEdit before moving on to highlighting
         text = self.tokenManager.getString()
@@ -559,6 +582,7 @@ class Editor(QtWidgets.QMainWindow):
         self.statusBar.showMessage(
             '  ' + ' '.join([t.text for t in self.tokens[-19:]]))
 
+    @timed
     def statistics(self):
 
         # to do: bug fix -
@@ -614,18 +638,19 @@ class Editor(QtWidgets.QMainWindow):
         # frequency - the number of times a token is repeated
         frequency = Counter([
             (token.text, token.type, token.pos, token.text_unaffixed) for token in self.tokens])
-        print("Frequency: ", frequency)
+        # print("Frequency: ", frequency)
 
         # Updating the Statistics
         self.levelTab.wordCountLabel.setText(str(wordCount))
         self.levelTab.typeCountLabel.setText(str(typeCount))
         self.levelTab.senCountLabel.setText(str(sentenceCount))
         self.levelTab.maxWordLabel.setText(str(max))
-
+    
+    @timed
     def refreshCoverage(self):
 
         tokenNum = sum(1 for t in self.tokens if t.type == 'TEXT')
-        print('tokenNum: ', tokenNum)
+        # print('tokenNum: ', tokenNum)
 
         self.statistics()
 
@@ -650,7 +675,7 @@ class Editor(QtWidgets.QMainWindow):
             token.pos for token in self.tokens])
 
         posFreq = posCounter.most_common()
-        print(posFreq)
+        # print(posFreq)
         """
         if len(posFreq) >= 1:
             self.editorTab.firstFreqLabel.setText(posFreq[0][0])

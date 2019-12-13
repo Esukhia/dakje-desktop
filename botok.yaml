@@ -1,32 +1,15 @@
 ﻿tokenizers:
   trie_files:
-    - &ancient words_bo/ancient.txt
-    - &except words_bo/exceptions.txt
-    - &uncomp words_bo/uncompound_lexicon.txt
-    - &tsikchen words_bo/tsikchen.txt
-    - &dagdra words_bo/dagdra.txt
-    - &oral0 words_bo/oral_corpus_0.txt
-    - &oral1 words_bo/oral_corpus_1.txt
-    - &oral2 words_bo/oral_corpus_2.txt
-    - &oral3 words_bo/oral_corpus_3.txt
-    - &oral4 words_bo/recordings_4.txt
-    - &mgd words_bo/mgd.txt
-    - &verbs words_bo/verbs.txt
-  skrt_files:
-    - &skrt words_skrt/sanskrit.txt
+    - &ancient words_bo/ancient.tsv
+    - &except words_bo/exceptions.tsv
+    - &uncomp words_bo/uncompound_lexicon.tsv
+    - &tsikchen words_bo/tsikchen.tsv
+    - &dagdra words_bo/dagdra.tsv
   non_inflected:
-    - &part words_non_inflected/particles.txt
-  lem-pos-freq_files:
-    - &lpf_soas entry_data/TiDC_corpus.tsv
-    - &lpf_part entry_data/particles.tsv
-  freq_files:
-    - &freq_mgd frequency/mgd.txt
-    - &tc frequency/tc.txt
+    - &part words_non_inflected/particles.tsv
   profiles:
     empty: []
-    tsikchen: [*ancient, *except, *uncomp, *tsikchen, *part, *dagdra]
-    POS: [*ancient, *except, *uncomp, *tsikchen, *part, *lpf_soas, *lpf_part, *dagdra]
-    GMD: [*ancient, *except, *uncomp, *tsikchen, *mgd, *verbs, *skrt, *freq_mgd, *part, *lpf_soas, *lpf_part, *dagdra]
+    POS: [*ancient, *except, *uncomp, *tsikchen, *part, *dagdra]
 
 adjustments:
   files:
