@@ -1,7 +1,7 @@
 # django setup
 import os
 import logging
-import time
+from horology import timed
 import multiprocessing
 
 import django
@@ -37,19 +37,6 @@ LEVEL_PROFILE_PATH = ''
 # TODO record checkbox state
 HIGHLIGHTING_STATE = ''
 
-
-from functools import wraps
-from time import time
-def timed(func):
-    @wraps(func)
-    def _time_it(*args, **kwargs):
-        start = int(round(time() * 1000))
-        try:
-            return func(*args, **kwargs)
-        finally:
-            end_ = int(round(time() * 1000)) - start
-            print(f"{func.__name__}: {end_ if end_ > 0 else 0} ms")
-    return _time_it
 
 # Exception
 class ExceptionHandler(QtCore.QObject):
@@ -284,17 +271,17 @@ class Editor(QtWidgets.QMainWindow):
         self.viewManager.toggleTagView()
         self.refreshView()
 
-    def segment(self, byBlock=False, breakLine=False, byShunit=False):
+    def segment(self, byShunit=True, breakLine=False):
         """
         1. Gets the text in textedit, 2. segments it with pybo,
         3. assigns a lists of Token objects to self.tokens,
         4. displays text with refreshview().
-        Segmentation by blocks avoids resegmenting the whole document at each change 
-            :param self: Editor
-            :param byBlock=False: 
-            :param breakLine=False: 
+
         """
-        if byBlock:
+
+        if byShunit:
+            # find shunit in 
+
             block = self.textEdit.textCursor().block()
             string = block.text()
             # print(string)
@@ -313,10 +300,8 @@ class Editor(QtWidgets.QMainWindow):
             else:
                 self.tokens[startIndex: endIndex + 1] = tokens
 
-        if byShunit:
-            # find shunit in 
-
-            pass
+            string = self.centralWidget.textEdit.toPlainText()
+            self.tokens = self.tokenManager.segment(string)
 
         else:
             string = self.centralWidget.textEdit.toPlainText()
@@ -565,7 +550,7 @@ class Editor(QtWidgets.QMainWindow):
             distance = textCursor.position() - currentToken.start
             print(f'current: {current[0]}, {current[1].text}')
 
-        # Sets text in textEdit before moving on to highlighting
+        # Sets plain text in textEdit before moving on to highlighting
         text = self.tokenManager.getString()
         self.textEdit.setPlainText(text)
 

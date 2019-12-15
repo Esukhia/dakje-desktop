@@ -4,8 +4,6 @@
 
 import os
 
-import pybo
-
 from pathlib import Path
 
 from widgets import Matchers
@@ -15,20 +13,7 @@ from .ViewManager import ViewManager
 from web.settings import BASE_DIR
 from web.settings import FILES_DIR
 
-
-from functools import wraps
-from time import time
-def timed(func):
-    @wraps(func)
-    def _time_it(*args, **kwargs):
-        start = int(round(time() * 1000))
-        try:
-            return func(*args, **kwargs)
-        finally:
-            end_ = int(round(time() * 1000)) - start
-            print(f"{func.__name__}: {end_ if end_ > 0 else 0} ms")
-    return _time_it
-
+from horology import timed
 
 class Token:
     def __init__(self, token, id=None):
@@ -47,9 +32,9 @@ class Token:
         self.text_unaffixed = token.text_unaffixed
         self.lemma = token.lemma
         self.pos = token.pos
-        self.start = token.start
-        self.type = token.chunk_type
-        # self.sense = token.sense # no sense in pybo
+        self.start = token.start        # index from the source string
+        self.type = token.chunk_type    
+        # self.sense = token.sense      # no sense in pybo
         self.level = None
         self.sense = None
 
@@ -114,14 +99,6 @@ class TokenManager:
                     type=TokenModel.TYPE_REMOVE) if d.pos is not None
             ]))
 
-        # the TRIE_MODIF directory should contain at least two subfolders:
-        # lexica_bo: a dir containing files with words, a word per line
-        # lexica_skrt: same, but for sanskrit entries
-        # deactivate: same, but for the entries to deactivate from the trie
-        # self.tokenizer = pybo.WordTokenizer(
-        #     'POS',
-        #     tok_modifs= self.TRIE_MODIF_DIR
-        # )
 
     @property
     def view(self):
@@ -133,7 +110,6 @@ class TokenManager:
 
     @timed
     def segment(self, string):
-        # tokens = self.tokenizer.tokenize(string, spaces_as_punct=True)
 
         tokens = self.editor.tokenizer.tokenize(string, spaces_as_punct=True)
 
@@ -151,9 +127,9 @@ class TokenManager:
                            else toStr(token))
                 token.end = len(result)
 
-                if token.text.endswith('\n'):
+                if token.text.endswith(('\n', ' ')):
                     blockIndex += 1
-            print(f'_join: {result}')
+            print(f'_join: {result}, block: {blockIndex}')
             return result
 
         if self.view == ViewManager.PLAIN_TEXT_VIEW:
@@ -187,8 +163,9 @@ class TokenManager:
 
     @timed
     def matchRules(self):
-        rules = Rule.objects.all()
-        self.matcher.match(self.tokens, rules)
+        # rules = Rule.objects.all()
+        # self.matcher.match(self.tokens, rules)
+        pass
 
     @timed
     def applyDict(self):

@@ -1,15 +1,15 @@
-﻿tokenizers:
+﻿0.7.4
+tokenizers:
   trie_files:
-    - &ancient words_bo/ancient.tsv
-    - &except words_bo/exceptions.tsv
-    - &uncomp words_bo/uncompound_lexicon.tsv
-    - &tsikchen words_bo/tsikchen.tsv
-    - &dagdra words_bo/dagdra.tsv
-  non_inflected:
-    - &part words_non_inflected/particles.tsv
+    # - &ancient words/ancient.tsv
+    # - &except words/exceptions.tsv
+    # - &uncomp words/uncompound_lexicon.tsv
+    - &tsikchen words/tsikchen.tsv
+    # - &dagdra words/dagdra.tsv
   profiles:
     empty: []
-    POS: [*ancient, *except, *uncomp, *tsikchen, *part, *dagdra]
+    # POS: [*ancient, *except, *uncomp, *tsikchen, *dagdra]
+    POS: [*tsikchen]
 
 adjustments:
   files:

@@ -2,19 +2,7 @@
 import pybo
 import botok
 
-from functools import wraps
-from time import time
-
-def timed(func):
-    @wraps(func)
-    def _time_it(*args, **kwargs):
-        start = int(round(time() * 1000))
-        try:
-            return func(*args, **kwargs)
-        finally:
-            end_ = int(round(time() * 1000)) - start
-            print(f"{func.__name__}: {end_ if end_ > 0 else 0} ms")
-    return _time_it
+from horology import timed
 
 # filePath = r'C:\Users\trinley\github\dakje\tests\string.txt'
 
