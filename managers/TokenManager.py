@@ -44,7 +44,7 @@ class Token:
         self.end = self.start + len(self.text)
         self.string = None
 
-    # @timed
+    # @timed(unit='ms')
     def applyTokenModel(self, tokenModel):
         # add attributes from the DB
         self.pos = tokenModel.pos if tokenModel.pos else self.pos
@@ -108,7 +108,7 @@ class TokenManager:
     def tokens(self):
         return self.editor.tokens
 
-    @timed
+    @timed(unit='ms', name='TokenManager.segment: ')
     def segment(self, string):
 
         tokens = self.editor.tokenizer.tokenize(string, spaces_as_punct=True)
@@ -161,13 +161,13 @@ class TokenManager:
                 endIndex = i
         return startIndex, endIndex
 
-    @timed
+    @timed(unit='ms')
     def matchRules(self):
         # rules = Rule.objects.all()
         # self.matcher.match(self.tokens, rules)
         pass
 
-    @timed
+    @timed(unit='ms')
     def applyDict(self):
         # filter tokens added to the db 
         tokenModels = TokenModel.objects.filter(

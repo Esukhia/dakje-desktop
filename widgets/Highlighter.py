@@ -8,7 +8,7 @@ class Highlighter(QtGui.QSyntaxHighlighter):
         super().__init__(parent)
         self.editor = editor
 
-    @timed
+    @timed(unit='ms')
     def highlightBlock(self, text):
         currentBlock = self.currentBlock()
 

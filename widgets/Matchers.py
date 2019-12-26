@@ -12,7 +12,7 @@ class SimpleRuleMatcher(BaseRuleMatcher):
     def match(self, tokens, rules):
         for rule in rules:
 
-            @timed
+            @timed(unit='ms')
             def f():
                 # find the pattern to be updated
                 matcher = pybo.CQLMatcher(rule.cql)

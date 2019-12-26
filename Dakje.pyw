@@ -74,7 +74,7 @@ class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
     SEG_TRIGGERS = ['་', '།', '\n']
 
-    @timed
+    @timed(unit='ms')
     def __init__(self, parent=None):
         super().__init__(parent)
 
@@ -271,6 +271,7 @@ class Editor(QtWidgets.QMainWindow):
         self.viewManager.toggleTagView()
         self.refreshView()
 
+    @timed(unit='ms', name='editor.segment: ')
     def segment(self, byShunit=True, breakLine=False):
         """
         1. Gets the text in textedit, 2. segments it with pybo,
@@ -278,6 +279,7 @@ class Editor(QtWidgets.QMainWindow):
         4. displays text with refreshview().
 
         """
+        print('editor.segment: start')
 
         if byShunit:
             # find shunit in 
@@ -308,6 +310,7 @@ class Editor(QtWidgets.QMainWindow):
             self.tokens = self.tokenManager.segment(string)
 
         self.refreshView()
+        print('editor.segment: end')
 
     def resegment(self):
         # used after updateToken()
@@ -478,7 +481,7 @@ class Editor(QtWidgets.QMainWindow):
         else:
             self.setLevelList(level, levelButton, filePath)
 
-    # @timed
+    # @timed(unit='ms')
     def setLevelList(self, level, levelButton, filePath):
 
         splitFilePath = pathlib.PurePath(filePath).parts
@@ -525,7 +528,7 @@ class Editor(QtWidgets.QMainWindow):
 
 
     # Refresh #
-    @timed
+    @timed(unit='ms')
     def refreshView(self):
 
         """
@@ -567,7 +570,7 @@ class Editor(QtWidgets.QMainWindow):
         self.statusBar.showMessage(
             '  ' + ' '.join([t.text for t in self.tokens[-19:]]))
 
-    @timed
+    @timed(unit='ms')
     def statistics(self):
 
         # to do: bug fix -
@@ -631,7 +634,7 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.senCountLabel.setText(str(sentenceCount))
         self.levelTab.maxWordLabel.setText(str(max))
     
-    @timed
+    @timed(unit='ms')
     def refreshCoverage(self):
 
         tokenNum = sum(1 for t in self.tokens if t.type == 'TEXT')
