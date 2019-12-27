@@ -11,7 +11,8 @@ from web.settings import BASE_DIR
 LEVEL_NAMES = [
     'ཚིག་ཐོ་དང་པོ།',
     'ཚིག་ཐོ་གཉིས་པ།',
-    'ཚིག་ཐོ་གསུམ་པ།'
+    'ཚིག་ཐོ་གསུམ་པ།',
+    'ha'
 ]
 
 LEVEL_MODE_EXAMPLE_STRING = '''
@@ -123,14 +124,22 @@ class LevelTab(QtWidgets.QWidget):
         self.level3ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[3])
 
+        self.level4Button = QtWidgets.QPushButton()
+        self.level4Button.setFlat(True)
+        self.level4Button.setStyleSheet("Text-align:left")
+        self.level4Button.setText(LEVEL_NAMES[2])
+        self.level4ProgBar = ProgressBar(
+            self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[4])
+
         # Checkboxes
         self.levelNoneCheckbox = QtWidgets.QCheckBox()
         self.level1Checkbox = QtWidgets.QCheckBox()
         self.level2Checkbox = QtWidgets.QCheckBox()
         self.level3Checkbox = QtWidgets.QCheckBox()
+        self.level4Checkbox = QtWidgets.QCheckBox()
 
         for checkbox in (self.levelNoneCheckbox, self.level1Checkbox,
-                         self.level2Checkbox, self.level3Checkbox):
+                         self.level2Checkbox, self.level3Checkbox, self.level4Checkbox):
             checkbox.clicked.connect(self.editor.refreshView)
 
         self.levelCoverages = [
@@ -138,6 +147,7 @@ class LevelTab(QtWidgets.QWidget):
             [self.level1Checkbox, self.level1Button, self.level1ProgBar],
             [self.level2Checkbox, self.level2Button, self.level2ProgBar],
             [self.level3Checkbox, self.level3Button, self.level3ProgBar],
+            [self.level4Checkbox, self.level4Button, self.level4ProgBar],
         ]
 
         for i, levelCoverage in enumerate(self.levelCoverages):
@@ -150,8 +160,8 @@ class LevelTab(QtWidgets.QWidget):
         # self.levelCoverageLabel = QtWidgets.QLabel('Level Coverage')
         # self.grids.addWidget(self.levelCoverageLabel, 2, 0, 1, 2)
 
-        self.addBtn = QtWidgets.QPushButton('+')
-        self.grids.addWidget(self.addBtn, self.levelRow + 1,3,1,2)
+        # self.addBtn = QtWidgets.QPushButton('+')
+        # self.grids.addWidget(self.addBtn, self.levelRow + 1,3,1,2)
         """
         self.addBtn.clicked.connect(self.addLevel)
 

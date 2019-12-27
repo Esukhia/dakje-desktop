@@ -6,9 +6,9 @@ class MenuBar(QtWidgets.QMenuBar):
         self.actionManager = actionManager
 
         self.menuFile = QtWidgets.QMenu('&ཡིག་ཆ།')
-        self.menuEdit = QtWidgets.QMenu('&Edit')
-        self.menuView = QtWidgets.QMenu('&View')
-        self.menuHelp = QtWidgets.QMenu('&Help')
+        self.menuEdit = QtWidgets.QMenu('&བཟོས་བཅོས།')
+        self.menuView = QtWidgets.QMenu('&མཆན་བྱང་།')
+        # self.menuHelp = QtWidgets.QMenu('&དག་བྱེད་སྐོར།')
 
         self.addMenu(self.menuFile)
         for action in actionManager.getMenuBarActions(actionManager.MENU_FILE):
@@ -23,8 +23,8 @@ class MenuBar(QtWidgets.QMenuBar):
         for action in actionManager.getMenuBarActions(actionManager.MENU_VIEW):
             self.menuView.addAction(action)
 
-        self.addMenu(self.menuHelp)
-        for action in actionManager.getMenuBarActions(actionManager.MENU_HELP):
-            self.menuHelp.addAction(action)
-        self.menuHelp.addAction(
-            "About &Qt", QtWidgets.QApplication.instance().aboutQt)
+        # self.addMenu(self.menuHelp)
+        # for action in actionManager.getMenuBarActions(actionManager.MENU_HELP):
+        #     self.menuHelp.addAction(action)
+        # self.menuHelp.addAction(
+        #     "About &Qt", QtWidgets.QApplication.instance().aboutQt)

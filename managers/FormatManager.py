@@ -20,7 +20,7 @@ class FormatManager:
     2: '#8EB811', # green
     3: '#f29718', # yellow
     # 3: '#10a4ed', # blue
-    # 4: '#a782d2', # purple
+    4: '#a782d2', # purple
     # 5: 'f2590c', # orange
     None: '#e01a1a' # red
     }

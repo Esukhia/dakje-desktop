@@ -72,7 +72,7 @@ def ignoreEvent(signal):
 
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
-    SEG_TRIGGERS = ['་', '།', '\n']
+    SEG_TRIGGERS = ['་', ' ', '\n']
 
     @timed(unit='ms')
     def __init__(self, parent=None):
@@ -139,9 +139,16 @@ class Editor(QtWidgets.QMainWindow):
         self.formatManager = FormatManager(self)
 
     def initUI(self):
+
+        # UI font and font size
+        self.uiFont = QtGui.QFont()
+        self.uiFont.setFamily("Microsoft Himalaya")
+        self.uiFont.setPointSize(12)
+
         self.actionManager.createActions()
 
         self.menuBar = MenuBar(self.actionManager, parent=self)
+        self.menuBar.setFont(self.uiFont)
         self.setMenuBar(self.menuBar)
 
         # TODO group doesn't really work for mutually exclusive, has to be done manually
@@ -160,15 +167,15 @@ class Editor(QtWidgets.QMainWindow):
 
         self.highlighter = Highlighter(self.textEdit.document(), self)
 
+        # textEdit font and font size
+        self.font = QtGui.QFont()
+        self.font.setFamily("Microsoft Himalaya")
+        self.font.setPointSize(14)
+
         self.setStyleSheet('QMainWindow{background-color: white}')
         self.textEdit.setStyleSheet(
             'border: none; margin: 10px')
-
-        # default font and font size
-        font = QtGui.QFont()
-        font.setFamily("Microsoft Himalaya")
-        font.setPointSize(14)
-        self.textEdit.setFont(font)
+        self.textEdit.setFont(self.font)
 
         # font family
         self.toolBar.addSeparator()
@@ -181,16 +188,16 @@ class Editor(QtWidgets.QMainWindow):
         self.fontResizer = QtWidgets.QComboBox()
         self.toolBar.addWidget(self.fontResizer)
         self.fontResizer.addItems([str(s) for s in FONT_SIZES])
-        self.fontResizer.setCurrentText(str(font.pointSize()))
+        self.fontResizer.setCurrentText(str(self.font.pointSize()))
 
         # update when font or size is changed
         self.fontPicker.currentFontChanged.connect(self.changeFont)
         self.fontResizer.currentIndexChanged.connect(self.changeFont)
 
     def changeFont(self):
-        font = self.fontPicker.currentFont()
-        font.setPointSize(int(self.fontResizer.currentText()))
-        self.textEdit.setFont(font)
+        self.font = self.fontPicker.currentFont()
+        self.font.setPointSize(int(self.fontResizer.currentText()))
+        self.textEdit.setFont(self.font)
 
 
     def bindEvents(self):
@@ -230,15 +237,20 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.level3Button.clicked.connect(
             partial(self.importLevelList, level=3, levelButton=self.levelTab.level3Button))
 
+        self.levelTab.level4Button.clicked.connect(
+            partial(self.importLevelList, level=4, levelButton=self.levelTab.level4Button))
+
     def changeLevelCheckboxes(self):
         if self.levelTab.levelProfileCheckbox.isChecked():
             self.levelTab.level1Checkbox.setChecked(True)
             self.levelTab.level2Checkbox.setChecked(True)
             self.levelTab.level3Checkbox.setChecked(True)
+            self.levelTab.level4Checkbox.setChecked(True)
         else:
             self.levelTab.level1Checkbox.setChecked(False)
-            self.levelTab.level3Checkbox.setChecked(False)
             self.levelTab.level2Checkbox.setChecked(False)
+            self.levelTab.level3Checkbox.setChecked(False)
+            self.levelTab.level4Checkbox.setChecked(False)
         self.refreshView()
 
     def closeEvent(self, *args, **kwargs):
@@ -437,6 +449,7 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.level1Button.setText(Tabs.LEVEL_NAMES[0])
         self.levelTab.level2Button.setText(Tabs.LEVEL_NAMES[1])
         self.levelTab.level3Button.setText(Tabs.LEVEL_NAMES[2])
+        self.levelTab.level4Button.setText(Tabs.LEVEL_NAMES[3])
 
         # get file paths
         if self.LEVEL_PROFILE_PATH:
@@ -454,18 +467,11 @@ class Editor(QtWidgets.QMainWindow):
             self.setLevelList(level=2, levelButton=self.levelTab.level2Button, filePath=levelFiles[1])
         if len(levelFiles) >= 3:
             self.setLevelList(level=3, levelButton=self.levelTab.level3Button, filePath=levelFiles[2])
-        if len(levelFiles) > 3:
+        if len(levelFiles) >= 4:
+            self.setLevelList(level=4, levelButton=self.levelTab.level4Button, filePath=levelFiles[3])
+        if len(levelFiles) > 4:
             return
 
-        # reset selection coverage
-        self.levelTab.level2Button.clicked.connect(
-            partial(self.importLevelList, level=2, levelButton=self.levelTab.level2Button))
-
-        self.levelTab.level3Button.clicked.connect(
-            partial(self.importLevelList, level=3, levelButton=self.levelTab.level3Button))
-
-        # for l in levelFiles:
-        #     print(l)
 
     def reloadLevelProfile(self):
         self.setLevelProfile()
@@ -528,7 +534,7 @@ class Editor(QtWidgets.QMainWindow):
 
 
     # Refresh #
-    @timed(unit='ms')
+    # @timed(unit='ms')    # TypeError: refreshView() takes 1 positional argument but 2 were given
     def refreshView(self):
 
         """
@@ -650,10 +656,12 @@ class Editor(QtWidgets.QMainWindow):
             if tokenNum == 0:
                 return 0
             else:
+                print(f'{key}: {levelCounter[key] / tokenNum * 100.0}')
                 return levelCounter[key] / tokenNum * 100.0
 
         # updating the progress bar
-        self.levelTab.tokenCoverageProgBar.setValue(100 - getLevelPercentage(None))
+        if self.tokens:
+            self.levelTab.tokenCoverageProgBar.setValue(100 - getLevelPercentage(None))
         self.levelTab.levelNoneProgBar.setValue(getLevelPercentage(None))
         self.levelTab.level1ProgBar.setValue(getLevelPercentage(1))
         self.levelTab.level2ProgBar.setValue(getLevelPercentage(2))

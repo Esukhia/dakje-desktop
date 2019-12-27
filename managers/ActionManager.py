@@ -19,6 +19,7 @@ class ActionManager:
         iconPath = os.path.join(BASE_DIR, 'icons', icon)
         action = QtWidgets.QAction(QtGui.QIcon(iconPath), name, self.editor)
         action.setCheckable(checkable)
+        action.setFont(self.editor.uiFont)
         if shortcut is not None:
             action.setShortcut(shortcut)
         if statusTip is not None:
@@ -29,69 +30,71 @@ class ActionManager:
 
     def createActions(self):
         self.newFileAction = self.createAction(
-            '&New...', 'new.png',
+            '&གསར་པ།', 'new.png',
             shortcut=QtGui.QKeySequence.New,
-            statusTip='Create a new file',
+            statusTip='ཡིག་ཆ་གསར་པ།',
             triggered=self.editor.newFile
         )
 
         self.openFileAction = self.createAction(
-            '&Open...', 'open.png',
+            '&ཁ་འབྱེད།', 'open.png',
             shortcut=QtGui.QKeySequence.Open,
-            statusTip='Open a text file',
+            statusTip='ཡིག་ཆ་སྒོ་ཕྱེ།',
             triggered=self.editor.openFile
         )
 
         self.saveFileAction = self.createAction(
-            '&Save...', 'save.png',
+            '&ཉར་ཚགས།', 'save.png',
             shortcut=QtGui.QKeySequence.Save,
-            statusTip='Save the current document',
+            statusTip='ཡིག་ཆ་ཉར་ཚགས།',
             triggered=self.editor.saveFile
         )
 
         self.copyAction = self.createAction(
-            '&Copy...', 'copy.png',
+            '&ཡི་གེ་བཤུ།', 'copy.png',
             shortcut=QtGui.QKeySequence.Copy,
-            statusTip='copy the current document',
+            statusTip='གང་འདམ་པའི་ཡི་གེ་ངོ་བཤུས་རྒྱག',
             triggered=self.editor.copy
         )
 
         self.pasteAction = self.createAction(
-            '&Paste...', 'paste.png',
+            '&ཡི་གེ་འཇུག', 'paste.png',
             shortcut=QtGui.QKeySequence.Paste,
-            statusTip='Paste the current document',
+            statusTip='ངོ་བཤུས་བྱས་པའི་ཡི་གེ་འཇུག',
             triggered=self.editor.paste
         )
 
         self.cutAction = self.createAction(
-            '&Cut...', 'cut.png',
+            '&ཡི་གེ་བཀོག', 'cut.png',
             shortcut=QtGui.QKeySequence.Cut,
-            statusTip='Cut the current document',
+            statusTip='གང་འདམ་པའི་ཡི་གེ་བཀོག',
             triggered=self.editor.cut
         )
 
         self.undoAction = self.createAction(
-            '&Undo', 'undo.png',
+            '&ཕྱིར་ལྡོག', 'undo.png',
             shortcut=QtGui.QKeySequence.Undo,
             statusTip='Undo the last editing action',
             triggered=self.editor.undo
         )
 
         self.redoAction = self.createAction(
-            '&Redo', 'redo.png',
+            '&བསྐྱར་བཟོས།', 'redo.png',
             shortcut=QtGui.QKeySequence.Redo,
             statusTip='Redo the last editing action',
             triggered=self.editor.redo
         )
 
         self.tagViewAction = self.createAction(
-            '&Toggle Tag View', 'tag.png',
+            '&མཆན་བྱང་སྟོན།', 'tag.png',
+            shortcut=QtGui.QKeySequence('Shift+Tab'),
             checkable=True,
             triggered=self.editor.toggleTagView
         )
 
         self.spaceViewAction = self.createAction(
-            '&Toggle Space View', 'space.png',
+            '&བར་སྟོང་སྟོན།', 'space.png',
+            shortcut=QtGui.QKeySequence('Shift+Space'),
             checkable=True,
             triggered=self.editor.toggleSpaceView
         )
