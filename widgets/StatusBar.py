@@ -7,16 +7,16 @@ class StatusBar(QtWidgets.QStatusBar):
 
         self.setStyleSheet('background-color: #EAEAEA')
 
-        self.lineLabel = QtWidgets.QLabel('Line')
+        self.lineLabel = QtWidgets.QLabel('ཐིག་ཤར།')
         self.lineLabel.setMinimumWidth(100)
         self.addPermanentWidget(self.lineLabel, 0)
 
-        self.modeLabel = QtWidgets.QLabel('Mode')
+        self.modeLabel = QtWidgets.QLabel('བྱ་བ།')
         self.modeLabel.setMinimumWidth(100)
         self.addPermanentWidget(self.modeLabel, 0)
 
-        self.viewLabel = QtWidgets.QLabel('View')
+        self.viewLabel = QtWidgets.QLabel('མཆན་བྱང་།')
         self.viewLabel.setMinimumWidth(100)
         self.addPermanentWidget(self.viewLabel, 0)
 
-        self.showMessage('Welcome...')
+        self.showMessage('ཁམས་བཟང་།')

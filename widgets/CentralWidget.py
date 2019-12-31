@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
 
-from .Tabs import LevelTab, FindTab, CorpusAnalysisTab
+from .Tabs import LevelTab, FindTab, CorpusAnalysisTab, EditorTab
 from .TextEdit import TextEdit
 
 class CentralWidget(QtWidgets.QWidget):
@@ -39,18 +39,20 @@ class LeftTabWidget(QtWidgets.QTabWidget):
         if self.currentIndex() == 0:
             self.editor.mode = 'Find and Replace'
         else:
-            self.editor.mode = 'Level Mode'
+            self.editor.mode = 'གསལ་ཆ།'
         self.editor.showStatus()
 
 class TabWidget(QtWidgets.QTabWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.levelTab = LevelTab(self)
-        #self.editorTab = EditorTab(self)
+        self.setFont(self.editor.uiFont)
 
-        self.addTab(self.levelTab, 'Level Mode')
-        #self.addTab(self.editorTab, 'Editor Mode')
+        # self.editorTab = EditorTab(self)
+        self.levelTab = LevelTab(self)
+
+        # self.addTab(self.editorTab, 'ཞུ་དག')
+        self.addTab(self.levelTab, 'གསལ་ཆ།')
 
         self.currentChanged.connect(self.tabChanged)
 
@@ -60,7 +62,7 @@ class TabWidget(QtWidgets.QTabWidget):
 
     def tabChanged(self):
         if self.currentIndex() == 0:
-            self.editor.mode = 'Level Mode'
+            self.editor.mode = 'གསལ་ཆ།'
         else:
-            self.editor.mode = 'Editor Mode'
+            self.editor.mode = 'ཞུ་དག'
         self.editor.showStatus()

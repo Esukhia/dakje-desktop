@@ -72,7 +72,7 @@ def ignoreEvent(signal):
 
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
-    SEG_TRIGGERS = ['་', ' ', '\n']
+    SEG_TRIGGERS = ['་', '།', '\n']
 
     @timed(unit='ms')
     def __init__(self, parent=None):
@@ -124,7 +124,7 @@ class Editor(QtWidgets.QMainWindow):
     def initProperties(self):
         self.tokens = []
         self.formats = []
-        self.mode = 'Level Mode'  # LEVEL_MODE, EDITOR_MODE
+        self.mode = 'གསལ་ཆ།'  # LEVEL_MODE, EDITOR_MODE
         self.view = None  # PLAIN_TEXT_VIEW, SPACE_VIEW...
         self.filename = None
 
@@ -160,6 +160,9 @@ class Editor(QtWidgets.QMainWindow):
         self.addToolBar(self.toolBar)
 
         self.statusBar = StatusBar(parent=self)
+        self.statusBar.modeLabel.setFont(self.uiFont)
+        self.statusBar.viewLabel.setFont(self.uiFont)
+        self.statusBar.lineLabel.setFont(self.uiFont)
         self.setStatusBar(self.statusBar)
 
         self.centralWidget = CentralWidget(self)
@@ -170,7 +173,7 @@ class Editor(QtWidgets.QMainWindow):
         # textEdit font and font size
         self.font = QtGui.QFont()
         self.font.setFamily("Microsoft Himalaya")
-        self.font.setPointSize(14)
+        self.font.setPointSize(12)
 
         self.setStyleSheet('QMainWindow{background-color: white}')
         self.textEdit.setStyleSheet(
@@ -573,6 +576,7 @@ class Editor(QtWidgets.QMainWindow):
         self.refreshCoverage()
 
         # print([t.text for t in self.tokens])
+        # TODO current shunit
         self.statusBar.showMessage(
             '  ' + ' '.join([t.text for t in self.tokens[-19:]]))
 
@@ -659,13 +663,15 @@ class Editor(QtWidgets.QMainWindow):
                 print(f'{key}: {levelCounter[key] / tokenNum * 100.0}')
                 return levelCounter[key] / tokenNum * 100.0
 
-        # updating the progress bar
+        # update 
         if self.tokens:
             self.levelTab.tokenCoverageProgBar.setValue(100 - getLevelPercentage(None))
+
         self.levelTab.levelNoneProgBar.setValue(getLevelPercentage(None))
         self.levelTab.level1ProgBar.setValue(getLevelPercentage(1))
         self.levelTab.level2ProgBar.setValue(getLevelPercentage(2))
         self.levelTab.level3ProgBar.setValue(getLevelPercentage(3))
+        self.levelTab.level4ProgBar.setValue(getLevelPercentage(4))
 
         posCounter = Counter([
             token.pos for token in self.tokens])
@@ -699,6 +705,8 @@ class Editor(QtWidgets.QMainWindow):
             result.append(2)
         if self.levelTab.level3Checkbox.isChecked():
             result.append(3)
+        if self.levelTab.level4Checkbox.isChecked():
+            result.append(4)
         return result
 
     def getHighlightedPoses(self):
@@ -718,6 +726,8 @@ class Editor(QtWidgets.QMainWindow):
             return 2
         elif self.editorTab.thirdFreqLabel.text() == pos:
             return 3
+        elif self.editorTab.thirdFreqLabel.text() == pos:
+            return 4
         else:
             return None
 
@@ -727,7 +737,7 @@ class Editor(QtWidgets.QMainWindow):
 
         if ln and col:
             self.statusBar.lineLabel.setText(
-                'Ln {}, Col {}'.format(ln, col))
+                f'ཐིག་ཤར། {ln} ཡིག་འབྲུ། {col} ')
 
 def runserver():
     import django

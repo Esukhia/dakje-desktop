@@ -62,11 +62,11 @@ class ViewManager:
 
     def getStatusDisplay(self):
         if self.view == self.PLAIN_TEXT_VIEW:
-            msg = 'Plain Text View'
+            msg = 'ཡིག་རྐྱང་།'
         elif self.view == self.SPACE_VIEW:
-            msg = 'Space View'
+            msg = 'བར་སྟོང་།'
         elif self.view == self.TAG_VIEW:
-            msg = 'Tag View'
+            msg = 'མཆན་བྱང་།'
         else:
             msg = 'Space/Tag View'
         return msg

@@ -30,72 +30,74 @@ class ActionManager:
 
     def createActions(self):
         self.newFileAction = self.createAction(
-            '&གསར་པ།', 'new.png',
+            '&གསར་པ།...', 'new.png',
             shortcut=QtGui.QKeySequence.New,
             statusTip='ཡིག་ཆ་གསར་པ།',
             triggered=self.editor.newFile
         )
 
         self.openFileAction = self.createAction(
-            '&ཁ་འབྱེད།', 'open.png',
+            '&ཁ་འབྱེད།...', 'open.png',
             shortcut=QtGui.QKeySequence.Open,
-            statusTip='ཡིག་ཆ་སྒོ་ཕྱེ།',
+            statusTip='ཡིག་ཆ་ཁ་འབྱེད།',
             triggered=self.editor.openFile
         )
 
         self.saveFileAction = self.createAction(
-            '&ཉར་ཚགས།', 'save.png',
+            '&ཉར་ཚགས།...', 'save.png',
             shortcut=QtGui.QKeySequence.Save,
             statusTip='ཡིག་ཆ་ཉར་ཚགས།',
             triggered=self.editor.saveFile
         )
 
         self.copyAction = self.createAction(
-            '&ཡི་གེ་བཤུ།', 'copy.png',
+            '&བཤུ།', 'copy.png',
             shortcut=QtGui.QKeySequence.Copy,
             statusTip='གང་འདམ་པའི་ཡི་གེ་ངོ་བཤུས་རྒྱག',
             triggered=self.editor.copy
         )
 
         self.pasteAction = self.createAction(
-            '&ཡི་གེ་འཇུག', 'paste.png',
+            '&སྦྱར།', 'paste.png',
             shortcut=QtGui.QKeySequence.Paste,
-            statusTip='ངོ་བཤུས་བྱས་པའི་ཡི་གེ་འཇུག',
+            statusTip='ངོ་བཤུས་བྱས་པའི་ཡི་གེ་བསྒྲིག',
             triggered=self.editor.paste
         )
 
         self.cutAction = self.createAction(
-            '&ཡི་གེ་བཀོག', 'cut.png',
+            '&གཏུབ།', 'cut.png',
             shortcut=QtGui.QKeySequence.Cut,
-            statusTip='གང་འདམ་པའི་ཡི་གེ་བཀོག',
+            statusTip='གང་འདམ་པའི་ཡི་གེ་ཡར་ལེན།',
             triggered=self.editor.cut
         )
 
         self.undoAction = self.createAction(
             '&ཕྱིར་ལྡོག', 'undo.png',
             shortcut=QtGui.QKeySequence.Undo,
-            statusTip='Undo the last editing action',
+            statusTip='རྩོམ་སྒྲིག་གི་བྱ་བ་མཐའ་མ་ཕྱིར་ལྡོག',
             triggered=self.editor.undo
         )
 
         self.redoAction = self.createAction(
-            '&བསྐྱར་བཟོས།', 'redo.png',
+            '&བསྐྱར་བཟོ།', 'redo.png',
             shortcut=QtGui.QKeySequence.Redo,
-            statusTip='Redo the last editing action',
+            statusTip='ཕྱིར་ལྡོག་བྱས་པའི་རྩོམ་སྒྲིག་གི་བྱ་བ་བསྐྱར་བཟོ།',
             triggered=self.editor.redo
         )
 
         self.tagViewAction = self.createAction(
-            '&མཆན་བྱང་སྟོན།', 'tag.png',
-            shortcut=QtGui.QKeySequence('Shift+Tab'),
+            '&མཆན་བྱང་།', 'tag.png',
+            shortcut=QtGui.QKeySequence('Ctrl+Shift+Space'),
             checkable=True,
+            statusTip='ཚིག་གཤིས་དང་མ་ཚིག་ལྟ་བུའི་མཆན་བྱང་སྟོན།',
             triggered=self.editor.toggleTagView
         )
 
         self.spaceViewAction = self.createAction(
-            '&བར་སྟོང་སྟོན།', 'space.png',
-            shortcut=QtGui.QKeySequence('Shift+Space'),
+            '&བར་སྟོང་།', 'space.png',
+            shortcut=QtGui.QKeySequence('Ctrl+Space'),
             checkable=True,
+            statusTip='ཐ་སྙད་སོ་སོར་འབྱེད་པའི་བར་སྟོང་སྟོན།',
             triggered=self.editor.toggleSpaceView
         )
 

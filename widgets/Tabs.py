@@ -9,10 +9,10 @@ from .CQLWidget import CqlQueryGenerator
 from web.settings import BASE_DIR
 
 LEVEL_NAMES = [
-    'ཚིག་ཐོ་དང་པོ།',
-    'ཚིག་ཐོ་གཉིས་པ།',
-    'ཚིག་ཐོ་གསུམ་པ།',
-    'ha'
+    'ཚིག་ཐོ་འདེམ།',
+    'ཚིག་ཐོ་འདེམ།',
+    'ཚིག་ཐོ་འདེམ།',
+    'ཚིག་ཐོ་འདེམ།'
 ]
 
 LEVEL_MODE_EXAMPLE_STRING = '''
@@ -67,16 +67,16 @@ class LevelTab(QtWidgets.QWidget):
         self.grids = QtWidgets.QGridLayout()
 
         # Selection Coverage
-        self.tokenCoverageLabel = QtWidgets.QLabel('Selection Coverage')
+        self.tokenCoverageLabel = QtWidgets.QLabel('ཀློག་པ་པོས་ཤེས་པའི་ཐ་སྙད་98% ལོན་དགོས།')
+        self.tokenCoverageLabel.setFont(self.editor.uiFont)
         self.tokenCoverageProgBar = ProgressBar(self, 0, '#278da9')
         self.grids.addWidget(self.tokenCoverageLabel, 0, 0, 1, 5)
         self.grids.addWidget(self.tokenCoverageProgBar, 1, 0, 1, 5)
 
         # Level Profile      
         self.levelProfileButton = QtWidgets.QPushButton()
-        self.levelProfileButton.setText('Load Profile')
-        # TODO align left when setting the name of a profile dir
-        # self.levelProfileButton.setStyleSheet("Text-align:left")
+        self.levelProfileButton.setText('ཚིག་ཁུག་འདེམ།')
+        self.levelProfileButton.setFont(self.editor.uiFont)
         self.levelReloadButton = QtWidgets.QPushButton()
         self.levelReloadButton.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self.levelReloadButton.setFlat(True)
@@ -98,7 +98,7 @@ class LevelTab(QtWidgets.QWidget):
         self.levelNoneButton.setFlat(True)
         self.levelNoneButton.setEnabled(False)
         self.levelNoneButton.setStyleSheet("Text-align:left")
-        self.levelNoneButton.setText(' Non-level')
+        self.levelNoneButton.setText(' ཚིག་ཐོར་མེད།')
         self.levelNoneProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[None])
         self.levelNoneProgBar.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
@@ -177,7 +177,7 @@ class LevelTab(QtWidgets.QWidget):
         self.statisticsLabel = QtWidgets.QLabel('Statistics:')
 
         #bold statistics 
-        self.statisticsLabel.setFont(QtGui.QFont("Times",10,weight=QtGui.QFont.Bold))
+        self.statisticsLabel.setFont(self.editor.uiFont)
 
         # self.forms.addRow(self.statisticsLabel)
         self.editor.refreshCoverage
@@ -189,13 +189,13 @@ class LevelTab(QtWidgets.QWidget):
         self.maxWordLabel = QtWidgets.QLabel('0')
 
         # Word Count
-        self.forms.addRow("ཐ་སྙད་སྤྱིའི་གྲངས། ",
+        self.forms.addRow("ཐ་སྙད། ",
                           self.wordCountLabel)
-        self.forms.addRow("ཚིག་རིགས་ཀྱི་གྲངས། ",
+        self.forms.addRow("ཐ་སྙད་རིགས། ",
                           self.typeCountLabel)
-        self.forms.addRow("ཚིག་གྲུབ་གྲངས། ",
+        self.forms.addRow("ཚིག་གྲུབ། ",
                           self.senCountLabel)
-        self.forms.addRow("Max words in a Sentence count: ",
+        self.forms.addRow("ཚིག་གྲུབ་རིང་ཤོས།",
                           self.maxWordLabel)
 
         # self.forms.addRow("frequency: ", self.freqLabel)
