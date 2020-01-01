@@ -75,7 +75,7 @@ class LevelTab(QtWidgets.QWidget):
 
         # Level Profile      
         self.levelProfileButton = QtWidgets.QPushButton()
-        self.levelProfileButton.setText('ཚིག་ཁུག་འདེམ།')
+        self.levelProfileButton.setText('  ཚིག་ཁུག་འདེམ།  ')
         self.levelProfileButton.setFont(self.editor.uiFont)
         self.levelReloadButton = QtWidgets.QPushButton()
         self.levelReloadButton.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -99,6 +99,7 @@ class LevelTab(QtWidgets.QWidget):
         self.levelNoneButton.setEnabled(False)
         self.levelNoneButton.setStyleSheet("Text-align:left")
         self.levelNoneButton.setText(' ཚིག་ཐོར་མེད།')
+        self.levelNoneButton.setFont(self.editor.uiFont)
         self.levelNoneProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[None])
         self.levelNoneProgBar.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
@@ -106,6 +107,7 @@ class LevelTab(QtWidgets.QWidget):
         self.level1Button = QtWidgets.QPushButton()
         self.level1Button.setFlat(True)
         self.level1Button.setStyleSheet("Text-align:left")
+        self.level1Button.setFont(self.editor.uiFont)
         self.level1Button.setText(LEVEL_NAMES[0])
         self.level1ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[1])
@@ -113,6 +115,7 @@ class LevelTab(QtWidgets.QWidget):
         self.level2Button = QtWidgets.QPushButton()
         self.level2Button.setFlat(True)
         self.level2Button.setStyleSheet("Text-align:left")
+        self.level2Button.setFont(self.editor.uiFont)
         self.level2Button.setText(LEVEL_NAMES[1])
         self.level2ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[2])
@@ -120,6 +123,7 @@ class LevelTab(QtWidgets.QWidget):
         self.level3Button = QtWidgets.QPushButton()
         self.level3Button.setFlat(True)
         self.level3Button.setStyleSheet("Text-align:left")
+        self.level3Button.setFont(self.editor.uiFont)
         self.level3Button.setText(LEVEL_NAMES[2])
         self.level3ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[3])
@@ -127,6 +131,7 @@ class LevelTab(QtWidgets.QWidget):
         self.level4Button = QtWidgets.QPushButton()
         self.level4Button.setFlat(True)
         self.level4Button.setStyleSheet("Text-align:left")
+        self.level4Button.setFont(self.editor.uiFont)
         self.level4Button.setText(LEVEL_NAMES[2])
         self.level4ProgBar = ProgressBar(
             self, 0, self.editor.formatManager.LEVEL_FORMAT_COLORS[4])
@@ -176,7 +181,9 @@ class LevelTab(QtWidgets.QWidget):
         self.forms = QtWidgets.QFormLayout()
         self.statisticsLabel = QtWidgets.QLabel('Statistics:')
 
-        #bold statistics 
+        #font size
+        # self.forms.labelForField.setFont(self.editor.uiFont)
+
         self.statisticsLabel.setFont(self.editor.uiFont)
 
         # self.forms.addRow(self.statisticsLabel)
@@ -197,6 +204,8 @@ class LevelTab(QtWidgets.QWidget):
                           self.senCountLabel)
         self.forms.addRow("ཚིག་གྲུབ་རིང་ཤོས།",
                           self.maxWordLabel)
+
+
 
         # self.forms.addRow("frequency: ", self.freqLabel)
 

@@ -85,7 +85,7 @@ class Editor(QtWidgets.QMainWindow):
         self.initUI()
         self.bindEvents()
         self.initTokenizer()
-        self.setWindowTitle("དག་བྱེད།")
+        self.setWindowTitle("དག་བྱེད། Dakje")
         self.setWindowIcon(QtGui.QIcon(
             os.path.join(BASE_DIR, "icons", "dakje.ico")))
         self.setWindowState(QtCore.Qt.WindowMaximized)
@@ -173,7 +173,7 @@ class Editor(QtWidgets.QMainWindow):
         # textEdit font and font size
         self.font = QtGui.QFont()
         self.font.setFamily("Microsoft Himalaya")
-        self.font.setPointSize(12)
+        self.font.setPointSize(14)
 
         self.setStyleSheet('QMainWindow{background-color: white}')
         self.textEdit.setStyleSheet(
@@ -435,19 +435,25 @@ class Editor(QtWidgets.QMainWindow):
     def loadLevelProfile(self):
         # a profile is a dir containing level lists
         dirPath = QtWidgets.QFileDialog.getExistingDirectory(parent=self, directory=os.path.join(FILES_DIR, 'levels'), options=QtWidgets.QFileDialog.ShowDirsOnly)
-
-        setting = Setting.objects.get(key='profile_path')
-        self.LEVEL_PROFILE_PATH = setting.value = dirPath
-        setting.save()
         
-        self.levelTab.levelProfileLabel.setText(pathlib.Path(self.LEVEL_PROFILE_PATH).stem)
-        # dirpath string
-        self.setLevelProfile()
+        # if dir is selected
+        if dirPath != '':
+            setting = Setting.objects.get(key='profile_path')
+            self.LEVEL_PROFILE_PATH = setting.value = dirPath
+            setting.save()
+            
+            self.levelTab.levelProfileLabel.setText(pathlib.Path(self.LEVEL_PROFILE_PATH).stem)
+            # dirpath string
+            self.setLevelProfile()
+        # if dir is selected
+        else:
+            print('no path')
+            pass
+
 
     def setLevelProfile(self):
         # clear db
         Token.objects.all().delete()
-
         # reset level names
         self.levelTab.level1Button.setText(Tabs.LEVEL_NAMES[0])
         self.levelTab.level2Button.setText(Tabs.LEVEL_NAMES[1])
