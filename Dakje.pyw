@@ -29,7 +29,7 @@ from web.settings import BASE_DIR, FILES_DIR
 
 from storage.models import Token, Setting
 # flushes the Tokens on start, should be in a function
-Token.objects.all().delete()
+# Token.objects.all().delete()
 
 
 # Highlighting profile settings
@@ -429,6 +429,7 @@ class Editor(QtWidgets.QMainWindow):
         Setting.objects.update_or_create(key='profile_path')
         if Setting.objects.get(key='profile_path').value:
             self.LEVEL_PROFILE_PATH = Setting.objects.get(key='profile_path').value
+
             self.setLevelProfile()
 
     # Import Level Profile #
@@ -445,13 +446,19 @@ class Editor(QtWidgets.QMainWindow):
             self.levelTab.levelProfileLabel.setText(pathlib.Path(self.LEVEL_PROFILE_PATH).stem)
             # dirpath string
             self.setLevelProfile()
+
+            # segment in order to update the level attribute of each token
+            self.segment()
+
         # if dir is selected
         else:
+            # do nothing
             print('no path')
             pass
 
 
     def setLevelProfile(self):
+        print('I am in setLevelProfile!')
         # clear db
         Token.objects.all().delete()
         # reset level names
@@ -466,10 +473,9 @@ class Editor(QtWidgets.QMainWindow):
         else:
             return
 
-        # FIXME set level lists
         if not levelFiles:
-            print('Where is my file?')
-            return
+            # Token objects are deleted so it'll reset 
+            self.refreshView()
         if len(levelFiles) >= 1:
             self.setLevelList(level=1, levelButton=self.levelTab.level1Button, filePath=levelFiles[0])
         if len(levelFiles) >= 2:
@@ -488,6 +494,10 @@ class Editor(QtWidgets.QMainWindow):
 
     # Import Level List
     def importLevelList(self, level, levelButton):
+
+        # TODO delete DB entries for current level
+        # 
+
         # get file path
         filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select a level list", os.path.join(FILES_DIR, 'levels'), filter="UTF-8 ཡིག་རྐྱང་། (*.txt)")
 
@@ -495,6 +505,15 @@ class Editor(QtWidgets.QMainWindow):
             return
         else:
             self.setLevelList(level, levelButton, filePath)
+
+
+    def parseLevelFile(self, filePath):
+
+        with open(filePath, encoding='utf-8') as f:
+            words = [word[:-1] if word.strip().endswith(('་', '།')) else word.strip()
+                     for word in [line.rstrip('\r\n')
+                                  for line in f.readlines()]]
+        return words
 
     # @timed(unit='ms')
     def setLevelList(self, level, levelButton, filePath):
@@ -508,11 +527,8 @@ class Editor(QtWidgets.QMainWindow):
             fileName = splitFilePath[len(splitFilePath) - 1]
             levelButton.setText(fileName)
 
-        # get strings
-        with open(filePath, encoding='utf-8') as f:
-            words = [word[:-1] if word.endswith('་') else word
-                     for word in [line.rstrip('\r\n')
-                                  for line in f.readlines()]]
+        # get words
+        words = self.parseLevelFile(filePath)
 
         # create words, add to level
         with transaction.atomic():
