@@ -8,8 +8,10 @@ from PyQt5.QtWidgets import (
     QWidget, QComboBox, QPushButton, QMainWindow,
     QLabel, QLineEdit, QFormLayout, QHBoxLayout, QDialog
 )
+from django.utils.translation import gettext_lazy as _
 from web.settings import BASE_DIR
 
+# the remove button in edit token(after using POS)
 class RemoveButton(QPushButton):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -18,6 +20,7 @@ class RemoveButton(QPushButton):
         self.setIcon(QIcon(os.path.join(BASE_DIR, "icons", "delete.png")))
         self.setFixedSize(20, 20)
 
+# set the combo box (drop-down menu)
 class ComboBoxFactory:
     KEYWORD = ['text', 'pos']
     RELATIONAL_OPR = ['=', '>=', '<=', '!=', '!<=', '!>=', '==', '!==']
@@ -29,6 +32,7 @@ class ComboBoxFactory:
         comboBox.addItems(items)
         return comboBox
 
+# show after add token & add condition in CQL Query Generator
 class Condition:
     def __init__(self, parent=None):
         self.parent = parent
@@ -64,7 +68,7 @@ class Condition:
         self.removeButton = RemoveButton()
         self.removeButton.clicked.connect(self.remove)
 
-        # Layout
+        # Layout(edit token -> CQL -> add token -> add condition)
         self.hbox = QHBoxLayout()
         self.hbox.addWidget(self.keywordField)
         self.hbox.addWidget(self.rationalOperatorField)
@@ -114,7 +118,7 @@ class Condition:
             result += ' {} '.format(self.logicalOperator)
         return result
 
-
+# show after add token
 class Token:
     def __init__(self, parent):
         self.parent = parent
@@ -123,7 +127,7 @@ class Token:
         self.removeButton = RemoveButton()
         self.removeButton.clicked.connect(self.remove)
 
-        self.addConditionButton = QPushButton('Add Condition')
+        self.addConditionButton = QPushButton(str(_('Add Condition')))
         self.addConditionButton.clicked.connect(self.addCondition)
 
         self.fbox = QFormLayout()
@@ -163,24 +167,24 @@ class Token:
         conditions = ''.join([str(condition) for condition in self.conditions])
         return token.format(conditions)
 
-
+# the window of CQLQueryGenerator
 class CqlQueryGenerator(QDialog):
     def __init__(self, lineEdit, parent=None):
         super().__init__(parent, Qt.WindowStaysOnTopHint)
         self.lineEdit = lineEdit
         self.tokens = []
         self.resize(450, 600)
-        self.setWindowTitle('CQL Query Generator')
+        self.setWindowTitle(str(_('CQL Query Generator')))
         self.initUI()
 
     def initUI(self):
-        self.CQLQueryLabel = QLabel('CQL Query String')
+        self.CQLQueryLabel = QLabel(str(_('CQL Query String')))
         self.CQLQueryLabel.setStyleSheet('background-color: white')
 
-        self.addTokenButton = QPushButton('Add Token')
+        self.addTokenButton = QPushButton(str(_('Add Token')))
         self.addTokenButton.clicked.connect(self.addToken)
 
-        self.confirmButton = QPushButton('Confirm')
+        self.confirmButton = QPushButton(str(_('Confirm')))
         self.confirmButton.clicked.connect(self.confirm)
 
         self.fbox = QFormLayout()

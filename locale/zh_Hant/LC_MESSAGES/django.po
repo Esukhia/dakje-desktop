@@ -1,0 +1,235 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-23 11:37+0000\n"
+"PO-Revision-Date: 2020-07-23 19:37+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 2.3\n"
+
+#: web/settings.py:80
+msgid "Traditional Chinese"
+msgstr "中文"
+
+#: widgets/CQLWidget.py:130
+msgid "Add Condition"
+msgstr "新增條件"
+
+#: widgets/CQLWidget.py:177
+msgid "CQL Query Generator"
+msgstr "CQL 查詢產生器"
+
+#: widgets/CQLWidget.py:181
+msgid "CQL Query String"
+msgstr "CQL 查詢字串"
+
+#: widgets/CQLWidget.py:184
+msgid "Add Token"
+msgstr "新增 Token"
+
+#: widgets/CQLWidget.py:187 widgets/EditTokenDialog.py:182
+msgid "Confirm"
+msgstr "確認"
+
+#: widgets/CentralWidget.py:31
+msgid "Corpus"
+msgstr "語料庫"
+
+#: widgets/CentralWidget.py:42
+msgid "Find and Replace"
+msgstr "尋找與取代"
+
+#: widgets/DictionaryWidget.py:78
+msgid "Blank fields Warning!"
+msgstr "空白字段警告！"
+
+#: widgets/DictionaryWidget.py:79
+msgid "The blank fields will not be saved."
+msgstr "空白字段將不會保存。"
+
+#: widgets/DictionaryWidget.py:91
+msgid "Tags Warning!"
+msgstr "標籤警告!"
+
+#: widgets/DictionaryWidget.py:92
+msgid "The tag \""
+msgstr "這個標籤“"
+
+#: widgets/DictionaryWidget.py:92
+msgid "\" is not used by other words."
+msgstr "“ 不被其他詞使用。"
+
+#: widgets/DictionaryWidget.py:131
+msgid "Dictionary Editor"
+msgstr "字典編輯器"
+
+#: widgets/DictionaryWidget.py:150
+msgid "Text"
+msgstr "文本"
+
+#: widgets/DictionaryWidget.py:150
+msgid "Tag"
+msgstr "標籤"
+
+#: widgets/EditTokenDialog.py:66
+msgid "[text=\"{}\""
+msgstr "[文本=“{}”"
+
+#: widgets/EditTokenDialog.py:131
+msgid "Edit Token..."
+msgstr "編輯標籤..."
+
+#: widgets/EditTokenDialog.py:143
+msgid "POS"
+msgstr "詞性"
+
+#: widgets/EditTokenDialog.py:147
+msgid "Lemma"
+msgstr "詞的變化"
+
+#: widgets/EditTokenDialog.py:152
+msgid "Level"
+msgstr "詞彙等級"
+
+#: widgets/EditTokenDialog.py:158
+msgid "sense"
+msgstr "意義"
+
+#: widgets/EditTokenDialog.py:162
+msgid "Rule"
+msgstr "規則"
+
+#: widgets/EditTokenDialog.py:177
+msgid "Existing Rules"
+msgstr "現有規則"
+
+#: widgets/EditTokenDialog.py:249
+msgid "Blank CQL Warning"
+msgstr "空白 CQL 警告"
+
+#: widgets/EditTokenDialog.py:250
+msgid ""
+"If there is no cql queries, the attributes will be applied under normal "
+"circumstances."
+msgstr "如果沒有CQL查詢，該屬性將適用於正常情況下。"
+
+#: widgets/Tabs.py:21
+msgid ""
+"\n"
+"Statistics\n"
+"\n"
+"...\n"
+"...\n"
+"...\n"
+msgstr ""
+"\n"
+"統計\n"
+"\n"
+"…\n"
+"…\n"
+"…\n"
+
+#: widgets/Tabs.py:29
+msgid ""
+"\n"
+"Statistics\n"
+"0 words\n"
+"0 sentences\n"
+"0 words per sentences\n"
+msgstr ""
+"\n"
+"統計\n"
+"0 字\n"
+"0 句子\n"
+"0 每個句子中字數\n"
+
+#: widgets/Tabs.py:186
+msgid "Statistics:"
+msgstr "統計："
+
+#: widgets/Tabs.py:245
+msgid "Concision"
+msgstr "簡潔"
+
+#: widgets/Tabs.py:246
+msgid "Clarity"
+msgstr "明晰"
+
+#: widgets/Tabs.py:247
+msgid "Logic"
+msgstr "邏輯"
+
+#: widgets/Tabs.py:282
+msgid "Coverages"
+msgstr "覆蓋範圍"
+
+#: widgets/Tabs.py:330
+msgid "Find"
+msgstr "尋找"
+
+#: widgets/Tabs.py:350
+msgid "Simple"
+msgstr "簡單"
+
+#: widgets/Tabs.py:361
+msgid "Replace"
+msgstr "取代"
+
+#: widgets/Tabs.py:362
+msgid "ReplaceAll"
+msgstr "取代全部"
+
+#: widgets/Tabs.py:375
+msgid "Result"
+msgstr "結果"
+
+#: widgets/Tabs.py:414 widgets/Tabs.py:432
+msgid " Matches"
+msgstr " 媒合"
+
+#: widgets/Tabs.py:454 widgets/Tabs.py:466
+msgid "Mode Error"
+msgstr "模式錯誤"
+
+#: widgets/Tabs.py:455 widgets/Tabs.py:467
+msgid "Please replace text in plain text mode."
+msgstr "請以純文本模式替換文本。"
+
+#: widgets/TextEdit.py:166
+msgid "Open File"
+msgstr "打開檔案"
+
+#: widgets/TextEdit.py:175
+msgid "Choose a file name"
+msgstr "選擇一個檔案名稱"
+
+#: widgets/TextEdit.py:190
+msgid "Cancel"
+msgstr "取消"
+
+#: widgets/TextEdit.py:190
+msgid "Saving Failed"
+msgstr "儲存失敗"
+
+#: widgets/ToolBar.py:60
+msgid "You can change the language until you activate the editor next time."
+msgstr "下次啟動編輯器時，才會轉換語言。"
+
+#: widgets/WordCount.py:12
+msgid "Total"
+msgstr "總計"
+
+#: widgets/WordCount.py:15
+msgid "Words: "
+msgstr "字數:"

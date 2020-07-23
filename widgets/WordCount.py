@@ -1,5 +1,7 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
+from django.utils.translation import gettext_lazy as _
 
+# Total word count
 class WordCount(QtWidgets.QDialog):
     def __init__(self,parent = None):
         QtGui.QDialog.__init__(self, parent)
@@ -7,11 +9,10 @@ class WordCount(QtWidgets.QDialog):
         self.initUI()
 
     def initUI(self):
-    # Total word count
-        totalLabel = QtGui.QLabel("Total",self)
+        totalLabel = QtGui.QLabel(str(_("Total")),self)
         totalLabel.setStyleSheet("font-weight:bold; font-size: 15px;")
 
-        totalWordsLabel = QtGui.QLabel("Words: ", self)
+        totalWordsLabel = QtGui.QLabel(_("Words: "), self)
 
         self.totalWords = QtGui.QLabel(self)
 

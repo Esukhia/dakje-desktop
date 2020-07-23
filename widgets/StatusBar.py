@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
+# show in the bottom of (right) window
+# line(column/row), mode(level/editor), view(tag/space)
 class StatusBar(QtWidgets.QStatusBar):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -19,4 +20,4 @@ class StatusBar(QtWidgets.QStatusBar):
         self.viewLabel.setMinimumWidth(100)
         self.addPermanentWidget(self.viewLabel, 0)
 
-        self.showMessage('ཁམས་བཟང་།')
+        self.showMessage('ཁམས་བཟང་།') # welcome

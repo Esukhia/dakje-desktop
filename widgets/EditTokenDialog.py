@@ -5,12 +5,16 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 from pybo import Token as PyboToken
 
+from django.utils.translation import gettext_lazy as _
+
 from storage.models import Rule
 from storage.models import Token as TokenModel
 from web.settings import BASE_DIR
 from .CQLWidget import CqlQueryGenerator
 
+# the rule part of Edit Token... 's window
 class CqlHBox(QtWidgets.QHBoxLayout):
+    # set the initial view of rule
     def __init__(self, parent):
         super().__init__()
 
@@ -56,9 +60,10 @@ class CqlHBox(QtWidgets.QHBoxLayout):
         self.deleteBtn.clicked.connect(self.removeLayout)
         self.addWidget(self.deleteBtn)
 
+    # show on the right hand side of cqlQueryGeneratorBtn
     def setToken(self, token):
         self.text = token.text
-        self.tokenCqlLabel.setText('[text="{}"'.format(token.text))
+        self.tokenCqlLabel.setText(str(_('[text="{}"')).format(token.text))
 
     def getCql(self):
         return self.previousCql.text() + \
@@ -81,7 +86,8 @@ class CqlHBox(QtWidgets.QHBoxLayout):
             self.itemAt(i).widget().setParent(None)
         self.setParent(None)
 
-
+# the history after adding rule (existing rules)
+# show in the window of Edit Token...
 class HistoryHBox(QtWidgets.QHBoxLayout):
     def __init__(self, rule, parent):
         super().__init__()
@@ -108,7 +114,7 @@ class HistoryHBox(QtWidgets.QHBoxLayout):
         self.itemAt(0).widget().setParent(None)
         self.setParent(None)
 
-
+# set the window of Edit Token...
 class EditTokenDialog(QtWidgets.QDialog):
     MODE_ADD = 1
     MODE_ADD_2 = 2
@@ -122,7 +128,7 @@ class EditTokenDialog(QtWidgets.QDialog):
         self.token = None
         self.secondToken = None
         self.initForm()
-        self.setWindowTitle("Edit Token...")
+        self.setWindowTitle(str(_("Edit Token...")))
         self.setStyleSheet("QDialog{background-color: white; width: 150px;}")
 
     def initForm(self):
@@ -134,26 +140,26 @@ class EditTokenDialog(QtWidgets.QDialog):
 
         # POS
         self.posField = QtWidgets.QLineEdit()
-        self.fbox.addRow("POS", self.posField)
+        self.fbox.addRow(str(_("POS")), self.posField)
 
         # Lemma
         self.lemmaField = QtWidgets.QLineEdit()
-        self.fbox.addRow("Lemma", self.lemmaField)
+        self.fbox.addRow(str(_("Lemma")), self.lemmaField)
 
         # Level
         # TODO: Change Field To Number Type
         self.levelField = QtWidgets.QLineEdit()
-        self.fbox.addRow("Level", self.levelField)
+        self.fbox.addRow(str(_("Level")), self.levelField)
 
         # sense
         self.senseField = QtWidgets.QTextEdit()
         self.senseField.setFixedHeight(
             self.senseField.fontMetrics().lineSpacing() * 3)  # 3 rows
-        self.fbox.addRow("sense", self.senseField)
+        self.fbox.addRow(str(_("sense")), self.senseField)
 
         # Rule
         # Add Rule Button & Confirm
-        self.ruleLabel = QtWidgets.QLabel('Rule')
+        self.ruleLabel = QtWidgets.QLabel(str(_('Rule')))
         self.addRuleButton = QtWidgets.QPushButton()
         self.addRuleButton.setFlat(True)
         self.addRuleButton.setIcon(QtGui.QIcon(os.path.join(BASE_DIR, "icons", "add.png")))
@@ -168,12 +174,12 @@ class EditTokenDialog(QtWidgets.QDialog):
 
         # QLayout: Attempting to add QLayout "" to EditTokenDialog "", which already has a layout
         self.historyVBox = QtWidgets.QVBoxLayout()
-        self.fbox.addRow(QtWidgets.QLabel('Existing Rules'))
+        self.fbox.addRow(QtWidgets.QLabel(str(_('Existing Rules'))))
         self.fbox.addRow(self.historyVBox)
 
         # confirm
         self.confirmButton = QtWidgets.QPushButton()
-        self.confirmButton.setText('Confirm')
+        self.confirmButton.setText(str(_('Confirm')))
         self.confirmButton.clicked.connect(self.confirm)
         self.fbox.addRow(self.confirmButton)
         self.setLayout(self.fbox)
@@ -240,9 +246,9 @@ class EditTokenDialog(QtWidgets.QDialog):
 
         if all(ruleBox.isBlank() for ruleBox in self.ruleBoxes):
             response = QtWidgets.QMessageBox.warning(
-                self, 'Blank CQL Warning',
-                'If there is no cql queries, the attributes '
-                'will be applied under normal circumstances.',
+                self, str(_('Blank CQL Warning')),
+                str(_('If there is no cql queries, the attributes '
+                  'will be applied under normal circumstances.')),
                 buttons=QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel
             )
             if response == QtWidgets.QMessageBox.Cancel:

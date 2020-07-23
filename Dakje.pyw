@@ -19,12 +19,13 @@ from functools import partial, wraps
 from collections import Counter
 from PyQt5 import QtCore, QtWidgets, QtGui
 from django.db import transaction
+from django.utils import translation
 
 from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
                      EditTokenDialog, Highlighter, Tabs)
                     #  EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
-from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token 
+from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token
 from web.settings import BASE_DIR, FILES_DIR
 
 from storage.models import Token, Setting
@@ -78,6 +79,10 @@ class Editor(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        language = Setting.objects.get(key='language')
+        language = language.value
+        translation.activate(language)
+
         self.undoStack = QtWidgets.QUndoStack(self)
 
         self.initProperties()
@@ -91,6 +96,9 @@ class Editor(QtWidgets.QMainWindow):
         self.setWindowState(QtCore.Qt.WindowMaximized)
         # self.wordcount = 0
 
+        # setPlainText -> textChanged, do not want it doing every time.
+        # so, add textChang signal into itself (ignoreSignals)
+        # if trigger(setPlainText.ignoreSignal == textChange), skip
         self.textEdit.setPlainText = self.ignoreTextChanged(
             self.ignoreCursorPositionChanged(self.textEdit.setPlainText))
         self.textEdit.setSelection = self.ignoreTextChanged(
@@ -276,7 +284,7 @@ class Editor(QtWidgets.QMainWindow):
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
             self.segment()
-        
+
         self.viewManager.toggleSpaceView()
         self.refreshView()
 
@@ -297,7 +305,7 @@ class Editor(QtWidgets.QMainWindow):
         print('editor.segment: start')
 
         if byShunit:
-            # find shunit in 
+            # find shunit in
 
             block = self.textEdit.textCursor().block()
             string = block.text()
@@ -420,7 +428,7 @@ class Editor(QtWidgets.QMainWindow):
                 # text it copies the already saved text.
                 # self.segment(byBlock=True, breakLine=True)
 
-            elif string == '': 
+            elif string == '':
                 self.segment()
                 print('option3')
 
@@ -436,13 +444,13 @@ class Editor(QtWidgets.QMainWindow):
     def loadLevelProfile(self):
         # a profile is a dir containing level lists
         dirPath = QtWidgets.QFileDialog.getExistingDirectory(parent=self, directory=os.path.join(FILES_DIR, 'levels'), options=QtWidgets.QFileDialog.ShowDirsOnly)
-        
+
         # if dir is selected
         if dirPath != '':
             setting = Setting.objects.get(key='profile_path')
             self.LEVEL_PROFILE_PATH = setting.value = dirPath
             setting.save()
-            
+
             self.levelTab.levelProfileLabel.setText(pathlib.Path(self.LEVEL_PROFILE_PATH).stem)
             # dirpath string
             self.setLevelProfile()
@@ -474,7 +482,7 @@ class Editor(QtWidgets.QMainWindow):
             return
 
         if not levelFiles:
-            # Token objects are deleted so it'll reset 
+            # Token objects are deleted so it'll reset
             self.refreshView()
         if len(levelFiles) >= 1:
             self.setLevelList(level=1, levelButton=self.levelTab.level1Button, filePath=levelFiles[0])
@@ -496,7 +504,7 @@ class Editor(QtWidgets.QMainWindow):
     def importLevelList(self, level, levelButton):
 
         # TODO delete DB entries for current level
-        # 
+        #
 
         # get file path
         filePath, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select a level list", os.path.join(FILES_DIR, 'levels'), filter="UTF-8 ཡིག་རྐྱང་། (*.txt)")
@@ -563,8 +571,8 @@ class Editor(QtWidgets.QMainWindow):
     def refreshView(self):
 
         """
-        Refreshes the view without segmenting 
-            :param self: 
+        Refreshes the view without segmenting
+            :param self:
         """
         # Adds token info from the db
         # - level
@@ -665,7 +673,7 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.typeCountLabel.setText(str(typeCount))
         self.levelTab.senCountLabel.setText(str(sentenceCount))
         self.levelTab.maxWordLabel.setText(str(max))
-    
+
     @timed(unit='ms')
     def refreshCoverage(self):
 
@@ -685,7 +693,7 @@ class Editor(QtWidgets.QMainWindow):
                 print(f'{key}: {levelCounter[key] / tokenNum * 100.0}')
                 return levelCounter[key] / tokenNum * 100.0
 
-        # update 
+        # update
         if self.tokens:
             self.levelTab.tokenCoverageProgBar.setValue(100 - getLevelPercentage(None))
 
@@ -770,12 +778,18 @@ def runserver():
     call_command('runserver', '--noreload')
 
 
+
 def main():
     multiprocessing.Process(target=runserver, daemon=True).start()
+
+    language = Setting.objects.get(key='language')
+    language = language.value
+    translation.activate(language)
 
     app = QtWidgets.QApplication(sys.argv)
     window = Editor()
     window.show()
+
 
     try:
         sys.exit(app.exec_())

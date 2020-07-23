@@ -1,0 +1,219 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-17 09:39+0000\n"
+"PO-Revision-Date: 2020-07-17 17:39+0800\n"
+"Language: bo\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"X-Generator: Poedit 2.3\n"
+
+#: web/settings.py:82
+msgid "Traditional Chinese"
+msgstr ""
+
+#: widgets/CQLWidget.py:131
+msgid "Add Condition"
+msgstr ""
+
+#: widgets/CQLWidget.py:178
+msgid "CQL Query Generator"
+msgstr ""
+
+#: widgets/CQLWidget.py:182
+msgid "CQL Query String"
+msgstr ""
+
+#: widgets/CQLWidget.py:185
+msgid "Add Token"
+msgstr ""
+
+#: widgets/CQLWidget.py:188 widgets/EditTokenDialog.py:182
+msgid "Confirm"
+msgstr ""
+
+#: widgets/CentralWidget.py:31
+msgid "Corpus"
+msgstr ""
+
+#: widgets/CentralWidget.py:42
+msgid "Find and Replace"
+msgstr ""
+
+#: widgets/DictionaryWidget.py:78
+msgid "Blank fields Warning!"
+msgstr ""
+
+#: widgets/DictionaryWidget.py:79
+msgid "The blank fields will not be saved."
+msgstr ""
+
+#: widgets/DictionaryWidget.py:91
+msgid "Tags Warning!"
+msgstr ""
+
+#: widgets/DictionaryWidget.py:92
+msgid "The tag \""
+msgstr ""
+
+#: widgets/DictionaryWidget.py:92
+msgid "\" is not used by other words."
+msgstr ""
+
+#: widgets/DictionaryWidget.py:131
+msgid "Dictionary Editor"
+msgstr ""
+
+#: widgets/DictionaryWidget.py:150
+msgid "Text"
+msgstr ""
+
+#: widgets/DictionaryWidget.py:150
+msgid "Tag"
+msgstr ""
+
+#: widgets/EditTokenDialog.py:66
+msgid "[text=\"{}\""
+msgstr ""
+
+#: widgets/EditTokenDialog.py:131
+msgid "Edit Token..."
+msgstr ""
+
+#: widgets/EditTokenDialog.py:143
+msgid "POS"
+msgstr ""
+
+#: widgets/EditTokenDialog.py:147
+msgid "Lemma"
+msgstr ""
+
+#: widgets/EditTokenDialog.py:152
+msgid "Level"
+msgstr ""
+
+#: widgets/EditTokenDialog.py:158
+msgid "sense"
+msgstr ""
+
+#: widgets/EditTokenDialog.py:162
+msgid "Rule"
+msgstr ""
+
+#: widgets/EditTokenDialog.py:177
+msgid "Existing Rules"
+msgstr ""
+
+#: widgets/EditTokenDialog.py:249
+msgid "Blank CQL Warning"
+msgstr ""
+
+#: widgets/EditTokenDialog.py:250
+msgid ""
+"If there is no cql queries, the attributes will be applied under normal "
+"circumstances."
+msgstr ""
+
+#: widgets/Tabs.py:21
+msgid ""
+"\n"
+"Statistics\n"
+"\n"
+"...\n"
+"...\n"
+"...\n"
+msgstr ""
+
+#: widgets/Tabs.py:29
+msgid ""
+"\n"
+"Statistics\n"
+"0 words\n"
+"0 sentences\n"
+"0 words per sentences\n"
+msgstr ""
+
+#: widgets/Tabs.py:186
+msgid "Statistics:"
+msgstr ""
+
+#: widgets/Tabs.py:245
+msgid "Concision"
+msgstr ""
+
+#: widgets/Tabs.py:246
+msgid "Clarity"
+msgstr ""
+
+#: widgets/Tabs.py:247
+msgid "Logic"
+msgstr ""
+
+#: widgets/Tabs.py:282
+msgid "Coverages"
+msgstr ""
+
+#: widgets/Tabs.py:330
+msgid "Find"
+msgstr ""
+
+#: widgets/Tabs.py:350
+msgid "Simple"
+msgstr ""
+
+#: widgets/Tabs.py:361
+msgid "Replace"
+msgstr ""
+
+#: widgets/Tabs.py:362
+msgid "ReplaceAll"
+msgstr ""
+
+#: widgets/Tabs.py:375
+msgid "Result"
+msgstr ""
+
+#: widgets/Tabs.py:414 widgets/Tabs.py:432
+msgid " Matches"
+msgstr ""
+
+#: widgets/Tabs.py:454 widgets/Tabs.py:466
+msgid "Mode Error"
+msgstr ""
+
+#: widgets/Tabs.py:467
+msgid "Please replace text in plain text mode."
+msgstr ""
+
+#: widgets/TextEdit.py:166
+msgid "Open File"
+msgstr ""
+
+#: widgets/TextEdit.py:175
+msgid "Choose a file name"
+msgstr ""
+
+#: widgets/TextEdit.py:190
+msgid "Cancel"
+msgstr ""
+
+#: widgets/TextEdit.py:190
+msgid "Saving Failed"
+msgstr ""
+
+#: widgets/WordCount.py:12
+msgid "Total"
+msgstr ""
+
+#: widgets/WordCount.py:15
+msgid "Words: "
+msgstr ""

@@ -8,6 +8,9 @@ from .CQLWidget import CqlQueryGenerator
 
 from web.settings import BASE_DIR
 
+from django.utils.translation import gettext_lazy as _
+
+# level1, level2 ...
 LEVEL_NAMES = [
     'ཚིག་ཐོ་འདེམ།',
     'ཚིག་ཐོ་འདེམ།',
@@ -15,24 +18,24 @@ LEVEL_NAMES = [
     'ཚིག་ཐོ་འདེམ།'
 ]
 
-LEVEL_MODE_EXAMPLE_STRING = '''
+LEVEL_MODE_EXAMPLE_STRING = str(_('''
 Statistics
 
 ...
 ...
 ...
-'''
+'''))
 
-EDITOR_MODE_EXAMPLE_STRING = '''
+EDITOR_MODE_EXAMPLE_STRING = str(_('''
 Statistics
 0 words
 0 sentences
 0 words per sentences
-'''
+'''))
 
 class ProgressBar(QtWidgets.QProgressBar):
     def __init__(self, parent=None, value=None, color=None):
-        
+
         super().__init__(parent)
 
         self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVertical_Mask)
@@ -43,8 +46,8 @@ class ProgressBar(QtWidgets.QProgressBar):
             self.setStyleSheet(
                 'QProgressBar::chunk {background-color: ' + color + '}')
 
+#set the window of the right hand side
 class LevelTab(QtWidgets.QWidget):
-
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -73,7 +76,8 @@ class LevelTab(QtWidgets.QWidget):
         self.grids.addWidget(self.tokenCoverageLabel, 0, 0, 1, 5)
         self.grids.addWidget(self.tokenCoverageProgBar, 1, 0, 1, 5)
 
-        # Level Profile      
+        # Level Profile
+        # can choose the folder where define the level text
         self.levelProfileButton = QtWidgets.QPushButton()
         self.levelProfileButton.setText('  ཚིག་ཁུག་འདེམ།  ')
         self.levelProfileButton.setFont(self.editor.uiFont)
@@ -179,7 +183,7 @@ class LevelTab(QtWidgets.QWidget):
 
     def initForms(self):
         self.forms = QtWidgets.QFormLayout()
-        self.statisticsLabel = QtWidgets.QLabel('Statistics:')
+        self.statisticsLabel = QtWidgets.QLabel(str(_('Statistics:')))
 
         #font size
         # self.forms.labelForField.setFont(self.editor.uiFont)
@@ -188,7 +192,7 @@ class LevelTab(QtWidgets.QWidget):
 
         # self.forms.addRow(self.statisticsLabel)
         self.editor.refreshCoverage
-        
+
         # self.freqLabel = QtWidgets.QLabel('0')
         self.wordCountLabel = QtWidgets.QLabel('0')
         self.senCountLabel = QtWidgets.QLabel('0')
@@ -238,9 +242,9 @@ class EditorTab(QtWidgets.QWidget):
         self.errorGrids = QtWidgets.QGridLayout()
 
         self.errorTypes = [
-            [QtWidgets.QLabel('Concision'), 3, 'darkred'],
-            [QtWidgets.QLabel('Clarity'), 5, 'darkblue'],
-            [QtWidgets.QLabel('Logic'), 3, 'darkgreen']
+            [QtWidgets.QLabel(str(_('Concision'))), 3, 'darkred'],
+            [QtWidgets.QLabel(str(_('Clarity'))), 5, 'darkblue'],
+            [QtWidgets.QLabel(str(_('Logic'))), 3, 'darkgreen']
         ]
         for i, errorType in enumerate(self.errorTypes):
             self.errorGrids.addWidget(errorType[0], 0, i)
@@ -275,7 +279,7 @@ class EditorTab(QtWidgets.QWidget):
             checkbox.clicked.connect(self.editor.refreshView)
 
         self.coverageGrids = QtWidgets.QGridLayout()
-        self.coverageLabel = QtWidgets.QLabel('Coverages')
+        self.coverageLabel = QtWidgets.QLabel(str(_('Coverages')))
         self.coverages = [
             [self.firstFreqCheckbox, self.firstFreqLabel, self.firstFreqProgBar],
             [self.secondFreqCheckbox, self.secondFreqLabel, self.secondFreqProgBar],
@@ -323,7 +327,7 @@ class FindTab(QtWidgets.QWidget):
 
         # Find Form
         self.findInput = QtWidgets.QLineEdit()
-        self.findBtn = QtWidgets.QPushButton('Find')
+        self.findBtn = QtWidgets.QPushButton(str(_('Find')))
 
         self.cqlQueryGenerator = CqlQueryGenerator(self.findInput)
         self.cqlQueryGeneratorBtn = QtWidgets.QPushButton()
@@ -343,7 +347,7 @@ class FindTab(QtWidgets.QWidget):
 
         # Find Mode Choices
         self.mode = self.MODE_SIMPLE
-        self.simpleRadio = QtWidgets.QRadioButton('Simple')
+        self.simpleRadio = QtWidgets.QRadioButton(str(_('Simple')))
         self.simpleRadio.setChecked(True)
         self.cqlRadio = QtWidgets.QRadioButton('CQL')
 
@@ -354,8 +358,8 @@ class FindTab(QtWidgets.QWidget):
 
         # Replace Form
         self.replaceInput = QtWidgets.QLineEdit()
-        self.replaceBtn = QtWidgets.QPushButton('Replace')
-        self.replaceAllBtn = QtWidgets.QPushButton('ReplaceAll')
+        self.replaceBtn = QtWidgets.QPushButton(str(_('Replace')))
+        self.replaceAllBtn = QtWidgets.QPushButton(str(_('ReplaceAll')))
         self.forms.addRow(self.replaceInput, self.replaceBtn)
         self.forms.addRow(None, self.replaceAllBtn)
 
@@ -368,7 +372,7 @@ class FindTab(QtWidgets.QWidget):
 
     def initResult(self):
         # Results
-        self.resultLabel = QtWidgets.QLabel('Result')
+        self.resultLabel = QtWidgets.QLabel(str(_('Result')))
         self.resultList = QtWidgets.QListWidget(self)
 
         self.resultList.itemClicked.connect(self.itemClicked)
@@ -407,7 +411,7 @@ class FindTab(QtWidgets.QWidget):
                 [w.text for w in tokens[slice[0]:slice[1]+1]]))
             self.resultList.addItem(item)
 
-        self.resultLabel.setText(str(len(slices)) + " Matches")
+        self.resultLabel.setText(str(len(slices)) + str(_(" Matches")))
 
     def findText(self):
         query = self.findInput.text()
@@ -425,7 +429,7 @@ class FindTab(QtWidgets.QWidget):
             self.resultList.addItem(item)
             matchNum += 1
 
-        self.resultLabel.setText(str(matchNum) + " Matches")
+        self.resultLabel.setText(str(matchNum) + str(_(" Matches")))
 
     def itemClicked(self, item):
         if self.mode == self.MODE_SIMPLE:
@@ -447,8 +451,8 @@ class FindTab(QtWidgets.QWidget):
                 self._find()
         else:
             QtWidgets.QMessageBox.warning(
-                self, 'Mode Error',
-                'Please replace text in plain text mode.',
+                self, str(_('Mode Error')),
+                str(_('Please replace text in plain text mode.')),
                 buttons=QtWidgets.QMessageBox.Ok
             )
 
@@ -459,8 +463,8 @@ class FindTab(QtWidgets.QWidget):
                 self.replace()
         else:
             QtWidgets.QMessageBox.warning(
-                self, 'Mode Error',
-                'Please replace text in plain text mode.',
+                self, str(_('Mode Error')),
+                str(_('Please replace text in plain text mode.')),
                 buttons=QtWidgets.QMessageBox.Ok
             )
 

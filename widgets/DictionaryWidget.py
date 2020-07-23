@@ -6,13 +6,13 @@ from PyQt5.QtWidgets import (
     QPushButton, QLabel, QLineEdit, QFormLayout, QHBoxLayout,
     QDialog, QHeaderView, QTableView, QMessageBox
 )
-
+from django.utils.translation import gettext_lazy as _
 from storage.models import Token
 
 from web.settings import BASE_DIR, FILES_DIR
 
+# dictionary table
 class TableModel(QAbstractTableModel):
-    # 
     def __init__(self, parent, data, header):
         QAbstractTableModel.__init__(self, parent)
         self.parent = parent
@@ -27,17 +27,21 @@ class TableModel(QAbstractTableModel):
     def bt(self):
         return self.editor.bt
 
+    # count the length of row
     def rowCount(self, parent):
         return len(self.data)
 
+    # count the length of column
     def columnCount(self, parent):
         return len(self.data[0])
 
+    # data of the dictionary
     def data(self, index, role):
         if not index.isValid() or role != Qt.DisplayRole:
             return None
         return self.data[index.row()][index.column()]
 
+    # input text/tag, then call the method of saveDict
     def setData(self, index, value, role):
         if not index.isValid() or role != Qt.EditRole:
             return None
@@ -55,6 +59,8 @@ class TableModel(QAbstractTableModel):
             return self.header[col]
         return None
 
+    # save the text & tag you add/delete.
+    # if it has warning, it will show the messages
     def saveDict(self):
         # TODO: using cache (compare self.data before & after)
         pyboDict = self.parent.pyboDict.copy()
@@ -69,8 +75,8 @@ class TableModel(QAbstractTableModel):
                 if not warningBlank:
                     QMessageBox.warning(
                         self.parent,
-                        'Blank fields Warning!',
-                        'The blank fields will not be saved.',
+                        str(_('Blank fields Warning!')),
+                        str(_('The blank fields will not be saved.')),
                         buttons=QMessageBox.Ok
                     )
                     warningBlank = True
@@ -82,8 +88,8 @@ class TableModel(QAbstractTableModel):
                     if value not in tags:
                         QMessageBox.warning(
                             self.parent,
-                            'Tags Warning!',
-                            'The tag "' + value + '" is not used by other words.',
+                            str(_('Tags Warning!')),
+                           str(_('The tag "')) + value + str(_('" is not used by other words.')),
                             buttons=QMessageBox.Ok
                         )
                         warningTags = True
@@ -111,7 +117,7 @@ class TableModel(QAbstractTableModel):
 
         self.editor.refreshView()
 
-
+# set the window of Dictionary Editor(can show/add/delete/search)
 class DictionaryEditorWidget(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -122,7 +128,7 @@ class DictionaryEditorWidget(QDialog):
 
         self.tokens = []
         self.resize(400, 600)
-        self.setWindowTitle('Dictionary Editor')
+        self.setWindowTitle(str(_('Dictionary Editor')))
         self.setupTable()
         self.initUI()
 
@@ -141,7 +147,7 @@ class DictionaryEditorWidget(QDialog):
         dict = self.getDict()
         self.model = TableModel(
             parent=self,
-            header=('Text', 'Tag'),
+            header=(str(_('Text')), str(_('Tag'))),
             data=[[k, v] for k, v in dict.items()]
         )
 
@@ -179,7 +185,8 @@ class DictionaryEditorWidget(QDialog):
 
         self.removeButton = QPushButton()
         self.removeButton.setFlat(True)
-        self.removeButton.setIcon(QIcon(os.path.join(BASE_DIR, "icons", "delete.png")))
+        self.removeButton.setIcon(QIcon(os.path.join(
+            BASE_DIR, "icons", "delete.png")))
         self.removeButton.setIconSize(QSize(30, 30))
         self.removeButton.clicked.connect(self.removeWord)
 

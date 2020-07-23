@@ -5,7 +5,7 @@ SETTINGS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # update this to the dakje folder
 BASE_DIR = os.path.dirname(SETTINGS_DIR)
-# might not work if user moved Documents 
+# might not work if user moved Documents
 # refer to https://stackoverflow.com/a/6227623
 # TODO create if not exist by copying files from the pkg directory. Reset?
 FILES_DIR = os.path.expanduser('~/Documents/Dakje/')
@@ -74,6 +74,17 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+
+from django.utils.translation import gettext_lazy as _
+LANGUAGES = (
+    ('zh-hant', _('Traditional Chinese')),
+    ('en-us', ('English')),
+    ('tibetan', ('Tibetan'))
+)
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
 
 TIME_ZONE = 'UTC'
 

@@ -4,9 +4,11 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QTextEdit, QUndoCommand, QUndoStack
 
+from django.utils.translation import gettext_lazy as _
+
 from web.settings import DESKTOP
 
-
+#edit text (can undo or redo)
 class EmulatedTextUndoCommand(QUndoCommand):
 
     def __init__(self, edit, oldText, newText,
@@ -95,10 +97,10 @@ class CustomUndoTextEdit(QTextEdit):
                 QTextEdit.keyPressEvent(self, event)
 
         else:
-            if event.key() == (Qt.Key_Control and Qt.Key_Z):
+            if event.key() == (Qt.Key_Control & Qt.Key_Z):
                 # print("press Undo")
                 self.undo()
-            elif event.key() == (Qt.Key_Control and Qt.Key_Y):
+            elif event.key() == (Qt.Key_Control & Qt.Key_Y):
                 # print("press Redo")
                 self.redo()
             else: # call base class keyPressEvent
@@ -161,7 +163,7 @@ class TextEdit(CustomUndoTextEdit):
 
     def openFile(self):
         self.filename, ok = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Open File', DESKTOP, "UTF-8 (*.txt)")
+            self, _('Open File'), DESKTOP, "UTF-8 (*.txt)")
 
         if self.filename:
             with open(self.filename, "r", encoding='utf-8') as f:
@@ -170,7 +172,7 @@ class TextEdit(CustomUndoTextEdit):
     def saveFile(self):
         if not self.filename:
             self.filename, ok = QtWidgets.QFileDialog.getSaveFileName(
-                self, "Choose a file name", DESKTOP, "UTF-8 (*.txt)")
+                self, _("Choose a file name"), DESKTOP, "UTF-8 (*.txt)")
 
             if not ok:
                 return
@@ -185,7 +187,7 @@ class TextEdit(CustomUndoTextEdit):
             return self.filename
         else:
             QtWidgets.QMessageBox.question(
-                self, 'Cancel', 'Saving Failed', QtWidgets.QMessageBox.Yes)
+                self, _('Cancel'), _('Saving Failed'), QtWidgets.QMessageBox.Yes)
 
 
     def keyPressEvent(self, e):
