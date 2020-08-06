@@ -80,7 +80,11 @@ class CustomUndoTextEdit(QTextEdit):
             self.toPlainText(), text,
                 self.textCursor().position(),
                 self.textCursor().position())
-        self.undoStack.push(command)
+        if command:
+            if command.newText == command.oldText:
+                pass
+            else:
+                self.undoStack.push(command)
 
         result = QTextEdit.setPlainText(self, text)
         self.textChangedAfterUndoCommandAdded = False
@@ -123,6 +127,7 @@ class CustomUndoTextEdit(QTextEdit):
                 self, lastCommand.newText, self.toPlainText(),
                 lastCommand.newCursorPosition,
                 self.textCursor().position())
+
         self.undoStack.push(command)
         self.textChangedAfterUndoCommandAdded = False
 
