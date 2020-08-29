@@ -32,6 +32,20 @@ from storage.models import Token, Setting
 # flushes the Tokens on start, should be in a function
 # Token.objects.all().delete()
 
+########## diff #########
+import imp
+import gc
+import sys
+import time
+parentPath = os.path.abspath("..")
+if parentPath not in sys.path:
+    sys.path.insert(0, parentPath)
+import diff_match_patch as dmp_module
+from diff_match_patch import diff
+# Force a module reload.  Allows one to edit the DMP module and rerun the test
+# without leaving the Python interpreter.
+imp.reload(dmp_module)
+########## diff #########
 
 # Highlighting profile settings
 LEVEL_PROFILE_PATH = ''
@@ -97,7 +111,7 @@ class Editor(QtWidgets.QMainWindow):
         # self.wordcount = 0
 
         # setPlainText -> textChanged, do not want it doing every time.
-        # so, add textChang signal into itself (ignoreSignals)
+        # so, add textChange signal into itself (ignoreSignals)
         # if trigger(setPlainText.ignoreSignal == textChange), skip
         self.textEdit.setPlainText = self.ignoreTextChanged(
             self.ignoreCursorPositionChanged(self.textEdit.setPlainText))
@@ -294,6 +308,72 @@ class Editor(QtWidgets.QMainWindow):
         self.viewManager.toggleTagView()
         self.refreshView()
 
+    @timed(unit='ms', name='editor.diff: ')
+    def diff (self, tokens, oldText, newText):
+        changes = diff(oldText, newText, timelimit=0, checklines=False,
+                               counts_only=False)
+        # changes = [('=', 'རྒྱ་ག'), ('-', 'ར'), ('=', '་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།')]
+        oldString = ''
+        newString = ''
+        for op, string in changes:
+            if op == "-" or op == "+":
+                if not sameStringLength:
+                    sameStringLength = 0
+                if op == "+":
+                    newString = newString + string
+                    lastWordIndex = (sameStringLength - 1)
+                    # 加在最後面時
+                    start = oldString.find('།', lastWordIndex)
+                    if start == -1: # 加在某處時
+                        newStringLength = len(newString)
+                        start = oldString.rfind('།', 0, newStringLength)
+                else:
+                    oldString = oldString + string
+                    newStringLength = len(newString)
+                    start = oldString.rfind('།', 0, newStringLength)
+
+                if start == -1: # 改的地方前面沒有'།'
+                    start = 0
+                changePos = oldString.find(string, sameStringLength - 1)
+            else:
+                sameStringLength = len(string)
+                oldString = oldString + string
+                newString = newString + string
+        # 往後 scan ，結束位置
+        endOld = oldString.find('།', changePos)
+        endNew = newString.find('།', changePos)
+
+        if tokens[-1].end == changePos: # 在文章最後面加字
+            tokenLength = len(tokens)
+            tokenStart, tokenEnd = tokenLength, tokenLength
+        else: # 修改處字串的開始到結束，找是 token 的哪裡開始到哪裡結束
+            i = 0
+            for e in tokens:
+                if e.start <= start and e.end >= start:
+                    if e.end == start:
+                        tokenStart = i + 1
+                        break
+                    else:
+                        tokenStart = i
+                        break
+                i += 1
+            i = 0
+            for e in tokens:
+                if e.start <= endOld and e.end >= endOld:
+                    lenOfToken = len(tokens)
+                    if i != (lenOfToken - 1):
+                        if tokens[i + 1].start == endOld:
+                            tokenEnd = i + 1
+                            break
+                        else:
+                            tokenEnd = i
+                            break
+                i += 1
+        # 前後 scan 得到的修改後字串
+        afterChangingString = newText[start: endNew + 1]
+
+        return tokenStart, tokenEnd, afterChangingString
+
     @timed(unit='ms', name='editor.segment: ')
     def segment(self, byShunit=True, breakLine=False):
         """
@@ -306,28 +386,24 @@ class Editor(QtWidgets.QMainWindow):
 
         if byShunit:
             # find shunit in
-
-            block = self.textEdit.textCursor().block()
-            string = block.text()
-            # print(string)
-
-            if breakLine:
-                block = block.previous()
-                string = block.text() + '\n'
-
-            tokens = self.tokenManager.segment(string)
-            startIndex, endIndex = self.tokenManager.findByBlockIndex(
-                block.blockNumber())
-
-            if startIndex is None:
-                self.tokens.extend(tokens)
-
+            oldText = self.tokenManager.getString() # རྒྱ་གར་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།
+            newText = self.centralWidget.textEdit.toPlainText() # རྒྱ་ག་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།
+            tokens = self.tokens
+            # 最一開始輸入文字，尚未做過 segment
+            if not oldText or newText == '':
+                self.tokens = self.tokenManager.segment(newText)
+            # 有對文字作修改，需針對部分做 segment
             else:
-                self.tokens[startIndex: endIndex + 1] = tokens
+                tokenStart, tokenEnd, afterChangingString = self.diff(tokens,
+                                                                      oldText,
+                                                                      newText)
+                # 新的字串做 segment
+                newTokens = self.tokenManager.segment(afterChangingString)
 
-            string = self.centralWidget.textEdit.toPlainText()
-            self.tokens = self.tokenManager.segment(string)
-
+                if tokenStart == tokenEnd:
+                    self.tokens.extend(newTokens[1:])
+                else:
+                    self.tokens[tokenStart:tokenEnd + 1] = newTokens
         else:
             string = self.centralWidget.textEdit.toPlainText()
             self.tokens = self.tokenManager.segment(string)
@@ -418,19 +494,19 @@ class Editor(QtWidgets.QMainWindow):
 
             if any([string.endswith(w) for w in self.SEG_TRIGGERS]):
                 self.segment()
-                print('option1')
+#                 print('option1')
                 # self.segment(byBlock=True)
 
             elif string.endswith('\n'):
                 self.segment()
-                print('option2')
+#                 print('option2')
                 # TODO: block mode: bug - if we delete text and try to rewrite new
                 # text it copies the already saved text.
                 # self.segment(byBlock=True, breakLine=True)
 
             elif string == '':
                 self.segment()
-                print('option3')
+#                 print('option3')
 
     def initLevelProfile(self):
         # load last level profile
@@ -461,12 +537,12 @@ class Editor(QtWidgets.QMainWindow):
         # if dir is selected
         else:
             # do nothing
-            print('no path')
+#             print('no path')
             pass
 
 
     def setLevelProfile(self):
-        print('I am in setLevelProfile!')
+#         print('I am in setLevelProfile!')
         # clear db
         Token.objects.all().delete()
         # reset level names
@@ -590,7 +666,7 @@ class Editor(QtWidgets.QMainWindow):
         if current is not None:
             currentToken = current[1]
             distance = textCursor.position() - currentToken.start
-            print(f'current: {current[0]}, {current[1].text}')
+#             print(f'current: {current[0]}, {current[1].text}')
 
         # Sets plain text in textEdit before moving on to highlighting
         text = self.tokenManager.getString()
@@ -690,7 +766,7 @@ class Editor(QtWidgets.QMainWindow):
             if tokenNum == 0:
                 return 0
             else:
-                print(f'{key}: {levelCounter[key] / tokenNum * 100.0}')
+#                 print(f'{key}: {levelCounter[key] / tokenNum * 100.0}')
                 return levelCounter[key] / tokenNum * 100.0
 
         # update
