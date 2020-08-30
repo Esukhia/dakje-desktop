@@ -312,6 +312,8 @@ class Editor(QtWidgets.QMainWindow):
     def diff (self, tokens, oldText, newText):
         changes = diff(oldText, newText, timelimit=0, checklines=False,
                                counts_only=False)
+        if len(changes) == 1: #沒有改變
+            return 0, 0, ''
         # changes = [('=', 'རྒྱ་ག'), ('-', 'ར'), ('=', '་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།')]
         oldString = ''
         newString = ''
@@ -339,6 +341,7 @@ class Editor(QtWidgets.QMainWindow):
                 sameStringLength = len(string)
                 oldString = oldString + string
                 newString = newString + string
+
         # 往後 scan ，結束位置
         endOld = oldString.find('།', changePos)
         endNew = newString.find('།', changePos)
@@ -402,6 +405,9 @@ class Editor(QtWidgets.QMainWindow):
 
                 if tokenStart == tokenEnd:
                     self.tokens.extend(newTokens[1:])
+                elif tokenStart ==  0 and tokenEnd ==  0:
+                    string = self.centralWidget.textEdit.toPlainText()
+                    self.tokens = self.tokenManager.segment(string)
                 else:
                     self.tokens[tokenStart:tokenEnd + 1] = newTokens
         else:
