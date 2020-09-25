@@ -8,3 +8,4 @@ PyYAML==3.13
 experta
 horology
 shortcut
+diff_match_patch_python

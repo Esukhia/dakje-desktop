@@ -1,3 +1,4 @@
+import time
 # django setup
 import os
 import logging
@@ -6,8 +7,9 @@ import multiprocessing
 
 import django
 import pybo
-
-from PyQt5.QtWidgets import QTextEdit
+from PyQt5.QtWidgets import QTextEdit, QApplication
+from PyQt5.QtCore import QThread, pyqtSignal, QThreadPool, QElapsedTimer
+from django.db.backends.base.features import BaseDatabaseFeatures
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
 django.setup()
@@ -15,6 +17,7 @@ django.setup()
 # editor
 import sys
 import pathlib
+import threading
 from functools import partial, wraps
 from collections import Counter
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -26,32 +29,17 @@ from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
                     #  EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token
+# from managers.TokenManager import TokenList
 from web.settings import BASE_DIR, FILES_DIR
 
 from storage.models import Token, Setting
 # flushes the Tokens on start, should be in a function
 # Token.objects.all().delete()
 
-########## diff #########
-import imp
-import gc
-import sys
-import time
-parentPath = os.path.abspath("..")
-if parentPath not in sys.path:
-    sys.path.insert(0, parentPath)
-import diff_match_patch as dmp_module
-from diff_match_patch import diff
-# Force a module reload.  Allows one to edit the DMP module and rerun the test
-# without leaving the Python interpreter.
-imp.reload(dmp_module)
-########## diff #########
-
 # Highlighting profile settings
 LEVEL_PROFILE_PATH = ''
 # TODO record checkbox state
 HIGHLIGHTING_STATE = ''
-
 
 # Exception
 class ExceptionHandler(QtCore.QObject):
@@ -84,6 +72,22 @@ def ignoreEvent(signal):
                 return func(*args, **kws)
         return f
     return d
+
+class StatThread(QThread):
+    def __init__(self, stat):
+        super(StatThread, self).__init__()
+        self.stat = stat
+
+    def run(self):
+        self.stat.jobOfStatistics()
+
+class RefreshThread(QThread):
+    def __init__(self, refresh):
+        super(RefreshThread, self).__init__()
+        self.refresh = refresh
+
+    def run(self):
+        self.refresh.jobOfRefreshCoverage()
 
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
@@ -144,6 +148,7 @@ class Editor(QtWidgets.QMainWindow):
         )
 
     def initProperties(self):
+#         self.tokens = TokenList() # TokenList()
         self.tokens = []
         self.formats = []
         self.mode = 'གསལ་ཆ།'  # LEVEL_MODE, EDITOR_MODE
@@ -161,7 +166,6 @@ class Editor(QtWidgets.QMainWindow):
         self.formatManager = FormatManager(self)
 
     def initUI(self):
-
         # UI font and font size
         self.uiFont = QtGui.QFont()
         self.uiFont.setFamily("Microsoft Himalaya")
@@ -218,6 +222,11 @@ class Editor(QtWidgets.QMainWindow):
         # update when font or size is changed
         self.fontPicker.currentFontChanged.connect(self.changeFont)
         self.fontResizer.currentIndexChanged.connect(self.changeFont)
+
+        self.statThreads = []
+        self.refreshThreads = []
+
+#         self.html2 = open('t2.html').read()
 
     def changeFont(self):
         self.font = self.fontPicker.currentFont()
@@ -308,75 +317,6 @@ class Editor(QtWidgets.QMainWindow):
         self.viewManager.toggleTagView()
         self.refreshView()
 
-    @timed(unit='ms', name='editor.diff: ')
-    def diff (self, tokens, oldText, newText):
-        changes = diff(oldText, newText, timelimit=0, checklines=False,
-                               counts_only=False)
-        if len(changes) == 1: #沒有改變
-            return 0, 0, ''
-        # changes = [('=', 'རྒྱ་ག'), ('-', 'ར'), ('=', '་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།')]
-        oldString = ''
-        newString = ''
-        for op, string in changes:
-            if op == "-" or op == "+":
-                if not sameStringLength:
-                    sameStringLength = 0
-                if op == "+":
-                    newString = newString + string
-                    lastWordIndex = (sameStringLength - 1)
-                    # 加在最後面時
-                    start = oldString.find('།', lastWordIndex)
-                    if start == -1: # 加在某處時
-                        newStringLength = len(newString)
-                        start = oldString.rfind('།', 0, newStringLength)
-                else:
-                    oldString = oldString + string
-                    newStringLength = len(newString)
-                    start = oldString.rfind('།', 0, newStringLength)
-
-                if start == -1: # 改的地方前面沒有'།'
-                    start = 0
-                changePos = oldString.find(string, sameStringLength - 1)
-            else:
-                sameStringLength = len(string)
-                oldString = oldString + string
-                newString = newString + string
-
-        # 往後 scan ，結束位置
-        endOld = oldString.find('།', changePos)
-        endNew = newString.find('།', changePos)
-
-        if tokens[-1].end == changePos: # 在文章最後面加字
-            tokenLength = len(tokens)
-            tokenStart, tokenEnd = tokenLength, tokenLength
-        else: # 修改處字串的開始到結束，找是 token 的哪裡開始到哪裡結束
-            i = 0
-            for e in tokens:
-                if e.start <= start and e.end >= start:
-                    if e.end == start:
-                        tokenStart = i + 1
-                        break
-                    else:
-                        tokenStart = i
-                        break
-                i += 1
-            i = 0
-            for e in tokens:
-                if e.start <= endOld and e.end >= endOld:
-                    lenOfToken = len(tokens)
-                    if i != (lenOfToken - 1):
-                        if tokens[i + 1].start == endOld:
-                            tokenEnd = i + 1
-                            break
-                        else:
-                            tokenEnd = i
-                            break
-                i += 1
-        # 前後 scan 得到的修改後字串
-        afterChangingString = newText[start: endNew + 1]
-
-        return tokenStart, tokenEnd, afterChangingString
-
     @timed(unit='ms', name='editor.segment: ')
     def segment(self, byShunit=True, breakLine=False):
         """
@@ -386,35 +326,51 @@ class Editor(QtWidgets.QMainWindow):
 
         """
         print('editor.segment: start')
-
+        # python profile
+        tokenStart = None
+        tokenEnd = None
         if byShunit:
             # find shunit in
             oldText = self.tokenManager.getString() # རྒྱ་གར་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།
+            start = time.time() ##
             newText = self.centralWidget.textEdit.toPlainText() # རྒྱ་ག་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།
+            end = time.time() ##
+            print(f'toPlainText: {round((end-start) * 1000, 2)}ms') ##
             tokens = self.tokens
             # 最一開始輸入文字，尚未做過 segment
             if not oldText or newText == '':
                 self.tokens = self.tokenManager.segment(newText)
             # 有對文字作修改，需針對部分做 segment
             else:
-                tokenStart, tokenEnd, afterChangingString = self.diff(tokens,
-                                                                      oldText,
-                                                                      newText)
+                tokenStart, tokenEnd, afterChangingString = \
+                    self.tokenManager.diff(tokens, oldText, newText)
                 # 新的字串做 segment
                 newTokens = self.tokenManager.segment(afterChangingString)
 
                 if tokenStart == tokenEnd:
+                    start = time.time() ##
                     self.tokens.extend(newTokens[1:])
+                    end = time.time() ##
+                    print(f'self.tokens.extend(newTokens[1:]): {round((end-start) * 1000, 2)}ms') ##
                 elif tokenStart ==  0 and tokenEnd ==  0:
+                    start = time.time() ##
                     string = self.centralWidget.textEdit.toPlainText()
                     self.tokens = self.tokenManager.segment(string)
+                    end = time.time() ##
+                    print(f'no change(toPlainText、segment all text): {round((end-start) * 1000, 2)}ms') ##
                 else:
+                    start = time.time() ##
                     self.tokens[tokenStart:tokenEnd + 1] = newTokens
+                    end = time.time() ##
+                    print(f'self.tokens[tokenStart:tokenEnd + 1] = newTokens: {round((end-start) * 1000, 2)}ms') ##
         else:
             string = self.centralWidget.textEdit.toPlainText()
             self.tokens = self.tokenManager.segment(string)
 
-        self.refreshView()
+        start = time.time() ##
+        self.refreshView(tokenStart, tokenEnd)
+        end = time.time() ##
+        print(f'refreshView: {round((end-start) * 1000, 2)}ms') ##
         print('editor.segment: end')
 
     def resegment(self):
@@ -453,6 +409,7 @@ class Editor(QtWidgets.QMainWindow):
         return (self.centralWidget.tabWidget.currentIndex() == 1)
 
     # TextEdit Actions #
+
     def newFile(self):
         self.textEdit.newFile()
 
@@ -650,7 +607,7 @@ class Editor(QtWidgets.QMainWindow):
 
     # Refresh #
     # @timed(unit='ms')    # TypeError: refreshView() takes 1 positional argument but 2 were given
-    def refreshView(self):
+    def refreshView(self, tokenStart=None, tokenEnd=None):
 
         """
         Refreshes the view without segmenting
@@ -659,7 +616,7 @@ class Editor(QtWidgets.QMainWindow):
         # Adds token info from the db
         # - level
         # - sense
-        self.tokenManager.applyDict()
+        self.tokenManager.applyDict(tokenStart, tokenEnd)
 
         # adjustment rules ... defer to pybo?
         self.tokenManager.matchRules()
@@ -676,8 +633,23 @@ class Editor(QtWidgets.QMainWindow):
 
         # Sets plain text in textEdit before moving on to highlighting
         text = self.tokenManager.getString()
+#         self.textEdit.blockSignals(True)
+#         self.textEdit.document().blockSignals(True)
         self.textEdit.setPlainText(text)
-
+#         html = self.textEdit.toHtml()
+#         html2 = self.highlighter.asHtml()
+#         with open("t1.html", "w") as f1:
+#             f1.write(html)
+#         with open("t2.html", "w") as f1:
+#             f1.write(html2)
+#
+#         start = time.time() ##
+#         self.textEdit.setHtml(self.html2)
+#         end = time.time() ##
+#         print(f'setHtml: {round((end-start) * 1000, 2)}ms') ##
+#
+#         self.textEdit.blockSignals(False)
+#         self.textEdit.document().blockSignals(False)
         if current is not None:
             textCursor.setPosition(currentToken.start + distance)
         else:
@@ -694,7 +666,11 @@ class Editor(QtWidgets.QMainWindow):
 
     @timed(unit='ms')
     def statistics(self):
+        self.threadOfStatistics = StatThread(self)
+        self.statThreads.append(self.threadOfStatistics)
+        self.threadOfStatistics.start()
 
+    def jobOfStatistics(self):
         # to do: bug fix -
         # if we press enter twice sentence count reinitializes
         # you need to press on enter for it to recognize that the text editor is empty
@@ -758,11 +734,15 @@ class Editor(QtWidgets.QMainWindow):
 
     @timed(unit='ms')
     def refreshCoverage(self):
+        self.threadOfRefresh = RefreshThread(self)
+        self.refreshThreads.append(self.threadOfRefresh)
+        self.threadOfRefresh.start()
 
+    def jobOfRefreshCoverage(self):
         tokenNum = sum(1 for t in self.tokens if t.type == 'TEXT')
         # print('tokenNum: ', tokenNum)
 
-        self.statistics()
+#         self.statistics()
 
         levelCounter = Counter([
             token.level for token in self.tokens if token.type == 'TEXT'])
@@ -866,7 +846,7 @@ def main():
     if not language:
         Setting.objects.create(
             key='language',
-            value='zh-hant'
+            value='en'
         )
     language = Setting.objects.get(key='language')
     language = language.value
