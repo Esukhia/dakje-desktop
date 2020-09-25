@@ -859,11 +859,15 @@ def runserver():
     from django.core.management import call_command
     call_command('runserver', '--noreload')
 
-
-
 def main():
     multiprocessing.Process(target=runserver, daemon=True).start()
 
+    language = Setting.objects.filter(key='language')
+    if not language:
+        Setting.objects.create(
+            key='language',
+            value='zh-hant'
+        )
     language = Setting.objects.get(key='language')
     language = language.value
     translation.activate(language)

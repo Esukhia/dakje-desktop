@@ -168,7 +168,7 @@ class TextEdit(CustomUndoTextEdit):
 
     def openFile(self):
         self.filename, ok = QtWidgets.QFileDialog.getOpenFileName(
-            self, _('Open File'), DESKTOP, "UTF-8 (*.txt)")
+            self, 'Open File', DESKTOP, "UTF-8 (*.txt)")
 
         if self.filename:
             with open(self.filename, "r", encoding='utf-8') as f:
@@ -177,7 +177,7 @@ class TextEdit(CustomUndoTextEdit):
     def saveFile(self):
         if not self.filename:
             self.filename, ok = QtWidgets.QFileDialog.getSaveFileName(
-                self, _("Choose a file name"), DESKTOP, "UTF-8 (*.txt)")
+                self, "Choose a file name", DESKTOP, "UTF-8 (*.txt)")
 
             if not ok:
                 return
@@ -192,7 +192,7 @@ class TextEdit(CustomUndoTextEdit):
             return self.filename
         else:
             QtWidgets.QMessageBox.question(
-                self, _('Cancel'), _('Saving Failed'), QtWidgets.QMessageBox.Yes)
+                self, 'Cancel', 'Saving Failed', QtWidgets.QMessageBox.Yes)
 
 
     def keyPressEvent(self, e):
