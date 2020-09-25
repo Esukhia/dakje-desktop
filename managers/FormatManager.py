@@ -51,7 +51,7 @@ class FormatManager:
             format.setForeground(self.toQColor(color))
             self.POS_FORMATS[level] = format
 
-        self.TAG_FORMAT.setVerticalAlignment(QtGui.QTextCharFormat.AlignSuperScript)
+        self.TAG_FORMAT.setVerticalAlignment(QtGui.QTextCharFormat.AlignSubScript)
         self.TAG_FORMAT.setForeground(self.toQColor('#a0a0a4'))
 
     def toQColor(self, hex):
