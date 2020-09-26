@@ -8,7 +8,8 @@ PyYAML==3.13
 experta
 horology
 shortcut
-https://github.com/nuwainfo/python-wheels/raw/master/diff_match_patch_python-1.0.2-cp37-cp37m-macosx_10_9_x86_64.whl
+--find-links=https://nuwainfo.github.io/diff_match_patch/ 
+diff-match-patch-python
 idna==2.9
 requests==2.23.0 
 snakeviz==2.1.0 
