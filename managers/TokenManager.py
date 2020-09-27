@@ -287,11 +287,14 @@ class TokenManager:
 
         changes = diff(oldText, newText, timelimit=0, checklines=False,
                                counts_only=False)
-        if len(changes) == 1: #沒有改變
-            return 0, 0, ''
         # changes = [('=', 'རྒྱ་ག'), ('-', 'ར'), ('=', '་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།')]
+
+        if len(changes) == 1: # 等於 1，表示情況只有「刪除、新增、不變」某一種
+            return 0, 0, ''
+
         oldString = ''
         newString = ''
+        sameStringLength = 0
         for op, string in changes:
             if op == "-" or op == "+":
                 if not sameStringLength:
@@ -300,18 +303,32 @@ class TokenManager:
                     newString = newString + string
                     lastWordIndex = (sameStringLength - 1)
                     # 加在最後面時
-                    start = oldString.find('།', lastWordIndex)
+                    if '།' in oldString:
+                        start = oldString.find('།', lastWordIndex)
+                    else: # 使用 \n 時的時候
+                        start = oldString.find('\n', lastWordIndex)
+
                     if start == -1: # 加在某處時
                         newStringLength = len(newString)
-                        start = oldString.rfind('།', 0, newStringLength)
+                        if '།' in oldString:
+                            start = oldString.rfind('།', 0, newStringLength)
+                        else: # 使用 \n 時的時候
+                            start = oldString.rfind('\n', 0, newStringLength)
+
+                    changePos = len(oldString)
                 else:
                     oldString = oldString + string
                     newStringLength = len(newString)
-                    start = oldString.rfind('།', 0, newStringLength)
+                    if '།' in oldString:
+                        start = oldString.rfind('།', 0, newStringLength)
+                    else: # 使用 \n 時的時候
+                        start = oldString.rfind('\n', 0, newStringLength)
 
-                if start == -1: # 改的地方前面沒有'།'
+                    # op == "-" 時才找得到
+                    changePos = oldString.find(string, sameStringLength - 1)
+
+                if start == -1: # 改的地方前面沒有'།'或'\n'
                     start = 0
-                changePos = oldString.find(string, sameStringLength - 1)
             else:
                 sameStringLength = len(string)
                 oldString = oldString + string
@@ -320,11 +337,15 @@ class TokenManager:
         # 往後 scan ，結束位置
         endOld = oldString.find('།', changePos)
         endNew = newString.find('།', changePos)
+        if endOld == -1 and endNew == -1: #找不到時
+            endOld = len(oldString) - 1
+            endNew = len(newString) - 1
 
-        if tokens[-1].end == changePos: # 在文章最後面加字
+        if (tokens[-1].end == changePos) or (changePos == -1): # 在文章最後面加字
             tokenLength = len(tokens)
             tokenStart, tokenEnd = tokenLength, tokenLength
         else: # 修改處字串的開始到結束，找是 token 的哪裡開始到哪裡結束
+            # 找 tokenStart
             i = 0
             for e in tokens:
                 if e.start <= start and e.end >= start:
@@ -335,6 +356,7 @@ class TokenManager:
                         tokenStart = i
                         break
                 i += 1
+            # 找 tokenEnd
             i = 0
             for e in tokens:
                 if e.start <= endOld and e.end >= endOld:
