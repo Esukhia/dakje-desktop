@@ -347,6 +347,7 @@ class TokenManager:
         else: # 修改處字串的開始到結束，找是 token 的哪裡開始到哪裡結束
             # 找 tokenStart
             i = 0
+            tokenStart = 0
             for e in tokens:
                 if e.start <= start and e.end >= start:
                     if e.end == start:
@@ -358,6 +359,7 @@ class TokenManager:
                 i += 1
             # 找 tokenEnd
             i = 0
+            tokenEnd = len(tokens) - 1
             for e in tokens:
                 if e.start <= endOld and e.end >= endOld:
                     lenOfToken = len(tokens)
