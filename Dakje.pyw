@@ -666,11 +666,11 @@ class Editor(QtWidgets.QMainWindow):
 
     @timed(unit='ms')
     def statistics(self):
-        self.threadOfStatistics = StatThread(self)
-        self.statThreads.append(self.threadOfStatistics)
-        self.threadOfStatistics.start()
-
-    def jobOfStatistics(self):
+#         self.threadOfStatistics = StatThread(self)
+#         self.statThreads.append(self.threadOfStatistics)
+#         self.threadOfStatistics.start()
+#
+#     def jobOfStatistics(self):
         # to do: bug fix -
         # if we press enter twice sentence count reinitializes
         # you need to press on enter for it to recognize that the text editor is empty
@@ -734,11 +734,11 @@ class Editor(QtWidgets.QMainWindow):
 
     @timed(unit='ms')
     def refreshCoverage(self):
-        self.threadOfRefresh = RefreshThread(self)
-        self.refreshThreads.append(self.threadOfRefresh)
-        self.threadOfRefresh.start()
-
-    def jobOfRefreshCoverage(self):
+#         self.threadOfRefresh = RefreshThread(self)
+#         self.refreshThreads.append(self.threadOfRefresh)
+#         self.threadOfRefresh.start()
+#
+#     def jobOfRefreshCoverage(self):
         tokenNum = sum(1 for t in self.tokens if t.type == 'TEXT')
         # print('tokenNum: ', tokenNum)
 
