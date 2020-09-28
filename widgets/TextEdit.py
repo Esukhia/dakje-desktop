@@ -101,14 +101,21 @@ class CustomUndoTextEdit(QTextEdit):
                 QTextEdit.keyPressEvent(self, event)
 
         else:
-            if event.key() == (Qt.Key_Control & Qt.Key_Z):
-                # print("press Undo")
-                self.undo()
-            elif event.key() == (Qt.Key_Control & Qt.Key_Y):
-                # print("press Redo")
-                self.redo()
+            if event.key() == (Qt.Key_Control and Qt.Key_Z):
+#                 print("press Undo")
+                if event.text() == 'z':
+                    QTextEdit.keyPressEvent(self, event)
+                else:
+                    self.undo()
+            elif event.key() == (Qt.Key_Control and Qt.Key_Y):
+#                 print("press Redo")
+                if event.text() == 'y':
+                    QTextEdit.keyPressEvent(self, event)
+                else:
+                    self.redo()
             else: # call base class keyPressEvent
                 QTextEdit.keyPressEvent(self, event)
+
 
     def onTextChanged(self):
         # print("onTextChanged")
@@ -132,7 +139,7 @@ class CustomUndoTextEdit(QTextEdit):
         self.textChangedAfterUndoCommandAdded = False
 
     def undo(self):
-        # print("undo")
+#         print("undo")
         if self.textChangedAfterUndoCommandAdded:
             lastCommand = self.undoStack.command(self.undoStack.count() - 1)
             command = EmulatedTextUndoCommand(
@@ -145,7 +152,7 @@ class CustomUndoTextEdit(QTextEdit):
         self.textChangedAfterUndoCommandAdded = False
 
     def redo(self):
-        # print("redo")
+#         print("redo")
         self.undoStack.redo()
         self.textChangedAfterUndoCommandAdded = False
 
