@@ -3,6 +3,9 @@ TrieAddTempFile.txt
 TrieDelTempFile.txt
 default.profile
 scratchpad
+db.sqlite3
+
+settings.json
 
 # pybo
 *.pickled

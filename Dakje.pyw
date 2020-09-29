@@ -91,7 +91,7 @@ class RefreshThread(QThread):
 
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
-    SEG_TRIGGERS = ['་', '།', '\n']
+    SEG_TRIGGERS = ['་', '།', '\n', ',']
 
     @timed(unit='ms')
     def __init__(self, parent=None):
