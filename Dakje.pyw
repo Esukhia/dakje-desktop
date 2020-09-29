@@ -349,7 +349,10 @@ class Editor(QtWidgets.QMainWindow):
 
                 if tokenStart == tokenEnd:
                     start = time.time() ##
-                    self.tokens.extend(newTokens[1:])
+                    if newTokens[0] == '།' or newTokens[0] == '\n':
+                        self.tokens.extend(newTokens[1:])
+                    else:
+                        self.tokens.extend(newTokens[0:])
                     end = time.time() ##
                     print(f'self.tokens.extend(newTokens[1:]): {round((end-start) * 1000, 2)}ms') ##
                 elif tokenStart ==  0 and tokenEnd ==  0:

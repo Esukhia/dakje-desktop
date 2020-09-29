@@ -305,15 +305,21 @@ class TokenManager:
                     # 加在最後面時
                     if '།' in oldString:
                         start = oldString.find('།', lastWordIndex)
-                    else: # 使用 \n 時的時候
+                    elif '\n' in oldString: # 使用 \n 時的時候
                         start = oldString.find('\n', lastWordIndex)
+                    else:
+#                         start = oldString.find('་', lastWordIndex)
+                        start = -1
 
                     if start == -1: # 加在某處時
                         newStringLength = len(newString)
                         if '།' in oldString:
                             start = oldString.rfind('།', 0, newStringLength)
-                        else: # 使用 \n 時的時候
+                        elif '\n' in oldString: # 使用 \n 時的時候
                             start = oldString.rfind('\n', 0, newStringLength)
+                        else:
+#                             start = oldString.rfind('་', 0, newStringLength)
+                            start = -1
 
                     changePos = len(oldString)
                 else:
@@ -321,8 +327,11 @@ class TokenManager:
                     newStringLength = len(newString)
                     if '།' in oldString:
                         start = oldString.rfind('།', 0, newStringLength)
-                    else: # 使用 \n 時的時候
+                    elif '\n' in oldString: # 使用 \n 時的時候
                         start = oldString.rfind('\n', 0, newStringLength)
+                    else:
+#                         start = oldString.rfind('་', 0, newStringLength)
+                        start = -1
 
                     # op == "-" 時才找得到
                     changePos = oldString.find(string, sameStringLength - 1)
@@ -342,6 +351,8 @@ class TokenManager:
             endNew = len(newString) - 1
 
         if (tokens[-1].end == changePos) or (changePos == -1): # 在文章最後面加字
+            if (tokens[-1].end == changePos):
+                start = len(oldString)
             tokenLength = len(tokens)
             tokenStart, tokenEnd = tokenLength, tokenLength
         else: # 修改處字串的開始到結束，找是 token 的哪裡開始到哪裡結束
