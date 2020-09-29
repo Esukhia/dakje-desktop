@@ -635,7 +635,8 @@ class Editor(QtWidgets.QMainWindow):
 #             print(f'current: {current[0]}, {current[1].text}')
 
         # Sets plain text in textEdit before moving on to highlighting
-        text = self.tokenManager.getString()
+#         text = self.tokenManager.getString() #舊
+        text = self.centralWidget.textEdit.toPlainText()
 #         self.textEdit.blockSignals(True)
 #         self.textEdit.document().blockSignals(True)
         self.textEdit.setPlainText(text)

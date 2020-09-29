@@ -14,6 +14,8 @@ class Highlighter(QtGui.QSyntaxHighlighter):
         currentBlock = self.currentBlock()
         currentBlockNumber = currentBlock.blockNumber()
         lastTextEnd = currentBlock.position() - 1 # 當前 block 第一個字，在文章中的位置
+        if lastTextEnd == -1:
+            lastTextEnd = 0
         textLength = len(text) # 當前 block 文字長度
 
         tokenStart = 0
