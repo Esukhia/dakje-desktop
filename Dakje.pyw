@@ -285,7 +285,7 @@ class Editor(QtWidgets.QMainWindow):
             self.levelTab.level2Checkbox.setChecked(False)
             self.levelTab.level3Checkbox.setChecked(False)
             self.levelTab.level4Checkbox.setChecked(False)
-        self.refreshView()
+        self.segment()
 
     def closeEvent(self, *args, **kwargs):
 
