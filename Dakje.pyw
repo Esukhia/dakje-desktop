@@ -332,10 +332,7 @@ class Editor(QtWidgets.QMainWindow):
         if byShunit:
             # find shunit in
             oldText = self.tokenManager.getString() # རྒྱ་གར་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།
-            start = time.time() ##
             newText = self.centralWidget.textEdit.toPlainText() # རྒྱ་ག་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།
-            end = time.time() ##
-            print(f'toPlainText: {round((end-start) * 1000, 2)}ms') ##
             tokens = self.tokens
             # 最一開始輸入文字，尚未做過 segment
             if not oldText or newText == '':
@@ -354,7 +351,7 @@ class Editor(QtWidgets.QMainWindow):
                     else:
                         self.tokens.extend(newTokens[0:])
                     end = time.time() ##
-                    print(f'self.tokens.extend(newTokens[1:]): {round((end-start) * 1000, 2)}ms') ##
+                    print(f'self.tokens.extend(): {round((end-start) * 1000, 2)}ms') ##
                 elif tokenStart ==  0 and tokenEnd ==  0:
                     start = time.time() ##
                     string = self.centralWidget.textEdit.toPlainText()
@@ -635,8 +632,7 @@ class Editor(QtWidgets.QMainWindow):
 #             print(f'current: {current[0]}, {current[1].text}')
 
         # Sets plain text in textEdit before moving on to highlighting
-#         text = self.tokenManager.getString() #舊
-        text = self.centralWidget.textEdit.toPlainText()
+        text = self.tokenManager.getString()
 #         self.textEdit.blockSignals(True)
 #         self.textEdit.document().blockSignals(True)
         self.textEdit.setPlainText(text)

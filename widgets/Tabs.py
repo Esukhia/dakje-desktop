@@ -149,7 +149,7 @@ class LevelTab(QtWidgets.QWidget):
 
         for checkbox in (self.levelNoneCheckbox, self.level1Checkbox,
                          self.level2Checkbox, self.level3Checkbox, self.level4Checkbox):
-            checkbox.clicked.connect(self.editor.refreshView)
+            checkbox.clicked.connect(self.editor.segment)
 
         self.levelCoverages = [
             [self.levelNoneCheckbox, self.levelNoneButton, self.levelNoneProgBar],
