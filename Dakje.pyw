@@ -344,7 +344,7 @@ class Editor(QtWidgets.QMainWindow):
                 # 新的字串做 segment
                 newTokens = self.tokenManager.segment(afterChangingString)
 
-                if tokenStart == tokenEnd:
+                if tokenStart == tokenEnd and not (tokenStart ==  0):
                     start = time.time() ##
                     if newTokens[0] == '།' or newTokens[0] == '\n':
                         self.tokens.extend(newTokens[1:])
@@ -633,23 +633,8 @@ class Editor(QtWidgets.QMainWindow):
 
         # Sets plain text in textEdit before moving on to highlighting
         text = self.tokenManager.getString()
-#         self.textEdit.blockSignals(True)
-#         self.textEdit.document().blockSignals(True)
         self.textEdit.setPlainText(text)
-#         html = self.textEdit.toHtml()
-#         html2 = self.highlighter.asHtml()
-#         with open("t1.html", "w") as f1:
-#             f1.write(html)
-#         with open("t2.html", "w") as f1:
-#             f1.write(html2)
-#
-#         start = time.time() ##
-#         self.textEdit.setHtml(self.html2)
-#         end = time.time() ##
-#         print(f'setHtml: {round((end-start) * 1000, 2)}ms') ##
-#
-#         self.textEdit.blockSignals(False)
-#         self.textEdit.document().blockSignals(False)
+
         if current is not None:
             textCursor.setPosition(currentToken.start + distance)
         else:
