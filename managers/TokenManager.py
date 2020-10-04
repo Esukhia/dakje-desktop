@@ -18,73 +18,42 @@ from web.settings import FILES_DIR
 from horology import timed
 from diff_match_patch import diff
 
-# class TokenList(list):
-#     def __init__(self, data=None):
-#         self.tokens = list(data) if data else []
+class TokenList(list):
+    def __getitem__(self, key):
+        print('__getitem__')
+        return super().__getitem__(key)
 
-#     def __repr__(self):
-#         return repr(self.tokens)
-#
-#     def __str__(self):
-#         return str(self.tokens)
-#
-#     def __getitem__(self, key):
-#         print('__getitem__')
-#         return super().__getitem__(key)
-# #         return self.tokens[i]
-#         if isinstance(key, slice):
-#             start, stop, step = key.indices(len(self))
-#             return TokenList([self[i] for i in range(start, stop, step)])
-#         else:
-#             return self.tokens[key]
-#
-#     def __len__(self):
-#         return len(self.tokens)
-#
-# #     def __delitem__(self, i):
-# #         print('__delitem__')
-# #         del self.tokens[i]
-#
-#     def __setitem__(self, key, val):
-#         # optional: self._acl_check(val)
-#         # abc
-#         # 012
-#         # a12345bc
-#         # 01  4 67
-#
-#         print('__setitem__')
-#         if isinstance(key, slice):
-#             start, stop, step = key.indices(len(self))
-#             self.tokens[start:stop:step] = val
-#             tokensStart = start
-#         else:
-#             self.tokens[key] = val
-#             tokensStart = key
-#
-#         lenOfTokens = (self.tokens[tokensStart:])
-#         for i, token in enumerate(self.tokens[tokensStart:]):
-#             lenOfEachTokenText = len(token.text)
-#             if i == 0: # 更改處的開始
-#                 # 上一個 end
-#                 token.start = self.tokens[tokensStart-1].end + 1
-#                 token.end = token.start + lenOfEachTokenText + ' '
-#             else:
-#                 token.start = token.end
-#                 token.end = (token.start + lenOfEachTokenText + ' '
-#                              if i != lenOfTokens - 1
-#                              else token.start + lenOfEachTokenText)
+    def __setitem__(self, key, val):
+        print('__setitem__')
+        if isinstance(key, slice):
+            start, stop, step = key.indices(len(self))
+            tokensStart = start
+        else:
+            tokensStart = key
 
+        super().__setitem__(key, val)
+        lenOfTokens = len(self[tokensStart:])
+        for i, token in enumerate(self[tokensStart:]):
+            lenOfEachTokenText = len(token.text)
+            if i == 0: # 更改處的開始
+                if tokensStart == 0: # 所有文字的最開始
+                    token.start = 0
+                else: # 上一個 end
+                    token.start = self[tokensStart-1].end
+            else:
+                token.start = self[i+tokensStart-1].end
+            token.end = token.start + lenOfEachTokenText
 
-
-#     def insert(self, key, val):
-#         # optional: self._acl_check(val)
-#         print('insert')
-#         self.tokens.insert(key, val)
-
-
-#     def extend(self, list):
-#         self.tokens.extend(list)
-
+    def extend(self, list):
+        super().extend(list)
+        lenOfTokens = len(self)
+        for i, token in enumerate(self):
+            lenOfEachTokenText = len(token.text)
+            if i == 0:
+                token.start == 0
+            else:
+                token.start = self[i-1].end
+            token.end = token.start + lenOfEachTokenText
 
 class Token:
     def __init__(self, token, id=None):
@@ -198,33 +167,33 @@ class TokenManager:
 
         tokens = self.editor.tokenizer.tokenize(string, spaces_as_punct=True)
 
-#         return TokenList([Token(t) for t in tokens])
-        return [Token(t) for t in tokens]
+        return TokenList([Token(t) for t in tokens])
+#         return [Token(t) for t in tokens]
 
     # create display string for textEdit
-    def _join(self, tokens, toStr, sep=''):
-#         blockIndex = 0
-        result = ''
-        for i, token in enumerate(tokens):
-#             token.blockIndex = blockIndex
-            token.start = len(result)
-            result += (toStr(token) + sep if i != len(tokens) - 1
-                       else toStr(token))
-            token.end = len(result)
-#             if token.text.endswith(('\n', ' ')):
-#                 blockIndex += 1
-#         print(f'_join: {result}, block: {blockIndex}')
-        return result
-
-#     def _join(self, tokens, toStr, sep):
-#         result = []
-#         lenOfTokens = len(tokens)
+#     def _join(self, tokens, toStr, sep=''):
+# #         blockIndex = 0
+#         result = ''
 #         for i, token in enumerate(tokens):
-#             result.append((toStr(token) + sep) if i != lenOfTokens - 1
+# #             token.blockIndex = blockIndex
+#             token.start = len(result)
+#             result += (toStr(token) + sep if i != len(tokens) - 1
 #                        else toStr(token))
-#         result = ''.join(result)
-#
+#             token.end = len(result)
+# #             if token.text.endswith(('\n', ' ')):
+# #                 blockIndex += 1
+# #         print(f'_join: {result}, block: {blockIndex}')
 #         return result
+
+    def _join(self, tokens, toStr, sep):
+        result = []
+        lenOfTokens = len(tokens)
+        for i, token in enumerate(tokens):
+            result.append((toStr(token) + sep) if i != lenOfTokens - 1
+                       else toStr(token))
+        result = ''.join(result)
+
+        return result
 
     @timed(unit='ms', name='getString: ')
     def getString(self):

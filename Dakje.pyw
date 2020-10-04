@@ -29,7 +29,7 @@ from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
                     #  EditTokenDialog, Highlighter, DictionaryEditorWidget)
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token
-# from managers.TokenManager import TokenList
+from managers.TokenManager import TokenList
 from web.settings import BASE_DIR, FILES_DIR
 
 from storage.models import Token, Setting
@@ -148,8 +148,8 @@ class Editor(QtWidgets.QMainWindow):
         )
 
     def initProperties(self):
-#         self.tokens = TokenList() # TokenList()
-        self.tokens = []
+        self.tokens = TokenList() # TokenList()
+#         self.tokens = []
         self.formats = []
         self.mode = 'གསལ་ཆ།'  # LEVEL_MODE, EDITOR_MODE
         self.view = None  # PLAIN_TEXT_VIEW, SPACE_VIEW...
@@ -344,7 +344,7 @@ class Editor(QtWidgets.QMainWindow):
                 # 新的字串做 segment
                 newTokens = self.tokenManager.segment(afterChangingString)
 
-                if tokenStart == tokenEnd and not (tokenStart ==  0):
+                if tokenStart == tokenEnd and not (tokenStart == 0):
                     start = time.time() ##
                     if newTokens[0] == '།' or newTokens[0] == '\n':
                         self.tokens.extend(newTokens[1:])
@@ -470,6 +470,8 @@ class Editor(QtWidgets.QMainWindow):
             elif string == '':
                 self.segment()
 #                 print('option3')
+            else:
+                self.segment()
 
     def initLevelProfile(self):
         # load last level profile
