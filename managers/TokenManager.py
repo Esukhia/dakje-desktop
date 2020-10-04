@@ -276,6 +276,8 @@ class TokenManager:
                         start = oldString.find('།', lastWordIndex)
                     elif '\n' in oldString: # 使用 \n 時的時候
                         start = oldString.find('\n', lastWordIndex)
+                        if string == '\n':
+                            start += 1
                     else:
 #                         start = oldString.find('་', lastWordIndex)
                         start = -1
@@ -318,7 +320,6 @@ class TokenManager:
         if endOld == -1 and endNew == -1: #找不到時
             endOld = len(oldString) - 1
             endNew = len(newString) - 1
-
         if (tokens[-1].end == changePos) or (changePos == -1): # 在文章最後面加字
             if (tokens[-1].end == changePos):
                 start = len(oldString)

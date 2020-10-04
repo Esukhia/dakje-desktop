@@ -344,7 +344,9 @@ class Editor(QtWidgets.QMainWindow):
                 # 新的字串做 segment
                 newTokens = self.tokenManager.segment(afterChangingString)
 
-                if tokenStart == tokenEnd and not (tokenStart == 0):
+                if tokenStart == tokenEnd and \
+                    not (tokenStart == 0) and \
+                    not tokens[-1].text in afterChangingString:
                     start = time.time() ##
                     if newTokens[0] == '།' or newTokens[0] == '\n':
                         self.tokens.extend(newTokens[1:])
@@ -352,7 +354,7 @@ class Editor(QtWidgets.QMainWindow):
                         self.tokens.extend(newTokens[0:])
                     end = time.time() ##
                     print(f'self.tokens.extend(): {round((end-start) * 1000, 2)}ms') ##
-                elif tokenStart ==  0 and tokenEnd ==  0:
+                elif tokenStart == 0 and tokenEnd == 0:
                     start = time.time() ##
                     string = self.centralWidget.textEdit.toPlainText()
                     self.tokens = self.tokenManager.segment(string)
