@@ -266,6 +266,7 @@ class TokenManager:
         newString = ''
         sameStringLength = 0
         isDeleteShey = False
+        sheyIsMoreThanOne = False
         i = 0
         for op, string in changes:
             if op == "-" or op == "+":
@@ -301,6 +302,10 @@ class TokenManager:
                     # 當是加入 ། 時，換的位置+1，讓後面找 endNew 時不會用到現在加的
                     if string == '།':
                         changePos += 1
+                    # 當增加很多文字時， ། 在其中有很多個，需要找到最後一個
+                    numOfShey = string.count('།')
+                    if numOfShey > 1:
+                        sheyIsMoreThanOne = True
                 else:
                     oldString = oldString + string
                     newStringLength = len(newString)
@@ -318,6 +323,10 @@ class TokenManager:
                     if string == '།' and changes[i-1][1][-1] != '།':
                         isDeleteShey = True
 
+                    # 當刪除很多文字時， ། 在其中有很多個，需要找到最後一個
+                    numOfShey = string.count('།')
+                    if numOfShey > 1:
+                        sheyIsMoreThanOne = True
 
                 if start == -1: # 改的地方前面沒有'།'或'\n'
                     start = 0
@@ -331,7 +340,7 @@ class TokenManager:
         # 往後 scan ，結束位置
         endOld = oldString.find('།', changePos)
         endNew = newString.find('།', changePos)
-        if endOld == -1 and endNew == -1:
+        if (endOld == -1 and endNew == -1) or sheyIsMoreThanOne:
             endOld = len(oldString) - 1
             endNew = len(newString) - 1
         #當 ། 有很多個同時在一起時
