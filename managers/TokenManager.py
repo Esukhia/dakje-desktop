@@ -20,11 +20,11 @@ from diff_match_patch import diff
 
 class TokenList(list):
     def __getitem__(self, key):
-        print('__getitem__')
+#         print('__getitem__')
         return super().__getitem__(key)
 
     def __setitem__(self, key, val):
-        print('__setitem__')
+#         print('__setitem__')
         if isinstance(key, slice):
             start, stop, step = key.indices(len(self))
             tokensStart = start
@@ -274,6 +274,8 @@ class TokenManager:
                     # 加在最後面時
                     if '།' in oldString:
                         start = oldString.find('།', lastWordIndex)
+                        if string == '།':
+                            start += 1
                     elif '\n' in oldString: # 使用 \n 時的時候
                         start = oldString.find('\n', lastWordIndex)
                         if string == '\n':
@@ -293,6 +295,9 @@ class TokenManager:
                             start = -1
 
                     changePos = len(oldString)
+                    # 當是加入 ། 時，換得+1，讓後面找 endNew 時不會用到現在加的
+                    if string == '།':
+                        changePos += 1
                 else:
                     oldString = oldString + string
                     newStringLength = len(newString)
@@ -317,10 +322,14 @@ class TokenManager:
         # 往後 scan ，結束位置
         endOld = oldString.find('།', changePos)
         endNew = newString.find('།', changePos)
-        if endOld == -1 and endNew == -1: #找不到時
+        if endOld == -1 and endNew == -1:
             endOld = len(oldString) - 1
             endNew = len(newString) - 1
-        if (tokens[-1].end == changePos) or (changePos == -1): # 在文章最後面加字
+        #當 ། 有很多個同時在一起時
+        if endOld == endNew:
+            endOld += 1
+        # 在文章最後面加字
+        if (tokens[-1].end == changePos) or (changePos == -1):
             if (tokens[-1].end == changePos):
                 start = len(oldString)
             tokenLength = len(tokens)
