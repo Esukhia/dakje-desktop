@@ -17,6 +17,7 @@ from web.settings import FILES_DIR
 
 from horology import timed
 from diff_match_patch import diff
+from click.core import fast_exit
 
 class TokenList(list):
     def __getitem__(self, key):
@@ -264,6 +265,8 @@ class TokenManager:
         oldString = ''
         newString = ''
         sameStringLength = 0
+        isDeleteShey = False
+        i = 0
         for op, string in changes:
             if op == "-" or op == "+":
                 if not sameStringLength:
@@ -295,7 +298,7 @@ class TokenManager:
                             start = -1
 
                     changePos = len(oldString)
-                    # 當是加入 ། 時，換得+1，讓後面找 endNew 時不會用到現在加的
+                    # 當是加入 ། 時，換的位置+1，讓後面找 endNew 時不會用到現在加的
                     if string == '།':
                         changePos += 1
                 else:
@@ -311,6 +314,10 @@ class TokenManager:
 
                     # op == "-" 時才找得到
                     changePos = oldString.find(string, sameStringLength - 1)
+                    # 當是刪除 ། 時，且所在位置前一個非 ། 無，換的位置-1，讓後面找 endOld 時不會用到現在的
+                    if string == '།' and changes[i-1][1][-1] != '།':
+                        isDeleteShey = True
+
 
                 if start == -1: # 改的地方前面沒有'།'或'\n'
                     start = 0
@@ -318,6 +325,8 @@ class TokenManager:
                 sameStringLength = len(string)
                 oldString = oldString + string
                 newString = newString + string
+
+            i += 1
 
         # 往後 scan ，結束位置
         endOld = oldString.find('།', changePos)
@@ -328,6 +337,9 @@ class TokenManager:
         #當 ། 有很多個同時在一起時
         if endOld == endNew:
             endOld += 1
+        if isDeleteShey:
+            endOld = endNew + 1
+
         # 在文章最後面加字
         if (tokens[-1].end == changePos) or (changePos == -1):
             if (tokens[-1].end == changePos):
