@@ -266,6 +266,7 @@ class TokenManager:
         newString = ''
         sameStringLength = 0
         isDeleteShey = False
+        isDeleteLastShey = False
         sheyIsMoreThanOne = False
         i = 0
         for op, string in changes:
@@ -328,6 +329,11 @@ class TokenManager:
                     if numOfShey > 1:
                         sheyIsMoreThanOne = True
 
+                    # 當刪除的地方在最後而且又是 །
+                    if i + 1 == len(changes):
+                        if string == '།':
+                            isDeleteLastShey = True
+
                 if start == -1: # 改的地方前面沒有'།'或'\n'
                     start = 0
             else:
@@ -346,8 +352,10 @@ class TokenManager:
         #當 ། 有很多個同時在一起時
         if endOld == endNew:
             endOld += 1
-        if isDeleteShey:
+        if isDeleteShey and not isDeleteLastShey:
             endOld = endNew + 1
+        if isDeleteLastShey:
+            endNew = endOld - 1
 
         # 在文章最後面加字
         if (tokens[-1].end == changePos) or (changePos == -1):
@@ -382,7 +390,13 @@ class TokenManager:
                             tokenEnd = i
                             break
                 i += 1
+
         # 前後 scan 得到的修改後字串
         afterChangingString = newText[start: endNew + 1]
+
+        if len(tokens) > tokenStart and afterChangingString != '།':
+            # 當 tokens 裡為 །། 時，afterChangingString 要多加 ། 在最前面，不然取代掉時會少
+            if '།།' == tokens[tokenStart].text:
+                afterChangingString = f'།{afterChangingString}'
 
         return tokenStart, tokenEnd, afterChangingString
