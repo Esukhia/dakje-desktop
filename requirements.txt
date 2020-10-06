@@ -1,7 +1,7 @@
 appdirs==1.4.3
 Django>=1.11,<2
 pybo>=0.6.13
-botok>=0.8.1
+botok>=0.6.17
 PyQt5>=5.11.3
 PyQt5-sip>=4.19.13
 PyYAML==3.13
