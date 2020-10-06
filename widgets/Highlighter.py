@@ -50,16 +50,21 @@ class Highlighter(QtGui.QSyntaxHighlighter):
                 if self.editor.viewManager.isTagView():
                     # format text string
                     textLen = len(token.text)
-                    textStart = (token.start - currentBlock.position())
+                    if token.start == 0:
+                        textStart = (token.start - currentBlock.position())
+                    else:
+                        textStart = tagStart + tagSpan + 1
                     textSpan = textLen
                     if token.level in highlightedLevels:
                         self.setFormat(textStart, textSpan, format)
 
                     # format tags
                     tagFormat = self.editor.formatManager.TAG_FORMAT
-                    tagStart = (
-                        token.start - currentBlock.position()) + textLen
-                    tagSpan = token.length - textLen
+#                     tagStart = (
+#                         token.start - currentBlock.position()) + textLen
+                    tagStart = textStart + textSpan + 1
+#                     tagSpan = token.length - textLen
+                    tagSpan = 1 + len(token.pos)
                     self.setFormat(tagStart, tagSpan, tagFormat)
 
                 else: # 可輸入文字的 View
