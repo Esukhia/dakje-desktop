@@ -60,12 +60,19 @@ class Highlighter(QtGui.QSyntaxHighlighter):
 
                     # format tags
                     tagFormat = self.editor.formatManager.TAG_FORMAT
-#                     tagStart = (
-#                         token.start - currentBlock.position()) + textLen
                     tagStart = textStart + textSpan + 1
-#                     tagSpan = token.length - textLen
                     tagSpan = 1 + len(token.pos)
                     self.setFormat(tagStart, tagSpan, tagFormat)
+
+                elif self.editor.viewManager.isSpaceView():
+                    index = self.editor.tokens.index(token)
+                    if token.start == 0:
+                        textStart = (token.start - currentBlock.position())
+                    else:
+                        textStart = (token.start - currentBlock.position()) + index
+
+                    if token.level in highlightedLevels:
+                        self.setFormat(textStart, token.length+1, format)
 
                 else: # 可輸入文字的 View
                     # only format what's in the level lists
