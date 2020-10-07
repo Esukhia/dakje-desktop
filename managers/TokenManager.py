@@ -107,15 +107,24 @@ class Token:
 
 class TokenManager:
     # This class runs botok, and gives him custom lists
-    TRIE_MODIF_DIR = os.path.join(FILES_DIR, 'words')
+
+    LANG_PACK_DIR = os.path.join(FILES_DIR, 'general')
+    if not os.path.exists(LANG_PACK_DIR):
+        os.makedirs(LANG_PACK_DIR)
+
+    TRIE_BUILD_DIR = os.path.join(LANG_PACK_DIR, 'dictionary')
+    if not os.path.exists(TRIE_BUILD_DIR):
+        os.makedirs(TRIE_BUILD_DIR)
+
+    TRIE_MODIF_DIR = os.path.join(LANG_PACK_DIR, 'adjustments')
     if not os.path.exists(TRIE_MODIF_DIR):
         os.makedirs(TRIE_MODIF_DIR)
 
-    TRIE_ADD_DIR = os.path.join(TRIE_MODIF_DIR, 'lexica_bo')
+    TRIE_ADD_DIR = os.path.join(TRIE_MODIF_DIR, 'remove')
     if not os.path.exists(TRIE_ADD_DIR):
         os.makedirs(TRIE_ADD_DIR)
 
-    TRIE_DEL_DIR = os.path.join(TRIE_MODIF_DIR, 'deactivate')
+    TRIE_DEL_DIR = os.path.join(TRIE_MODIF_DIR, 'words')
     # print(TRIE_DEL_DIR)
     if not os.path.exists(TRIE_DEL_DIR):
         os.makedirs(TRIE_DEL_DIR)
