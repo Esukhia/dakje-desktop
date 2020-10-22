@@ -6,7 +6,7 @@ from horology import timed
 import multiprocessing
 
 import django
-import pybo
+import botok
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtWidgets import QTextEdit, QApplication
 from PyQt5.QtCore import QThread, pyqtSignal, QThreadPool, QElapsedTimer
