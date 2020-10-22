@@ -3,11 +3,12 @@ Django>=1.11,<2
 pybo==0.6.21
 botok>=0.8.1
 PyQt5==5.14.2
-PyQt5-sip>=4.19.13
+PyQt5-sip>=12.8.1
 PyYAML==3.13
 experta
 horology
 shortcut
+tibetan_sort
 --find-links=https://nuwainfo.github.io/diff_match_patch/ 
 diff-match-patch-python
 idna==2.9
