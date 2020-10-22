@@ -18,14 +18,35 @@ from web.settings import FILES_DIR
 from horology import timed
 from diff_match_patch import diff
 from click.core import fast_exit
+from django.db.backends.base.features import BaseDatabaseFeatures
 
 class TokenList(list):
+
+    def setTokensStartAndEnd(self, tokensStart):
+        for i, token in enumerate(self[tokensStart:]):
+            lenOfEachTokenText = len(token.text)
+            if i == 0: # 更改處的開始
+                if tokensStart == 0: # 所有文字的最開始
+                    token.start = 0
+                else: # 上一個 end
+                    token.start = self[tokensStart - 1].end
+            else:
+                token.start = self[i + tokensStart - 1].end
+            token.end = token.start + lenOfEachTokenText
+
+    def __delitem__(self, key):
+        super().__delitem__(key)
+        self.setTokensStartAndEnd(key - 1)
+
+    def remove(self, value):
+        key = self.index(value)
+        super().remove(value)
+        self.setTokensStartAndEnd(key - 1)
+
     def __getitem__(self, key):
-#         print('__getitem__')
         return super().__getitem__(key)
 
     def __setitem__(self, key, val):
-#         print('__setitem__')
         if isinstance(key, slice):
             start, stop, step = key.indices(len(self))
             tokensStart = start
@@ -33,28 +54,32 @@ class TokenList(list):
             tokensStart = key
 
         super().__setitem__(key, val)
-        lenOfTokens = len(self[tokensStart:])
-        for i, token in enumerate(self[tokensStart:]):
-            lenOfEachTokenText = len(token.text)
-            if i == 0: # 更改處的開始
-                if tokensStart == 0: # 所有文字的最開始
-                    token.start = 0
-                else: # 上一個 end
-                    token.start = self[tokensStart-1].end
-            else:
-                token.start = self[i+tokensStart-1].end
-            token.end = token.start + lenOfEachTokenText
+        self.setTokensStartAndEnd(tokensStart)
 
     def extend(self, list):
+        tokensLengthBeforeExtend = len(self)
         super().extend(list)
-        lenOfTokens = len(self)
-        for i, token in enumerate(self):
-            lenOfEachTokenText = len(token.text)
-            if i == 0:
-                token.start == 0
-            else:
-                token.start = self[i-1].end
-            token.end = token.start + lenOfEachTokenText
+        self.setTokensStartAndEnd(tokensLengthBeforeExtend)
+
+    def insert(self, key, val):
+        super().insert(key, val[0])
+        self.setTokensStartAndEnd(key)
+
+    def append(self, val):
+        self.insert(len(self), val)
+
+    def pop(self, key):
+        super().pop(key)
+        self.setTokensStartAndEnd(key - 1)
+
+    def count(self, value):
+        raise RuntimeError('TokenList can not use the method of count.')
+
+    def reverse(self):
+        raise RuntimeError('TokenList can not use the method of reverse.')
+
+    def sort(self, key=None, reverse=False):
+        raise RuntimeError('TokenList can not use the method of sort.')
 
 class Token:
     def __init__(self, token, id=None):
@@ -86,7 +111,6 @@ class Token:
         self.string = None
 
     # @timed(unit='ms')
-
     def applyTokenModel(self, tokenModel):
         # add attributes from the DB
         self.pos = tokenModel.pos if tokenModel.pos else self.pos
@@ -95,12 +119,10 @@ class Token:
         self.sense = tokenModel.sense if tokenModel.sense else self.sense
 
     @property
-
     def length(self):
         return self.end - self.start
 
     @property
-
     def textWithoutTsek(self):
         return (self.text_unaffixed[:-1] if self.text_unaffixed.endswith('་')
                                          else self.text_unaffixed)
@@ -153,21 +175,16 @@ class TokenManager:
 
 
     @property
-
     def view(self):
         return self.editor.view
 
     @property
-
     def tokens(self):
         return self.editor.tokens
 
     @timed(unit='ms', name='TokenManager.segment: ')
-
     def segment(self, string):
-
         tokens = self.editor.tokenizer.tokenize(string, spaces_as_punct=True)
-
         return TokenList([Token(t) for t in tokens])
 #         return [Token(t) for t in tokens]
 

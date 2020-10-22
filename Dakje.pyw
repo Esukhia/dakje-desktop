@@ -6,10 +6,13 @@ from horology import timed
 import multiprocessing
 
 import django
-import botok
+import pybo
+from PyQt5.QtGui import QTextCursor
 from PyQt5.QtWidgets import QTextEdit, QApplication
 from PyQt5.QtCore import QThread, pyqtSignal, QThreadPool, QElapsedTimer
 from django.db.backends.base.features import BaseDatabaseFeatures
+from turtledemo.penrose import star
+from django.conf.locale import tr
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "web.settings")
 django.setup()
@@ -18,6 +21,7 @@ django.setup()
 import sys
 import pathlib
 import threading
+from diff_match_patch import diff
 from functools import partial, wraps
 from collections import Counter
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -142,8 +146,10 @@ class Editor(QtWidgets.QMainWindow):
                                  self.textChanged)
 
     def initTokenizer(self):
-        config = botok.Config.from_path(self.tokenManager.TRIE_MODIF_DIR)
-        self.tokenizer = botok.WordTokenizer(config=config)
+        self.tokenizer = pybo.WordTokenizer(
+            'POS',
+            tok_modifs= self.tokenManager.TRIE_MODIF_DIR
+        )
 
     def initProperties(self):
         self.tokens = TokenList() # TokenList()
@@ -327,6 +333,7 @@ class Editor(QtWidgets.QMainWindow):
         # python profile
         tokenStart = None
         tokenEnd = None
+        afterChangingString = ''
         if byShunit:
             # find shunit in
             oldText = self.tokenManager.getString() # རྒྱ་གར་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།
@@ -346,10 +353,11 @@ class Editor(QtWidgets.QMainWindow):
                     not (tokenStart == 0) and \
                     not tokens[-1].text in afterChangingString:
                     start = time.time() ##
-                    if newTokens[0] == '།' or newTokens[0] == '\n':
-                        self.tokens.extend(newTokens[1:])
-                    else:
-                        self.tokens.extend(newTokens[0:])
+                    if newTokens:
+                        if newTokens[0] == '།' or newTokens[0] == '\n':
+                            self.tokens.extend(newTokens[1:])
+                        else:
+                            self.tokens.extend(newTokens[0:])
                     end = time.time() ##
                     print(f'self.tokens.extend(): {round((end-start) * 1000, 2)}ms') ##
                 elif tokenStart == 0 and tokenEnd == 0:
@@ -368,7 +376,7 @@ class Editor(QtWidgets.QMainWindow):
             self.tokens = self.tokenManager.segment(string)
 
         start = time.time() ##
-        self.refreshView(tokenStart, tokenEnd)
+        self.refreshView(tokens, tokenStart, tokenEnd)
         end = time.time() ##
         print(f'refreshView: {round((end-start) * 1000, 2)}ms') ##
         print('editor.segment: end')
@@ -470,8 +478,6 @@ class Editor(QtWidgets.QMainWindow):
             elif string == '':
                 self.segment()
 #                 print('option3')
-            else:
-                self.segment()
 
     def initLevelProfile(self):
         # load last level profile
@@ -609,8 +615,8 @@ class Editor(QtWidgets.QMainWindow):
 
     # Refresh #
     # @timed(unit='ms')    # TypeError: refreshView() takes 1 positional argument but 2 were given
-    def refreshView(self, tokenStart=None, tokenEnd=None):
-
+#     def refreshView(self, tokens=None, tokenStart=None, tokenEnd=None, afterChangingString=''):
+    def refreshView(self, tokens=None, tokenStart=None, tokenEnd=None):
         """
         Refreshes the view without segmenting
             :param self:
@@ -634,8 +640,60 @@ class Editor(QtWidgets.QMainWindow):
 #             print(f'current: {current[0]}, {current[1].text}')
 
         # Sets plain text in textEdit before moving on to highlighting
-        text = self.tokenManager.getString()
-        self.textEdit.setPlainText(text)
+        text = self.tokenManager.getString() # after tokenize
+        textOnEditor = self.textEdit.toPlainText() # text on editor
+
+        # text = 'aaccaaddd'
+        # changes = [('=', 'a'), ('-', 'c'), ('=', 'a'), ('+', 'ccaadd'), ('=', 'd')]
+        # text = 'adbbb' # 刪多個
+        # changes = [('=', 'a'), ('-', 'cad'), ('+', 'dbbb')]
+
+#         start = time.time() ##
+        if textOnEditor == "" or not tokens: # 沒經過 segment，沒有 tokens
+            self.textEdit.setPlainText(text)
+        elif text != textOnEditor:
+#             text = "aaaaaa" + text + "fffffffffff"
+#             start2 = time.time() ##
+            changes = diff(textOnEditor, text, timelimit=0, checklines=False,
+                               counts_only=False)
+#             end2 = time.time() ##
+#             print(f'refreshView-diff-changes: {round((end2-start2) * 1000, 2)}ms') ##
+
+            self.textEdit.blockSignals(True)
+            self.textEdit.document().blockSignals(True)
+
+            # cursor 先設定最前面，隨著 changes 新增/刪除，修改 cursor
+            cursor = self.textEdit.textCursor()
+            cursor.setPosition(0)
+            pos = 0
+            for op, string in changes:
+                lenOfString = len(string)
+                if op == "-" or op == "+":
+                    if op == "-": # 刪的情況下，cursor 不用重新定
+                        if lenOfString > 1:
+                            for e in range(lenOfString):
+                                cursor.deleteChar()
+                        else:
+                            cursor.deleteChar()
+                    else:
+                        cursor.insertText(string)
+                        pos += lenOfString
+                        cursor.setPosition(pos)
+                else:
+                    pos += len(string)
+                cursor.setPosition(pos)
+
+            self.textEdit.blockSignals(False)
+            self.textEdit.document().blockSignals(False)
+        else: # no any changes, ignore.
+            pass
+#             print("no changes")
+
+#         end = time.time() ##
+#         print(f'refreshView-diff: {round((end-start) * 1000, 2)}ms') ##
+
+        self.textEdit.blockSignals(True)
+        self.textEdit.document().blockSignals(True)
 
         if current is not None:
             textCursor.setPosition(currentToken.start + distance)
@@ -644,6 +702,10 @@ class Editor(QtWidgets.QMainWindow):
 
         self.ignoreCursorPositionChanged(
             self.textEdit.setTextCursor)(textCursor)
+
+        self.textEdit.blockSignals(False)
+        self.textEdit.document().blockSignals(False)
+
         self.refreshCoverage()
 
         # print([t.text for t in self.tokens])

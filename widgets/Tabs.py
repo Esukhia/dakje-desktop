@@ -52,6 +52,8 @@ class LevelTab(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.editor = self.parent().parent().parent()
+
         self.initGrids()
         self.initForms()
         self.initTextBrowser()
@@ -61,10 +63,6 @@ class LevelTab(QtWidgets.QWidget):
         self.vbox.addSpacing(50)
         self.vbox.addLayout(self.forms)
         self.vbox.addWidget(self.textBrowser)
-
-    @property
-    def editor(self):
-        return self.parent().parent().parent()
 
     def initGrids(self):
         self.grids = QtWidgets.QGridLayout()
@@ -149,7 +147,7 @@ class LevelTab(QtWidgets.QWidget):
 
         for checkbox in (self.levelNoneCheckbox, self.level1Checkbox,
                          self.level2Checkbox, self.level3Checkbox, self.level4Checkbox):
-            checkbox.clicked.connect(self.editor.refreshView)
+            checkbox.clicked.connect(self.onChecked)
 
         self.levelCoverages = [
             [self.levelNoneCheckbox, self.levelNoneButton, self.levelNoneProgBar],
@@ -180,6 +178,8 @@ class LevelTab(QtWidgets.QWidget):
             add a + button in the grid
         """
 
+    def onChecked(self, checked):
+        self.editor.refreshView()
 
     def initForms(self):
         self.forms = QtWidgets.QFormLayout()
@@ -191,7 +191,7 @@ class LevelTab(QtWidgets.QWidget):
         self.statisticsLabel.setFont(self.editor.uiFont)
 
         # self.forms.addRow(self.statisticsLabel)
-        self.editor.refreshCoverage
+        # self.editor.refreshCoverage
 
         # self.freqLabel = QtWidgets.QLabel('0')
         self.wordCountLabel = QtWidgets.QLabel('0')
@@ -222,6 +222,8 @@ class EditorTab(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
 
+        self.editor = self.parent().parent().parent()
+
         self.initErrorGrids()
         self.initErrorList()
         self.initCoverageGrids()
@@ -233,10 +235,6 @@ class EditorTab(QtWidgets.QWidget):
         self.vbox.addSpacing(50)
         self.vbox.addLayout(self.coverageGrids)
         self.vbox.addWidget(self.textBrowser)
-
-    @property
-    def editor(self):
-        return self.parent().parent().parent()
 
     def initErrorGrids(self):
         self.errorGrids = QtWidgets.QGridLayout()
@@ -276,7 +274,7 @@ class EditorTab(QtWidgets.QWidget):
 
         for checkbox in (self.firstFreqCheckbox, self.secondFreqCheckbox,
                          self.thirdFreqCheckbox):
-            checkbox.clicked.connect(self.editor.refreshView)
+            checkbox.clicked.connect(self.onChecked)
 
         self.coverageGrids = QtWidgets.QGridLayout()
         self.coverageLabel = QtWidgets.QLabel(str(_('Coverages')))
