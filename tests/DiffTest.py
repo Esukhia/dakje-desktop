@@ -13,6 +13,7 @@ django.setup()
 
 import unittest
 import pybo
+import botok
 from diff_match_patch import diff
 from managers import TokenManager
 from managers.TokenManager import TokenList, Token
@@ -26,27 +27,12 @@ class MockEditor(unittest.TestCase):
             'POS',
             tok_modifs= self.tokenManager.TRIE_MODIF_DIR
         )
-##要改
-# class MyToken(Token):
-#     def __init__(self, text):
-#         t = pybo.Token()
-#         t.text = text
-#         super().__init__(t)
 
-class MyToken:
+class MyToken(Token):
     def __init__(self, text):
-        self.text = text
-        self.start = 0
-        self.end = self.start + len(self.text)
-        self.tok_profile = "POS"
-        self.tok_modifs = None
-        self.tok_mode = "internal"
-        self.ignore_chars = None
-        self.adj_profile = "basic"
-        self.adj_modifs = None
-        self.adj_mode = "internal"
-        self.conf_path = None
-        self.build_trie = False
+        t = botok.tokenizers.token.Token()
+        t.text = text
+        super().__init__(t)
 
 class TokenListTest(unittest.TestCase):
 
@@ -67,12 +53,18 @@ class TokenListTest(unittest.TestCase):
         self.assertEqual(newEnd, answer)
 
         oldTokenL = oriOldTokenL.copy()
-        oldTokenL[0] = tokenL
+        oldTokenL[0] = tokenL[0]
         newEnd = oldTokenL[-1].end
         self.assertEqual(newEnd, answer)
 
         oldTokenL = oriOldTokenL.copy()
-        oldTokenL[-1] = tokenL
+        oldTokenL[-1] = tokenL[0]
+        newEnd = oldTokenL[-1].end
+        self.assertEqual(newEnd, answer)
+
+        answer = 3 # 答案是 1(因為換一個字 p)
+        oldTokenL.append(tokenL)
+        oldTokenL[-2:] = oriOldTokenL
         newEnd = oldTokenL[-1].end
         self.assertEqual(newEnd, answer)
 
