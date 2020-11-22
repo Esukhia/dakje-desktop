@@ -134,10 +134,12 @@ class Editor(QtWidgets.QMainWindow):
 #                                  self.textChanged)
 
     def initTokenizer(self):
-        self.tokenizer = Tokenizer(
-            'POS',
-            tok_modifs= self.tokenManager.TRIE_MODIF_DIR
-        )
+        # self.tokenizer = Tokenizer(
+        #     'POS',
+        #     tok_modifs= self.tokenManager.TRIE_MODIF_DIR
+        # )
+        config = botok.Config.from_path(self.tokenManager.LANG_PACK_DIR)
+        self.tokenizer = botok.WordTokenizer(config=config)
 
 
     def initProperties(self):
