@@ -40,7 +40,7 @@ from web.settings import (
 if TEST_BY_ENG:
     from tests import EngTokenizer as Tokenizer
 else:
-    from pybo import WordTokenizer as Tokenizer
+    from botok import WordTokenizer as Tokenizer
 
 from storage.models import Token, Setting
 # flushes the Tokens on start, should be in a function
@@ -139,7 +139,7 @@ class Editor(QtWidgets.QMainWindow):
         #     tok_modifs= self.tokenManager.TRIE_MODIF_DIR
         # )
         config = botok.Config.from_path(self.tokenManager.LANG_PACK_DIR)
-        self.tokenizer = botok.WordTokenizer(config=config)
+        self.tokenizer = Tokenizer(config=config)
 
 
     def initProperties(self):
