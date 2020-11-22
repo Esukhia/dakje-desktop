@@ -1,15 +1,15 @@
 import time
 # django setup
 import os
-import logging
 from horology import timed
 import multiprocessing
 
 import django
+import pybo
 import botok
 from PyQt5.QtGui import QTextCursor
 from PyQt5.QtWidgets import QTextEdit, QApplication
-from PyQt5.QtCore import QThread, pyqtSignal, QThreadPool, QElapsedTimer
+from PyQt5.QtCore import pyqtSignal
 from django.db.backends.base.features import BaseDatabaseFeatures
 from turtledemo.penrose import star
 from django.conf.locale import tr
@@ -34,7 +34,13 @@ from widgets import (MenuBar, ToolBar, StatusBar, CentralWidget,
 
 from managers import ActionManager, TokenManager, ViewManager, FormatManager, Token
 from managers.TokenManager import TokenList
-from web.settings import BASE_DIR, FILES_DIR
+from web.settings import (
+    BASE_DIR, FILES_DIR, _SEG_TRIGGERS as _SEG_TRIGGERS, TEST_BY_ENG)
+
+if TEST_BY_ENG:
+    from tests import EngTokenizer as Tokenizer
+else:
+    from pybo import WordTokenizer as Tokenizer
 
 from storage.models import Token, Setting
 # flushes the Tokens on start, should be in a function
@@ -77,25 +83,9 @@ def ignoreEvent(signal):
         return f
     return d
 
-class StatThread(QThread):
-    def __init__(self, stat):
-        super(StatThread, self).__init__()
-        self.stat = stat
-
-    def run(self):
-        self.stat.jobOfStatistics()
-
-class RefreshThread(QThread):
-    def __init__(self, refresh):
-        super(RefreshThread, self).__init__()
-        self.refresh = refresh
-
-    def run(self):
-        self.refresh.jobOfRefreshCoverage()
-
 class Editor(QtWidgets.QMainWindow):
     BASE_DIR = os.path.dirname(__name__)
-    SEG_TRIGGERS = ['་', '།', '\n', ',']
+    SEG_TRIGGERS = _SEG_TRIGGERS
 
     @timed(unit='ms')
     def __init__(self, parent=None):
@@ -121,10 +111,8 @@ class Editor(QtWidgets.QMainWindow):
         # setPlainText -> textChanged, do not want it doing every time.
         # so, add textChange signal into itself (ignoreSignals)
         # if trigger(setPlainText.ignoreSignal == textChange), skip
-        self.textEdit.setPlainText = self.ignoreTextChanged(
-            self.ignoreCursorPositionChanged(self.textEdit.setPlainText))
-        self.textEdit.setSelection = self.ignoreTextChanged(
-            self.ignoreCursorPositionChanged(self.textEdit.setSelection))
+        self.textEdit.setPlainText = self.ignoreCursorPositionChanged(self.textEdit.setPlainText)
+        self.textEdit.setSelection = self.ignoreCursorPositionChanged(self.textEdit.setSelection)
         self.initLevelProfile()
 
     # why?
@@ -140,14 +128,16 @@ class Editor(QtWidgets.QMainWindow):
                                  QTextEdit.cursorPositionChanged,
                                  self.cursorPositionChanged)
 
-    def ignoreTextChanged(self, func):
-        return self._ignoreEvent(func,
-                                 QTextEdit.textChanged,
-                                 self.textChanged)
+#     def ignoreTextChanged(self, func):
+#         return self._ignoreEvent(func,
+#                                  QTextEdit.textChanged,
+#                                  self.textChanged)
 
     def initTokenizer(self):
-        config = botok.Config.from_path(self.tokenManager.LANG_PACK_DIR)
-        self.tokenizer = botok.WordTokenizer(config=config)
+        self.tokenizer = Tokenizer(
+            'POS',
+            tok_modifs= self.tokenManager.TRIE_MODIF_DIR
+        )
 
 
     def initProperties(self):
@@ -239,7 +229,7 @@ class Editor(QtWidgets.QMainWindow):
 
     def bindEvents(self):
         self.bindCursorPositionChanged()
-        self.bindTextChanged()
+#         self.bindTextChanged()
         self.bindProfileButton()
         self.bindProfileCheckbox()
         self.bindLevelButtons()
@@ -248,8 +238,8 @@ class Editor(QtWidgets.QMainWindow):
     def bindCursorPositionChanged(self):
         self.textEdit.cursorPositionChanged.connect(self.cursorPositionChanged)
 
-    def bindTextChanged(self):
-        self.textEdit.textChanged.connect(self.textChanged)
+#     def bindTextChanged(self):
+#         self.textEdit.textChanged.connect(self.textChanged)
 
     def bindProfileButton(self):
         self.levelTab.levelProfileButton.clicked.connect(
@@ -288,7 +278,7 @@ class Editor(QtWidgets.QMainWindow):
             self.levelTab.level2Checkbox.setChecked(False)
             self.levelTab.level3Checkbox.setChecked(False)
             self.levelTab.level4Checkbox.setChecked(False)
-        self.segment()
+        self.segment(isHighlight=True)
 
     def closeEvent(self, *args, **kwargs):
 
@@ -303,9 +293,17 @@ class Editor(QtWidgets.QMainWindow):
 
     def paste(self):
         self.textEdit.paste()
+        string = self.textEdit.toPlainText()
+        if any(e in string for e in self.SEG_TRIGGERS):
+            self.segment()
+#             print('paste string, including SEG_TRIGGERS -> doing the segment')
 
     def cut(self):
         self.textEdit.cut()
+        string = self.textEdit.toPlainText()
+        if any(e in string for e in self.SEG_TRIGGERS):
+            self.segment()
+#             print('cut string, including SEG_TRIGGERS -> doing the segment')
 
     def toggleSpaceView(self):
         if self.viewManager.isPlainTextView():
@@ -321,18 +319,19 @@ class Editor(QtWidgets.QMainWindow):
         self.refreshView()
 
     @timed(unit='ms', name='editor.segment: ')
-    def segment(self, byShunit=True, breakLine=False):
+    def segment(self, byShunit=True, breakLine=False, isHighlight=False):
         """
         1. Gets the text in textedit, 2. segments it with pybo,
         3. assigns a lists of Token objects to self.tokens,
         4. displays text with refreshview().
-
         """
         print('editor.segment: start')
         # python profile
         tokenStart = None
         tokenEnd = None
         afterChangingString = ''
+        oldTokenListForChange = []
+        newTokens = []
         if byShunit:
             # find shunit in
             oldText = self.tokenManager.getString() # རྒྱ་གར་སྐད་དུ། བོ་དྷི་ས་ཏྭ་ཙརྱ་ཨ་བ་ཏ་ར།
@@ -347,35 +346,43 @@ class Editor(QtWidgets.QMainWindow):
                     self.tokenManager.diff(tokens, oldText, newText)
                 # 新的字串做 segment
                 newTokens = self.tokenManager.segment(afterChangingString)
+                if newTokens:
+                    oldTokenListForChange = tokens[tokenStart:tokenEnd + 1]
 
                 if tokenStart == tokenEnd and \
                     not (tokenStart == 0) and \
                     not tokens[-1].text in afterChangingString:
-                    start = time.time() ##
+#                     start = time.time() ##
                     if newTokens:
-                        if newTokens[0] == '།' or newTokens[0] == '\n':
+                        if (newTokens[0].text == '།'
+                            or newTokens[0].text == '\n') \
+                            and len(newTokens) > 1:
+                            # and() -> 只有一個時，不能從 1 開始
                             self.tokens.extend(newTokens[1:])
                         else:
                             self.tokens.extend(newTokens[0:])
-                    end = time.time() ##
-                    print(f'self.tokens.extend(): {round((end-start) * 1000, 2)}ms') ##
+#                     end = time.time() ##
+#                     print(f'self.tokens.extend(): {round((end-start) * 1000, 2)}ms') ##
                 elif tokenStart == 0 and tokenEnd == 0:
-                    start = time.time() ##
+#                     start = time.time() ##
                     string = self.centralWidget.textEdit.toPlainText()
                     self.tokens = self.tokenManager.segment(string)
-                    end = time.time() ##
-                    print(f'no change(toPlainText、segment all text): {round((end-start) * 1000, 2)}ms') ##
+#                     end = time.time() ##
+#                     print(f'no change(toPlainText、segment all text): {round((end-start) * 1000, 2)}ms') ##
                 else:
-                    start = time.time() ##
+#                     start = time.time() ##
                     self.tokens[tokenStart:tokenEnd + 1] = newTokens
-                    end = time.time() ##
-                    print(f'self.tokens[tokenStart:tokenEnd + 1] = newTokens: {round((end-start) * 1000, 2)}ms') ##
+#                     end = time.time() ##
+#                     print(f'self.tokens[tokenStart:tokenEnd + 1] = newTokens: {round((end-start) * 1000, 2)}ms') ##
+
+                # 這裡是重新加上新的 token 後，tokenEnd 要重新拿，才能做後面計算如 applyDict
+                tokenEnd = tokenStart + len(newTokens)
         else:
             string = self.centralWidget.textEdit.toPlainText()
             self.tokens = self.tokenManager.segment(string)
 
         start = time.time() ##
-        self.refreshView(tokens, tokenStart, tokenEnd)
+        self.refreshView(isHighlight, tokens, tokenStart, tokenEnd, oldTokenListForChange, newTokens)
         end = time.time() ##
         print(f'refreshView: {round((end-start) * 1000, 2)}ms') ##
         print('editor.segment: end')
@@ -457,25 +464,25 @@ class Editor(QtWidgets.QMainWindow):
         self.showStatus(ln=cursor.blockNumber() + 1,
                         col=cursor.columnNumber() + 1)
 
-    @ignoreEvent(QTextEdit.textChanged)
-    def textChanged(self):
-        if self.viewManager.isPlainTextView():
-            string = self.textEdit.toPlainText()
-
-            if any([string.endswith(w) for w in self.SEG_TRIGGERS]):
-                self.segment()
+#     @ignoreEvent(QTextEdit.textChanged)
+#     def textChanged(self):
+#         if self.viewManager.isPlainTextView():
+#             string = self.textEdit.toPlainText()
+#
+#             if any([string.endswith(w) for w in self.SEG_TRIGGERS]):
+#                 self.segment()
 #                 print('option1')
-                # self.segment(byBlock=True)
-
-            elif string.endswith('\n'):
-                self.segment()
+#                 # self.segment(byBlock=True)
+#
+#             elif string.endswith('\n'):
+#                 self.segment()
 #                 print('option2')
-                # TODO: block mode: bug - if we delete text and try to rewrite new
-                # text it copies the already saved text.
-                # self.segment(byBlock=True, breakLine=True)
-
-            elif string == '':
-                self.segment()
+#                 # TODO: block mode: bug - if we delete text and try to rewrite new
+#                 # text it copies the already saved text.
+#                 # self.segment(byBlock=True, breakLine=True)
+#
+#             elif string == '':
+#                 self.segment()
 #                 print('option3')
 
     def initLevelProfile(self):
@@ -606,16 +613,11 @@ class Editor(QtWidgets.QMainWindow):
 
     def findShunit(self):
         # shunit is the text block between two shad
-
-
-
         pass
-
 
     # Refresh #
     # @timed(unit='ms')    # TypeError: refreshView() takes 1 positional argument but 2 were given
-#     def refreshView(self, tokens=None, tokenStart=None, tokenEnd=None, afterChangingString=''):
-    def refreshView(self, tokens=None, tokenStart=None, tokenEnd=None):
+    def refreshView(self, isHighlight=False, tokens=None, tokenStart=None, tokenEnd=None, oldTokenListForChange=None, newTokens=None):
         """
         Refreshes the view without segmenting
             :param self:
@@ -642,24 +644,15 @@ class Editor(QtWidgets.QMainWindow):
         text = self.tokenManager.getString() # after tokenize
         textOnEditor = self.textEdit.toPlainText() # text on editor
 
-        # text = 'aaccaaddd'
-        # changes = [('=', 'a'), ('-', 'c'), ('=', 'a'), ('+', 'ccaadd'), ('=', 'd')]
-        # text = 'adbbb' # 刪多個
-        # changes = [('=', 'a'), ('-', 'cad'), ('+', 'dbbb')]
-
 #         start = time.time() ##
-        if textOnEditor == "" or not tokens: # 沒經過 segment，沒有 tokens
+        if textOnEditor == "" or not tokens or isHighlight: # 沒經過 segment，沒有 tokens
             self.textEdit.setPlainText(text)
         elif text != textOnEditor:
-#             text = "aaaaaa" + text + "fffffffffff"
 #             start2 = time.time() ##
             changes = diff(textOnEditor, text, timelimit=0, checklines=False,
                                counts_only=False)
 #             end2 = time.time() ##
 #             print(f'refreshView-diff-changes: {round((end2-start2) * 1000, 2)}ms') ##
-
-            self.textEdit.blockSignals(True)
-            self.textEdit.document().blockSignals(True)
 
             # cursor 先設定最前面，隨著 changes 新增/刪除，修改 cursor
             cursor = self.textEdit.textCursor()
@@ -675,19 +668,15 @@ class Editor(QtWidgets.QMainWindow):
                         else:
                             cursor.deleteChar()
                     else:
-                        cursor.insertText(string)
+                        cursor.insertText(string) #會觸發 highlighter
                         pos += lenOfString
                         cursor.setPosition(pos)
                 else:
                     pos += len(string)
                 cursor.setPosition(pos)
 
-            self.textEdit.blockSignals(False)
-            self.textEdit.document().blockSignals(False)
         else: # no any changes, ignore.
             pass
-#             print("no changes")
-
 #         end = time.time() ##
 #         print(f'refreshView-diff: {round((end-start) * 1000, 2)}ms') ##
 
@@ -705,7 +694,7 @@ class Editor(QtWidgets.QMainWindow):
         self.textEdit.blockSignals(False)
         self.textEdit.document().blockSignals(False)
 
-        self.refreshCoverage()
+        self.refreshCoverage(oldTokenListForChange, newTokens)
 
         # print([t.text for t in self.tokens])
         # TODO current shunit
@@ -713,12 +702,7 @@ class Editor(QtWidgets.QMainWindow):
             '  ' + ' '.join([t.text for t in self.tokens[-19:]]))
 
     @timed(unit='ms')
-    def statistics(self):
-#         self.threadOfStatistics = StatThread(self)
-#         self.statThreads.append(self.threadOfStatistics)
-#         self.threadOfStatistics.start()
-#
-#     def jobOfStatistics(self):
+    def statistics(self, oldTokenListForChange, newTokens):
         # to do: bug fix -
         # if we press enter twice sentence count reinitializes
         # you need to press on enter for it to recognize that the text editor is empty
@@ -726,43 +710,58 @@ class Editor(QtWidgets.QMainWindow):
         # It always counts the first enter
 
         # Statistics - analyze the text in the text editor
-
-        wordCount = 0  # number of words written
-        sentenceCount = 0  # number of sentence written - each new line is considered one sentnece
-        typeCount = 0  # number of words used
-        max = 0  # maximum number of words in a sentence - longest sentence
-        counts = dict()
-        sentenceWordCount = []  # records the number of words in each sentence
-        wordSentence = 0  # words in a sentence
-        verbsPerSen = 0  # verbs in a sentence
-        verbSentence = []  # records the number of verbs in each sentence
-
         # parse through the list and not count the newline
         # for now every newline is considered a completion of one sentence
-        for token in self.tokens:
-
-            if token.text == "།":
-                continue
-            if token.text != "\n":
-                wordCount += 1
-                wordSentence += 1
-                if token.pos == "VERB":
-                    verbsPerSen += 1
-                if token.text in counts:
+        def calculateDifferentTypeCountByTokens(tokens):
+            wordCount = 0  # number of words written
+            sentenceCount = 0  # number of sentence written - each new line is considered one sentnece
+            typeCount = 0  # number of words used
+            max = 0  # maximum number of words in a sentence - longest sentence
+            counts = dict()
+            sentenceWordCount = []  # records the number of words in each sentence
+            wordSentence = 0  # words in a sentence
+            verbsPerSen = 0  # verbs in a sentence
+            verbSentence = []  # records the number of verbs in each sentence
+            for token in tokens:
+                if token.text == "།":
                     continue
+                if token.text != "\n":
+                    wordCount += 1
+                    wordSentence += 1
+                    if token.pos == "VERB":
+                        verbsPerSen += 1
+                    if token.text in counts:
+                        continue
+                    else:
+                        counts[token.text] = 1
+                        typeCount += 1
                 else:
-                    counts[token.text] = 1
-                    typeCount += 1
-            else:
-                if wordCount == 0:
-                    continue
-                verbSentence.append(verbsPerSen)
-                sentenceCount += 1
-                sentenceWordCount.append(wordSentence)
-                if max < sentenceWordCount[sentenceCount - 1]:
-                    max = sentenceWordCount[sentenceCount - 1]
-                wordSentence = 0
-                verbsPerSen = 0
+                    if wordCount == 0:
+                        continue
+                    verbSentence.append(verbsPerSen)
+                    sentenceCount += 1
+                    sentenceWordCount.append(wordSentence)
+                    if max < sentenceWordCount[sentenceCount - 1]:
+                        max = sentenceWordCount[sentenceCount - 1]
+                    wordSentence = 0
+                    verbsPerSen = 0
+            return wordCount, sentenceCount, typeCount, max
+
+        if oldTokenListForChange and newTokens:
+            wordCountBeDel, sentenceCountBeDel, typeCountBeDel, maxBeDel = calculateDifferentTypeCountByTokens(oldTokenListForChange)
+            wordCountBeAdd, sentenceCountBeAdd, typeCountBeAdd, maxBeAdd = calculateDifferentTypeCountByTokens(newTokens)
+            wordCount = self.wordCount - wordCountBeDel + wordCountBeAdd
+            sentenceCount = self.sentenceCount - sentenceCountBeDel + sentenceCountBeAdd
+            typeCount = self.typeCount - typeCountBeDel + typeCountBeAdd
+            max  = self.max - maxBeDel + maxBeAdd
+        else:
+            wordCount, sentenceCount, typeCount, max = calculateDifferentTypeCountByTokens(self.tokens)
+
+
+        self.wordCount = wordCount
+        self.typeCount = typeCount
+        self.sentenceCount = sentenceCount
+        self.max = max
 
         # print("maximum words in a sentence: ", max)
         # print("word count: ", wordCount)
@@ -781,16 +780,18 @@ class Editor(QtWidgets.QMainWindow):
         self.levelTab.maxWordLabel.setText(str(max))
 
     @timed(unit='ms')
-    def refreshCoverage(self):
-#         self.threadOfRefresh = RefreshThread(self)
-#         self.refreshThreads.append(self.threadOfRefresh)
-#         self.threadOfRefresh.start()
-#
-#     def jobOfRefreshCoverage(self):
-        tokenNum = sum(1 for t in self.tokens if t.type == 'TEXT')
+    def refreshCoverage(self, oldTokenListForChange, newTokens):
+        if oldTokenListForChange and newTokens:
+            tokenNumBeDel = sum(1 for t in oldTokenListForChange if t.type == 'TEXT')
+            tokenNumBeAdd = sum(1 for t in newTokens if t.type == 'TEXT')
+            tokenNum = self.OldtokenNum - tokenNumBeDel + tokenNumBeAdd
+        else:
+            tokenNum = sum(1 for t in self.tokens if t.type == 'TEXT')
+
+        self.OldtokenNum = tokenNum
         # print('tokenNum: ', tokenNum)
 
-#         self.statistics()
+        self.statistics(oldTokenListForChange, newTokens)
 
         levelCounter = Counter([
             token.level for token in self.tokens if token.type == 'TEXT'])
@@ -903,7 +904,6 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     window = Editor()
     window.show()
-
 
     try:
         sys.exit(app.exec_())

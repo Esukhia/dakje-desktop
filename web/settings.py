@@ -99,3 +99,16 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
 STATIC_URL = '/static/'
+
+_SEG_TRIGGERS = ['་', '།', '\n', ',']
+
+TEST_BY_ENG = False
+
+if TEST_BY_ENG:
+    from tests import createDebugLogger as createLogger
+
+    _SEG_TRIGGERS.append('.')
+else:
+#     from tests import createDebugLogger as createLogger
+    import logging
+    createLogger = lambda name, *args, **kws: logging.Logger(name)

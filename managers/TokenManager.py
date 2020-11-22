@@ -4,7 +4,7 @@
 
 import os
 import time
-
+import botok
 from pathlib import Path
 # from PyQt5.QtCore import QThread, pyqtSignal
 
@@ -14,11 +14,13 @@ from .ViewManager import ViewManager
 from . import Matchers
 from web.settings import BASE_DIR
 from web.settings import FILES_DIR
+from web.settings import createLogger
+from web.settings import TEST_BY_ENG
+
+logger = createLogger(__name__, "Tokens.txt")
 
 from horology import timed
 from diff_match_patch import diff
-from click.core import fast_exit
-from django.db.backends.base.features import BaseDatabaseFeatures
 
 class TokenList(list):
 
@@ -34,6 +36,11 @@ class TokenList(list):
                 token.start = self[i + tokensStart - 1].end
             token.end = token.start + lenOfEachTokenText
 
+    def __init__(self, tokens=[]):
+        super().__init__(tokens)
+        if tokens:
+            self.setTokensStartAndEnd(0)
+
     def __delitem__(self, key):
         super().__delitem__(key)
         self.setTokensStartAndEnd(key - 1)
@@ -44,9 +51,11 @@ class TokenList(list):
         self.setTokensStartAndEnd(key - 1)
 
     def __getitem__(self, key):
+#         print('get')
         return super().__getitem__(key)
 
     def __setitem__(self, key, val):
+#         print('set')
         if isinstance(key, slice):
             start, stop, step = key.indices(len(self))
             tokensStart = start
@@ -194,23 +203,10 @@ class TokenManager:
     @timed(unit='ms', name='TokenManager.segment: ')
     def segment(self, string):
         tokens = self.editor.tokenizer.tokenize(string, spaces_as_punct=True)
-        return TokenList([Token(t) for t in tokens])
-#         return [Token(t) for t in tokens]
 
-    # create display string for textEdit
-#     def _join(self, tokens, toStr, sep=''):
-# #         blockIndex = 0
-#         result = ''
-#         for i, token in enumerate(tokens):
-# #             token.blockIndex = blockIndex
-#             token.start = len(result)
-#             result += (toStr(token) + sep if i != len(tokens) - 1
-#                        else toStr(token))
-#             token.end = len(result)
-# #             if token.text.endswith(('\n', ' ')):
-# #                 blockIndex += 1
-# #         print(f'_join: {result}, block: {blockIndex}')
-#         return result
+#         logger.debug(str(tokens))
+
+        return TokenList([Token(t) for t in tokens])
 
     def _join(self, tokens, toStr, sep):
         result = []
@@ -291,6 +287,7 @@ class TokenManager:
         oldString = ''
         newString = ''
         sameStringLength = 0
+        changePosList = []
         isDeleteShey = False
         isDeleteLastShey = False
         sheyIsMoreThanOne = False
@@ -326,14 +323,18 @@ class TokenManager:
                             start = -1
 
                     changePos = len(oldString)
+                    changePosList.append(changePos)
                     # 當是加入 ། 時，換的位置+1，讓後面找 endNew 時不會用到現在加的
                     if string == '།':
                         changePos += 1
+                        changePosList.append(changePos)
                     # 當增加很多文字時， ། 在其中有很多個，需要找到最後一個
                     numOfShey = string.count('།')
                     if numOfShey > 1:
                         sheyIsMoreThanOne = True
                 else:
+                    if i == 0:
+                        start = 0
                     oldString = oldString + string
                     newStringLength = len(newString)
                     if '།' in oldString:
@@ -346,6 +347,7 @@ class TokenManager:
 
                     # op == "-" 時才找得到
                     changePos = oldString.find(string, sameStringLength - 1)
+                    changePosList.append(changePos)
                     # 當是刪除 ། 時，且所在位置前一個非 ། 無，換的位置-1，讓後面找 endOld 時不會用到現在的
                     if string == '།' and changes[i-1][1][-1] != '།':
                         isDeleteShey = True
@@ -369,9 +371,11 @@ class TokenManager:
 
             i += 1
 
+        changePosForLastOne = max(changePosList)
+        changePosForFirstOne = min(changePosList)
         # 往後 scan ，結束位置
-        endOld = oldString.find('།', changePos)
-        endNew = newString.find('།', changePos)
+        endOld = oldString.find('།', changePosForLastOne)
+        endNew = newString.find('།', changePosForLastOne)
         if (endOld == -1 and endNew == -1) or sheyIsMoreThanOne:
             endOld = len(oldString) - 1
             endNew = len(newString) - 1
@@ -382,13 +386,17 @@ class TokenManager:
             endOld = endNew + 1
         if isDeleteLastShey:
             endNew = endOld - 1
+        if changePosForFirstOne == -1: # 表示為最一開始刪除
+            start = 0
 
         # 在文章最後面加字
-        if (tokens[-1].end == changePos) or (changePos == -1):
-            if (tokens[-1].end == changePos):
+        if ((changePosForLastOne == tokens[-1].end) or (changePosForLastOne == -1)) \
+            and len(changePosList) == 1:
+            if (tokens[-1].end == changePosForLastOne):
                 start = len(oldString)
             tokenLength = len(tokens)
             tokenStart, tokenEnd = tokenLength, tokenLength
+
         else: # 修改處字串的開始到結束，找是 token 的哪裡開始到哪裡結束
             # 找 tokenStart
             i = 0

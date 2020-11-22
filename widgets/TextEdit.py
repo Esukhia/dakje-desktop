@@ -100,21 +100,46 @@ class CustomUndoTextEdit(QTextEdit):
             else:
                 QTextEdit.keyPressEvent(self, event)
 
-        else:
-            if event.key() == (Qt.Key_Control and Qt.Key_Z):
+        elif self.editor.viewManager.isPlainTextView():
+            # segment
+            if event.text() in self.editor.SEG_TRIGGERS or event.text() == '\r':
+                # when press triggers, doing the segment
+                QTextEdit.keyPressEvent(self, event)
+                self.editor.segment()
+#                 print('when press triggers, doing the segment')
+            elif event.key() == (Qt.Key_Control and Qt.Key_V):
+                if event.text() == 'v':
+                    QTextEdit.keyPressEvent(self, event)
+                else:
+                    self.editor.paste()
+            elif event.key() == (Qt.Key_Control and Qt.Key_X):
+                if event.text() == 'x':
+                    QTextEdit.keyPressEvent(self, event)
+                else:
+                    self.editor.cut()
+
+            elif event.key() == (Qt.Key_Control and Qt.Key_Z):
 #                 print("press Undo")
                 if event.text() == 'z':
                     QTextEdit.keyPressEvent(self, event)
                 else:
                     self.undo()
+                    self.editor.segment()
             elif event.key() == (Qt.Key_Control and Qt.Key_Y):
 #                 print("press Redo")
                 if event.text() == 'y':
                     QTextEdit.keyPressEvent(self, event)
                 else:
                     self.redo()
+                    self.editor.segment()
             else: # call base class keyPressEvent
-                QTextEdit.keyPressEvent(self, event)
+                if event.key() == (Qt.Key_Control and Qt.Key_V) or \
+                    event.key() == (Qt.Key_Control and Qt.Key_X):
+                    pass
+                else:
+                    QTextEdit.keyPressEvent(self, event)
+        else:
+            pass
 
 
     def onTextChanged(self):

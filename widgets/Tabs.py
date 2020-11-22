@@ -179,7 +179,7 @@ class LevelTab(QtWidgets.QWidget):
         """
 
     def onChecked(self, checked):
-        self.editor.refreshView()
+        self.editor.segment(isHighlight=True)
 
     def initForms(self):
         self.forms = QtWidgets.QFormLayout()
