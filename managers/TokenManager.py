@@ -371,6 +371,7 @@ class TokenManager:
 
             i += 1
 
+
         changePosForLastOne = max(changePosList)
         changePosForFirstOne = min(changePosList)
         # 往後 scan ，結束位置
@@ -388,6 +389,9 @@ class TokenManager:
             endNew = endOld - 1
         if changePosForFirstOne == -1: # 表示為最一開始刪除
             start = 0
+
+        # 讓他可以找到最初的 start
+        start = changePosForFirstOne
 
         # 在文章最後面加字
         if ((changePosForLastOne == tokens[-1].end) or (changePosForLastOne == -1)) \
