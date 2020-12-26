@@ -532,7 +532,7 @@ class Editor(QtWidgets.QMainWindow):
 
         # get file paths
         if self.LEVEL_PROFILE_PATH:
-            levelFiles = list(pathlib.Path(self.LEVEL_PROFILE_PATH).glob("*.txt"))
+            levelFiles = sorted(list(pathlib.Path(self.LEVEL_PROFILE_PATH).glob("*.txt")))
         else:
             return
 
@@ -553,7 +553,7 @@ class Editor(QtWidgets.QMainWindow):
 
     def reloadLevelProfile(self):
         self.setLevelProfile()
-        self.refreshView()
+        self.refreshView(isHighlight=True)
 
     # Import Level List
     def importLevelList(self, level, levelButton):
