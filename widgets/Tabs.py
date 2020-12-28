@@ -2,6 +2,8 @@ import os
 
 import pybo
 
+import pathlib
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from .CQLWidget import CqlQueryGenerator
@@ -87,8 +89,7 @@ class LevelTab(QtWidgets.QWidget):
 
         self.levelProfileCheckbox = QtWidgets.QCheckBox()
         self.levelProfileCheckbox.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
-        self.levelProfileLabel = QtWidgets.QLabel('')
-        # TODO change to "Change Profile" when profile already loaded
+        self.levelProfileLabel = QtWidgets.QLabel(pathlib.Path(self.editor.LEVEL_PROFILE_PATH).stem)
         self.grids.addWidget(self.levelProfileCheckbox, 2, 0, 1, 1)
         self.grids.addWidget(self.levelProfileButton, 2, 1, 1, 1)
         self.grids.addWidget(self.levelReloadButton, 2, 2, 1, 1)

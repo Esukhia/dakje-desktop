@@ -99,6 +99,7 @@ class Editor(QtWidgets.QMainWindow):
 
         self.initProperties()
         self.initManagers()
+        self.fetchLevelProfile()
         self.initUI()
         self.bindEvents()
         self.initTokenizer()
@@ -487,12 +488,14 @@ class Editor(QtWidgets.QMainWindow):
 #                 self.segment()
 #                 print('option3')
 
+    def fetchLevelProfile(self):
+        self.LEVEL_PROFILE_PATH = Setting.objects.get(key='profile_path').value
+
     def initLevelProfile(self):
         # load last level profile
         Setting.objects.update_or_create(key='profile_path')
         if Setting.objects.get(key='profile_path').value:
-            self.LEVEL_PROFILE_PATH = Setting.objects.get(key='profile_path').value
-
+            self.fetchLevelProfile()
             self.setLevelProfile()
 
     # Import Level Profile #
