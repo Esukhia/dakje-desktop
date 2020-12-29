@@ -41,6 +41,9 @@ class ProgressBar(QtWidgets.QProgressBar):
         super().__init__(parent)
 
         self.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVertical_Mask)
+        self.setMinimum(0)
+        # Set max number of steps to 10000 instead of 100 to make it possible to show float point percentage
+        self.setMaximum(10000)
         if value is not None:
             self.setValue(value)
 
