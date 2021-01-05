@@ -99,6 +99,7 @@ class Editor(QtWidgets.QMainWindow):
 
         self.initProperties()
         self.initManagers()
+        self.fetchLevelProfile()
         self.initUI()
         self.bindEvents()
         self.initTokenizer()
@@ -487,12 +488,14 @@ class Editor(QtWidgets.QMainWindow):
 #                 self.segment()
 #                 print('option3')
 
+    def fetchLevelProfile(self):
+        self.LEVEL_PROFILE_PATH = Setting.objects.get(key='profile_path').value
+
     def initLevelProfile(self):
         # load last level profile
         Setting.objects.update_or_create(key='profile_path')
         if Setting.objects.get(key='profile_path').value:
-            self.LEVEL_PROFILE_PATH = Setting.objects.get(key='profile_path').value
-
+            self.fetchLevelProfile()
             self.setLevelProfile()
 
     # Import Level Profile #
@@ -532,7 +535,7 @@ class Editor(QtWidgets.QMainWindow):
 
         # get file paths
         if self.LEVEL_PROFILE_PATH:
-            levelFiles = list(pathlib.Path(self.LEVEL_PROFILE_PATH).glob("*.txt"))
+            levelFiles = sorted(list(pathlib.Path(self.LEVEL_PROFILE_PATH).glob("*.txt")))
         else:
             return
 
@@ -553,7 +556,7 @@ class Editor(QtWidgets.QMainWindow):
 
     def reloadLevelProfile(self):
         self.setLevelProfile()
-        self.refreshView()
+        self.refreshView(isHighlight=True)
 
     # Import Level List
     def importLevelList(self, level, levelButton):
