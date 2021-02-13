@@ -806,12 +806,14 @@ class Editor(QtWidgets.QMainWindow):
             if tokenNum == 0:
                 return 0
             else:
-#                 print(f'{key}: {levelCounter[key] / tokenNum * 100.0}')
-                return levelCounter[key] / tokenNum * 100.0
+                # print(f'{key}: {levelCounter[key] / tokenNum * 10000}')
+                # Change percentage to
+                percentage = levelCounter[key] / tokenNum * 10000
+                return percentage
 
         # update
         if self.tokens:
-            self.levelTab.tokenCoverageProgBar.setValue(100 - getLevelPercentage(None))
+            self.levelTab.tokenCoverageProgBar.setValue(10000 - getLevelPercentage(None))
 
         self.levelTab.levelNoneProgBar.setValue(getLevelPercentage(None))
         self.levelTab.level1ProgBar.setValue(getLevelPercentage(1))
