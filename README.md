@@ -4,7 +4,7 @@
 
 ## Latest Installer
 
-* [Dakje beta_04 - Windows 64](https://github.com/Esukhia/dakje/releases/download/beta04/Dakje_beta_04.exe)
+* [Dakje beta_04 - Windows 64](https://github.com/Esukhia/dakje-desktop/releases/download/beta04/Dakje_beta_04.exe)
 
 
 ## Building from source
